@@ -1,0 +1,39 @@
+using System;
+using System.Data;
+using System.Configuration;
+using System.Collections;
+using System.Web;
+using System.Web.Security;
+using System.Web.UI;
+using System.Web.UI.WebControls;
+using System.Web.UI.WebControls.WebParts;
+using System.Web.UI.HtmlControls;
+
+using HDAPI;
+using LitJson;
+
+
+public partial class sample_download : System.Web.UI.Page
+{
+    protected void Page_Load(object sender, EventArgs e)
+    {
+        HDAPI.HDBase hd = new HDAPI.HDBase(Request);
+        Response.Write("<b>Downloading a snapshot of our handset database</b> (File Size is about 6 Mb)<br/>");
+        if (hd.download())
+        {
+            JsonData data = hd.getDownload();
+            foreach (JsonData o in data["device"])
+            {
+                try
+                {
+                    Response.Write(o.ToJson() + "<br>");
+                }
+                catch (Exception ex)
+                {
+                    
+                }
+            }
+        }
+    }
+}
+

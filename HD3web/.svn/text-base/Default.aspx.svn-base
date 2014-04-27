@@ -1,0 +1,39 @@
+﻿<%@ Page Language="C#" AutoEventWireup="true" CodeFile="Default.aspx.cs" Inherits="_Default" %>
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head runat="server">
+    <title>HDAPI samples</title>
+    <style type="text/css">
+        body
+        {
+            font-family: Trebuchet MS;
+        }
+    </style>
+</head>
+<body>
+    <form id="form1" runat="server">
+    <div>
+        <h2>
+            HDAPI Test</h2>
+        <a href="Test_Scripts/Default.aspx">Run Test Script</a> to test the HDAPI installation.<br />
+        <h2>
+            Additional Samples</h2>
+        <a href="sample_detect.aspx">sample_detect.aspx</a>
+        <br />
+        <a href="sample_detect2.aspx">sample_detect2.aspx</a><br />
+        <a href="sample_detectAll.aspx">sample_detectAll.aspx</a>
+        <br />
+        <a href="sample_devicetype.aspx">sample_devicetype.aspx</a>
+        <br />
+        <a href="sample_download.aspx">sample_download.aspx</a>
+        <br />
+        <a href="sample_information.aspx">sample_information.aspx</a>
+        <br />
+        <a href="sample_model.aspx">sample_model.aspx</a>
+        <br />
+        <a href="sample_vendor.aspx">sample_vendor.aspx</a>
+    </div>
+    </form>
+</body>
+</html>

@@ -1,0 +1,421 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>HDAPI</name>
+    </assembly>
+    <members>
+        <member name="T:Rei.Net.WSSEClient">
+            <summary>
+            WSSE Authentication Module
+            Custom authorization module of WSSE, which most of AtomAPI services use for authorization method. The module implements IAuthenticationModule interfaces and therefore it is compatible with WebRequest/Response authentication layer.
+            http://www.codeproject.com/KB/IP/WSSEClient.aspx
+            </summary>
+        </member>
+        <member name="M:Rei.Net.WSSEClient.#ctor">
+            <summary>
+            Initialization constructor
+            </summary>
+        </member>
+        <member name="M:Rei.Net.WSSEClient.Authenticate(System.String,System.Net.WebRequest,System.Net.ICredentials)">
+            <summary>
+            called by AuthenticationManager when the WebRequest needs authentication information. The implementations of these functions are almost the same. The only difference is that PreAuthenticate function doesn't have challenge argument because it calls before sending a request. 
+            </summary>
+            <param name="challenge"></param>
+            <param name="request"></param>
+            <param name="credentials"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Rei.Net.WSSEClient.PreAuthenticate(System.Net.WebRequest,System.Net.ICredentials)">
+            <summary>
+            called by AuthenticationManager when the WebRequest needs authentication information. The implementations of these functions are almost the same. The only difference is that PreAuthenticate function doesn't have challenge argument because it calls before sending a request. 
+            </summary>
+            <param name="request"></param>
+            <param name="credentials"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Rei.Net.WSSEClient.InnerAuthenticate(System.Net.WebRequest,System.Net.ICredentials)">
+            <summary>
+            Authentication Core
+            </summary>
+        </member>
+        <member name="M:Rei.Net.WSSEClient.ContainsSignatureInChallenge(System.String,System.String)">
+            <summary>
+            Find signature in challenge string.
+            Challenge string may contain quoted strings.
+            it should be elliminated when searching authentication signature
+            </summary>
+        </member>
+        <member name="M:Rei.Net.WSSEClient.CreateNonce">
+            <summary>
+            Create Secure Nonce
+            </summary>
+        </member>
+        <member name="P:Rei.Net.WSSEClient.AuthenticationType">
+            <summary>
+            Name of authenticationtype.
+            </summary>
+        </member>
+        <member name="P:Rei.Net.WSSEClient.CanPreAuthenticate">
+            <summary>
+            True means that the module supports pre-authentication. 
+            WSSE authentication can support pre-authentication. 
+            </summary>
+        </member>
+        <member name="T:HDAPI.Globals">
+            <summary>
+            Utility Class to access keys from appsettings section of web.config file
+            </summary>
+        </member>
+        <member name="M:HDAPI.Globals.GetValue(System.String)">
+            <summary>
+            Gets the value for the specified key
+            Key will be defined in the appSettings section of web.config
+            </summary>
+            <param name="Key"></param>
+        </member>
+        <member name="M:HDAPI.Globals.isServerUp(System.String,System.Int32,System.Int32)">
+            <summary>
+            To check whether particular server is online/reachable
+            </summary>
+            <param name="ip">IP Address</param>
+            <param name="port">Port number</param>
+            <param name="timout">Timeout in miliseconds</param>
+            <returns></returns>
+        </member>
+        <member name="P:HDAPI.Globals.ApiKey">
+            <summary>
+            API key will be defined in the appSettings section of web.config
+            Default value is taken if no value is specified in web.config: 51ce43021c8109c7f7054e709b0f7514
+            </summary>
+        </member>
+        <member name="P:HDAPI.Globals.ServerUrl">
+            <summary>
+            Where we will post our queries
+            </summary>
+        </member>
+        <member name="P:HDAPI.Globals.Email">
+            <summary>
+            User Email address used to connect to the handsetdetection.com server
+            </summary>
+        </member>
+        <member name="P:HDAPI.Globals.Secret">
+            <summary>
+            Secret value provided
+            </summary>
+        </member>
+        <member name="P:HDAPI.Globals.ReadTimeOut">
+            <summary>
+            Read timeout in seconds
+            </summary>
+        </member>
+        <member name="P:HDAPI.Globals.ConnectTimeOut">
+            <summary>
+            Connect timeout in seconds
+            </summary>
+        </member>
+        <member name="P:HDAPI.Globals.SiteID">
+            <summary>
+            Gets the SiteID 
+            reference: http://www.handsetdetection.com/sites/index
+            </summary>
+        </member>
+        <member name="P:HDAPI.Globals.Use_Proxy">
+            <summary>
+            Determines whether proxy server is used for API calls to connect to the handsetdetection.com server
+            </summary>
+        </member>
+        <member name="P:HDAPI.Globals.Proxy_Server">
+            <summary>
+            IP Address of the proxy server
+            </summary>
+        </member>
+        <member name="P:HDAPI.Globals.Proxy_Port">
+            <summary>
+            Port number to connect to the proxy server
+            </summary>
+        </member>
+        <member name="P:HDAPI.Globals.Proxy_User">
+            <summary>
+            Username to connect to the proxy server
+            </summary>
+        </member>
+        <member name="P:HDAPI.Globals.Proxy_Pass">
+            <summary>
+            Password to connect to the proxy server
+            </summary>
+        </member>
+        <member name="T:HDAPI.HDBase">
+            <summary>
+            Main class for all handset detection API calls
+            </summary>
+        </member>
+        <member name="M:HDAPI.HDBase.#ctor(System.Web.HttpRequest)">
+            <summary>
+            Initializes the necessary information for a lookup from request object
+            </summary>
+            <param name="request">HttpRequest object from page</param>
+        </member>
+        <member name="M:HDAPI.HDBase.#ctor(System.Web.HttpRequest,System.String,System.String)">
+            <summary>
+            Initializes the necessary information for a lookup from request object with the specified username and secret value
+            </summary>
+            <param name="request">HttpRequest object from page</param>
+            <param name="username">hansetdetection username</param>
+            <param name="secret">secret value</param>
+        </member>
+        <member name="M:HDAPI.HDBase.post(System.String,System.String,System.Collections.Generic.Dictionary{System.String,System.String})">
+            <summary>
+            Connects to handsetdetection.com - sends the stringified data and converts the response into
+            a JsonData object
+            </summary>
+            <param name="data">parameters</param>
+            <param name="service">service to query</param>
+            <param name="optional_headers"></param>
+            <returns>JsonData</returns>
+        </member>
+        <member name="M:HDAPI.HDBase.sendjson(System.Collections.Generic.Dictionary{System.String,System.Object},System.String)">
+            <summary>
+            Pre processes the request before sending it to handsetdetection.com
+            </summary>
+            <param name="data"></param>
+            <param name="service">Service strings vary depending on the information needed</param>
+            <returns>JsonData</returns>
+        </member>
+        <member name="M:HDAPI.HDBase.isMobile">
+            <summary>
+            Determines whether the device is a mobile device,
+            Performs a detectAll if no detectAll has been done.
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:HDAPI.HDBase.isConsole">
+            <summary>
+            Determines whether the device is a console device,
+            Performs a detectAll if no detectAll has been done.
+            </summary>
+            <returns>true or false</returns>
+        </member>
+        <member name="M:HDAPI.HDBase.isTablet">
+            <summary>
+            Determines whether the device is a tablet device,
+            Performs a detectAll if no detectAll has been done.
+            </summary>
+            <returns>true or false</returns>
+        </member>
+        <member name="M:HDAPI.HDBase.vendor">
+            <summary>
+            Fetches all supported Vendors available at handsetdetection.com.
+            </summary>
+            <returns>true if successful, false otherwise</returns>
+        </member>
+        <member name="M:HDAPI.HDBase.model(System.String)">
+            <summary>
+            Fetches all available phone models in handsetdetection.com database. If a vendor is specified then
+            only models for that vendor are returned. Call getModel() to get access to the returned list.
+            </summary>
+            <param name="vendor">all or a valid vendor name</param>
+            <returns>true if successful, false otherwise</returns>
+        </member>
+        <member name="M:HDAPI.HDBase.detectInit(System.Web.HttpRequest)">
+            <summary>
+            Calling this function prior to calling detect() fills in the necessary information for a lookup
+            </summary>
+            <param name="request">The request object containing request headers</param>
+        </member>
+        <member name="M:HDAPI.HDBase.detect(System.String)">
+            <summary>
+            Queries handsetdetection.com for device capabilities
+            </summary>
+            <param name="options">all,display,geoip,product_info or handsetdetection.com for complete reference</param>
+            <returns>true if successful and false otherwise</returns>
+        </member>
+        <member name="M:HDAPI.HDBase.detectAll">
+            <summary>
+            Queries handsetdetection.com for all capabilities of the device
+            </summary>
+            <returns>true if successful and false otherwise</returns>
+        </member>
+        <member name="M:HDAPI.HDBase.download">
+            <summary>
+            Download a snapshot of our handset database. Handset data is aged (or not) according to your plan.
+            </summary>
+            <returns>true if successful, false otherwise</returns>
+        </member>
+        <member name="M:HDAPI.HDBase.information(System.String,System.String)">
+            <summary>
+            Provides information on a handset given the vendor and model.
+            </summary>
+            <param name="vendor">vendor</param>
+            <param name="model">model</param>
+            <returns>true if successful, false otherwise</returns>
+        </member>
+        <member name="M:HDAPI.HDBase.getError">
+            <summary>
+            Gets the last Error information
+            </summary>
+            <returns>Error string</returns>
+        </member>
+        <member name="M:HDAPI.HDBase.getURL">
+            <summary>
+            Get the url Where we will post our queries
+            </summary>
+            <returns>URL</returns>
+        </member>
+        <member name="M:HDAPI.HDBase.getv2ApiKey">
+            <summary>
+            Gets the API key defined in web.config
+            </summary>
+            <returns>api key</returns>
+        </member>
+        <member name="M:HDAPI.HDBase.getSecret">
+            <summary>
+            Gets the Secret key defined in web.config
+            </summary>
+            <returns>Secret value</returns>
+        </member>
+        <member name="M:HDAPI.HDBase.getUsername">
+            <summary>
+            Gets the handsetdetection.com username to connect to the server
+            </summary>
+            <returns>Username</returns>
+        </member>
+        <member name="M:HDAPI.HDBase.getReadTimeout">
+            <summary>
+            Gets the Timeout to read data from handsetdetection.com server 
+            Default value is 5 seconds
+            </summary>
+            <returns>Reat timeout in seconds</returns>
+        </member>
+        <member name="M:HDAPI.HDBase.getConnectTimeout">
+            <summary>
+            Gets the Timeout to ping multiple handsetdetection servers
+            Default value is 5 seconds
+            </summary>
+            <returns>Connect timeout in seconds</returns>
+        </member>
+        <member name="M:HDAPI.HDBase.getVendor">
+            <summary>
+            Gets all supported Vendors available at handsetdetection.com. vendor() function must have been called 
+            prior to calling this function.
+            </summary>
+            <returns>All vendors in json format</returns>
+        </member>
+        <member name="M:HDAPI.HDBase.getModel">
+            <summary>
+            Gets all available phone models in handsetdetection.com database. model() function must have been called 
+            prior to calling this function.
+            </summary>
+            <returns>phone models in json format</returns>
+        </member>
+        <member name="M:HDAPI.HDBase.getDetect">
+            <summary>
+            Gets the device capabilities. detect() function must have been called 
+            prior to calling this function.
+            </summary>
+            <returns>JsonData</returns>
+        </member>
+        <member name="M:HDAPI.HDBase.getDetectAll">
+            <summary>
+            Gets all the device capabilities detectAll() function must have been called 
+            prior to calling this function.
+            </summary>
+            <returns>JsonData</returns>
+        </member>
+        <member name="M:HDAPI.HDBase.getDownload">
+            <summary>
+            Gets a snapshot of handset database. download() function must have been called 
+            prior to calling this function.
+            </summary>
+            <returns>JsonData</returns>
+        </member>
+        <member name="M:HDAPI.HDBase.getInformation">
+            <summary>
+            Gets information on a handset, information() function must have been called 
+            prior to calling this function.
+            </summary>
+            <returns>information about handset in json format</returns>
+        </member>
+        <member name="M:HDAPI.HDBase.getDeviceClickToCall">
+            <summary>
+            Utility method for querying device phone call string. detect() function must have been called
+            prior to calling this function
+            </summary>
+            <returns>empty string if not supported or on error. Valid call string on success</returns>
+        </member>
+        <member name="M:HDAPI.HDBase.getDeviceResolution">
+            <summary>
+            Utility method for querying device screen resolution. detect() must have been called
+            prior to calling this function
+            </summary>
+            <returns>Empty Rect on error or resolution on success</returns>
+        </member>
+        <member name="M:HDAPI.HDBase.getDeviceSendSms">
+            <summary>
+            Utility method for returning the SMS sending string of the device if supported, detect()
+            must have been called prior to calling this function.
+            </summary>
+            <returns>empty if not supported or error, string otherwise</returns>
+        </member>
+        <member name="M:HDAPI.HDBase.getSiteID">
+            <summary>
+            Gets the site ID
+            </summary>
+            <returns>site ID</returns>
+        </member>
+        <member name="M:HDAPI.HDBase.setError(System.String)">
+            <summary>
+            Sets the error message
+            </summary>
+            <param name="msg"></param>
+        </member>
+        <member name="M:HDAPI.HDBase.setURL(System.String)">
+            <summary>
+            Sets the handsetdetection server url
+            </summary>
+            <param name="url"></param>
+        </member>
+        <member name="M:HDAPI.HDBase.setSiteID(System.String)">
+            <summary>
+            Sets site ID
+            </summary>
+            <param name="ID"></param>
+        </member>
+        <member name="M:HDAPI.HDBase.setv2ApiKey(System.String)">
+            <summary>
+            Sets the API key
+            </summary>
+            <param name="apiKey"></param>
+        </member>
+        <member name="M:HDAPI.HDBase.setSecret(System.String)">
+            <summary>
+            Sets the secret value
+            </summary>
+            <param name="secret"></param>
+        </member>
+        <member name="M:HDAPI.HDBase.setUsername(System.String)">
+            <summary>
+            Sets the username
+            </summary>
+            <param name="userName"></param>
+        </member>
+        <member name="M:HDAPI.HDBase.setConnectTimeout(System.Int32)">
+            <summary>
+            Sets the connect timeout in seconds
+            </summary>
+            <param name="timeOut"></param>
+        </member>
+        <member name="M:HDAPI.HDBase.setReadTimeout(System.Int32)">
+            <summary>
+            Sets the read timeout in seconds
+            </summary>
+            <param name="timeOut"></param>
+        </member>
+        <member name="M:HDAPI.HDBase.setDetectVar(System.String,System.String)">
+            <summary>
+            Sets the detection key and values in the detect request
+            </summary>
+            <param name="key"></param>
+            <param name="val"></param>
+        </member>
+    </members>
+</doc>

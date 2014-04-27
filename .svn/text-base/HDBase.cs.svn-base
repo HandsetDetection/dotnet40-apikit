@@ -1,0 +1,798 @@
+/*
+** Copyright (c) 2009
+ *
+ * Richard Uren <richard@teleport.com.au>
+ * Faisal Thaheem <faisal@computedsynergy.com>
+ * 
+ * Anil Shah <anil.shah1201@gmail.com>
+ * Nitin Sawant <nitin.jaysing@gmail.com>
+ *
+** All Rights Reserved
+**
+** --
+**
+** LICENSE: Redistribution and use in source and binary forms, with or
+** without modification, are permitted provided that the following
+** conditions are met: Redistributions of source code must retain the
+** above copyright notice, this list of conditions and the following
+** disclaimer. Redistributions in binary form must reproduce the above
+** copyright notice, this list of conditions and the following disclaimer
+** in the documentation and/or other materials provided with the
+** distribution.
+**
+** THIS SOFTWARE IS PROVIDED ``AS IS'' AND ANY EXPRESS OR IMPLIED
+** WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+** MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN
+** NO EVENT SHALL CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
+** INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+** BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS
+** OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+** ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR
+** TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
+** USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
+** DAMAGE.
+**
+** --
+**
+** This is a reference implementation for interfacing with www.handsetdetection.com
+**
+*/
+
+using System;
+using System.Collections.Generic;
+using System.Text;
+using System.Net;
+using System.IO;
+using LitJson;
+using Rei.Net;
+using System.Web;
+using System.Drawing;
+
+namespace HDAPI
+{
+    /// <summary>
+    /// Main class for all handset detection API calls
+    /// </summary>
+    public class HDBase
+    {
+        #region "Private members"
+        private string m_url = Globals.ServerUrl;
+
+        //Our API Key
+        private string m_apiKey = Globals.ApiKey;
+
+        //Secret
+        private string m_secret = Globals.Secret;
+
+        //Username
+        private string m_userName = Globals.Email;
+
+        //Connect timeout in seconds
+        private int m_connectTimeout = Globals.ConnectTimeOut;
+
+        //Read timeout in seconds
+        private int m_readTimeOut = Globals.ReadTimeOut;
+
+        //Parameters to send for detection request
+        private Dictionary<string, object> m_detectRequest = new Dictionary<string, object>();
+
+        //Response of detection
+        private JsonData m_detectReply;
+
+        //Response of all detection
+        private JsonData m_detectAllReply;
+
+        //flag to check if detectall performed previously
+        private bool m_detectAllPerformed = false;
+
+        //Vendor reply
+        private JsonData m_vendorReply;
+
+        //Model reply
+        private JsonData m_modelReply;
+
+        //Download reply
+        private JsonData m_downloadReply;
+
+        //Information reply
+        private JsonData m_informationReply;
+
+        //Error string
+        private string m_error = "";
+
+        //site id
+        private string m_siteID = Globals.SiteID;
+
+        //Client request
+        private HttpRequest Request;
+        #endregion
+
+        #region "Init constructors"
+        /// <summary>
+        /// Initializes the necessary information for a lookup from request object
+        /// </summary>
+        /// <param name="request">HttpRequest object from page</param>
+        public HDBase(HttpRequest request)
+        {
+            this.Request = request;
+            this.m_userName = Globals.Email;
+            this.m_secret = Globals.Secret;
+            detectInit(Request);
+        }
+
+
+        /// <summary>
+        /// Initializes the necessary information for a lookup from request object with the specified username and secret value
+        /// </summary>
+        /// <param name="request">HttpRequest object from page</param>
+        /// <param name="username">hansetdetection username</param>
+        /// <param name="secret">secret value</param>
+        public HDBase(HttpRequest request, string username, string secret)
+        {
+            this.Request = request;
+            this.m_userName = username;
+            this.m_secret = secret;
+            detectInit(Request);
+        }
+        #endregion
+
+        #region "API functions"
+
+        /// <summary>
+        /// Connects to handsetdetection.com - sends the stringified data and converts the response into
+        /// a JsonData object
+        /// </summary>
+        /// <param name="data">parameters</param>
+        /// <param name="service">service to query</param>
+        /// <param name="optional_headers"></param>
+        /// <returns>JsonData</returns>
+        private JsonData post(string data, string service, Dictionary<string, string> optional_headers)
+        {
+            JsonData ret = null;
+            try
+            {
+                Uri url = new Uri("http://" + this.m_url + service);
+                WebRequest conn = HttpWebRequest.Create(url.ToString());
+
+                //Change proxy connection if proxy server is enabled
+                if (Globals.Use_Proxy)
+                {
+                    WebProxy proxy = new WebProxy(Globals.Proxy_Server, Globals.Proxy_Port);
+
+                    // if your proxy server requires credentials to access it use below code
+                    NetworkCredential credentials = new NetworkCredential(Globals.Proxy_User, Globals.Proxy_Pass);
+
+                    // notify your proxy instance about these credentials
+                    proxy.Credentials = credentials;
+
+                    conn.Proxy = proxy;
+                }
+
+                //Set Timeout
+                conn.Timeout = this.m_readTimeOut * 1000;//minutes to miliseconds 
+
+                HttpWebRequest req = (HttpWebRequest)conn;
+
+                conn.Method = "POST";
+                req.ContentType = "application/json";
+                req.ContentLength = data.Length;
+
+                //Incorporate ApiKey and SiteID into all API requests.
+                if (this.m_apiKey != null)
+                    conn.Headers["ApiKey"] = this.m_apiKey;
+
+                if (this.m_siteID != null)
+                    conn.Headers["SiteID"] = this.m_siteID;
+
+                //add WSSE
+                WSSEClient wsse = new WSSEClient();
+                wsse.PreAuthenticate(conn, new NetworkCredential(this.m_userName, this.m_secret));
+
+                StreamWriter writer = new System.IO.StreamWriter(conn.GetRequestStream());
+                writer.Write(data);
+                writer.Flush();
+
+                WebResponse response = conn.GetResponse();
+
+                StreamReader reader = new StreamReader(response.GetResponseStream());
+                string json = reader.ReadToEnd();
+
+                ret = (JsonData)JsonMapper.ToObject(json);
+
+            }
+            catch (Exception ex)
+            {
+                ret = new JsonData();
+                Console.WriteLine(ex.Message);
+                setError(ex.Message);
+            }
+
+            return ret;
+        }
+
+        /// <summary>
+        /// Pre processes the request before sending it to handsetdetection.com
+        /// </summary>
+        /// <param name="data"></param>
+        /// <param name="service">Service strings vary depending on the information needed</param>
+        /// <returns>JsonData</returns>
+        private JsonData sendjson(Dictionary<string, object> data, string service)
+        {
+            JsonData reply = null;
+
+            if (data != null)
+            {
+                reply = post(JsonMapper.ToJson(data), service, null);
+            }
+            else
+            {
+                reply = post("", service, null);
+            }
+
+            return reply;
+        }
+
+        /// <summary>
+        /// Determines whether the device is a mobile device,
+        /// Performs a detectAll if no detectAll has been done.
+        /// </summary>
+        /// <returns></returns>
+        public bool isMobile()
+        {
+            bool ret = false;
+            try
+            {
+                if (!m_detectAllPerformed)
+                {
+                    detectAll();
+                }
+
+                if (this.m_detectAllReply["class"].ToJson().ToLower() == "\"mobile\"")
+                {
+                    ret = true;
+                }
+            }
+            catch (Exception ex)
+            {
+                ret = false;
+            }
+
+            return ret;
+        }
+
+        /// <summary>
+        /// Determines whether the device is a console device,
+        /// Performs a detectAll if no detectAll has been done.
+        /// </summary>
+        /// <returns>true or false</returns>
+        public bool isConsole()
+        {
+            bool ret = false;
+
+            try
+            {
+                if (!m_detectAllPerformed)
+                {
+                    detectAll();
+                }
+
+                if (this.m_detectAllReply["class"].ToJson().ToLower() == "\"console\"")
+                {
+                    ret = true;
+                }
+            }
+            catch (Exception ex)
+            {
+                ret = false;
+            }
+
+            return ret;
+        }
+
+        /// <summary>
+        /// Determines whether the device is a tablet device,
+        /// Performs a detectAll if no detectAll has been done.
+        /// </summary>
+        /// <returns>true or false</returns>
+        public bool isTablet()
+        {
+            bool ret = false;
+
+            try
+            {
+                if (!m_detectAllPerformed)
+                {
+                    detectAll();
+                }
+
+                if (this.m_detectAllReply["class"].ToJson().ToLower() == "\"tablet\"")
+                {
+                    ret = true;
+                }
+            }
+            catch (Exception ex)
+            {
+                ret = false;
+            }
+
+            return ret;
+        }
+
+        /// <summary>
+        /// Fetches all supported Vendors available at handsetdetection.com.
+        /// </summary>
+        /// <returns>true if successful, false otherwise</returns>
+        public bool vendor()
+        {
+            bool ret = false;
+
+
+            this.m_vendorReply = sendjson(null, "/devices/vendors.json");
+
+
+            try
+            {
+                if (Convert.ToString(this.m_vendorReply["message"]) == "OK")
+                {
+                    ret = true;
+                }
+                else
+                {
+                    setError("vendor API call failed: " + this.m_vendorReply["message"].ToJson());
+                }
+            }
+            catch (Exception ex)
+            {
+                ret = false;
+            }
+
+            return ret;
+        }
+
+        /// <summary>
+        /// Fetches all available phone models in handsetdetection.com database. If a vendor is specified then
+        /// only models for that vendor are returned. Call getModel() to get access to the returned list.
+        /// </summary>
+        /// <param name="vendor">all or a valid vendor name</param>
+        /// <returns>true if successful, false otherwise</returns>
+        public bool model(string vendor)
+        {
+            bool ret = false;
+
+            Dictionary<string, object> vendorRequest = new Dictionary<string, object>();
+            vendorRequest.Add("vendor", vendor);
+
+            this.m_modelReply = sendjson(vendorRequest, "/devices/models.json");
+
+
+            try
+            {
+                if (Convert.ToString(this.m_modelReply["message"]) == "OK")
+                {
+                    ret = true;
+                }
+                else
+                {
+                    setError("model API call failed: " + this.m_modelReply["message"].ToJson());
+                }
+            }
+            catch (Exception ex)
+            {
+                ret = false;
+            }
+
+            return ret;
+
+        }
+
+        /// <summary>
+        /// Calling this function prior to calling detect() fills in the necessary information for a lookup
+        /// </summary>
+        /// <param name="request">The request object containing request headers</param>
+        private void detectInit(HttpRequest request)
+        {
+            System.Text.RegularExpressions.Regex reg = new System.Text.RegularExpressions.Regex("^x|^http",System.Text.RegularExpressions.RegexOptions.IgnoreCase);
+
+            foreach (string header in request.Headers)
+            {
+                if (reg.IsMatch(header))
+                {
+                    AddKey(m_detectRequest, header, request[header]);
+                }
+            }
+
+            AddKey(m_detectRequest, "user-agent", request.UserAgent);
+            AddKey(m_detectRequest, "ipaddress", request.UserHostAddress);
+            AddKey(m_detectRequest, "request_uri", request.Url.ToString());
+        }
+
+        /// <summary>
+        /// Queries handsetdetection.com for device capabilities
+        /// </summary>
+        /// <param name="options">all,display,geoip,product_info or handsetdetection.com for complete reference</param>
+        /// <returns>true if successful and false otherwise</returns>
+        public bool detect(string options)
+        {
+            string optionskKey = "options";
+            bool ret = false;
+            if (options == "all")
+                detectAll();
+
+            if (m_detectRequest.ContainsKey(optionskKey))
+            {
+                m_detectRequest.Remove(optionskKey);
+            }
+
+            this.m_detectRequest.Add(optionskKey, options);
+            this.m_detectReply = sendjson(this.m_detectRequest, "/devices/detect.json");
+
+            try
+            {
+                if ((Convert.ToString(this.m_detectReply["status"]) == "301") || (Convert.ToString(this.m_detectReply["status"]) == "0"))
+                {
+                    ret = true;
+                }
+                else
+                {
+                    setError("detect API call failed: " + this.m_detectReply["message"].ToJson());
+                }
+            }
+            catch (Exception ex)
+            {
+                ret = false;
+            }
+
+            return ret;
+
+        }
+
+
+        /// <summary>
+        /// Queries handsetdetection.com for all capabilities of the device
+        /// </summary>
+        /// <returns>true if successful and false otherwise</returns>
+        public bool detectAll()
+        {
+            //update the flag to notify that detectall is performed
+            m_detectAllPerformed = true;
+
+            string optionskKey = "options";
+            bool ret = false;
+
+            if (m_detectRequest.ContainsKey(optionskKey))
+            {
+                m_detectRequest.Remove(optionskKey);
+            }
+
+            this.m_detectRequest.Add(optionskKey, "all");
+            this.m_detectAllReply = sendjson(this.m_detectRequest, "/devices/detectall.json");
+
+            try
+            {
+                if ((Convert.ToString(this.m_detectAllReply["status"]) == "301") || (Convert.ToString(this.m_detectAllReply["status"]) == "0"))
+                {
+                    ret = true;
+                }
+                else
+                {
+                    setError("deletectAll API call failed: " + this.m_detectAllReply["message"].ToJson());
+                }
+            }
+            catch (Exception ex)
+            {
+                setError(ex.Message + "\n" + ex.StackTrace);
+                ret = false;
+            }
+
+            return ret;
+
+        }
+
+        /// <summary>
+        /// Download a snapshot of our handset database. Handset data is aged (or not) according to your plan.
+        /// </summary>
+        /// <returns>true if successful, false otherwise</returns>
+        public bool download()
+        {
+            bool ret = false;
+
+            this.m_downloadReply = sendjson(this.m_detectRequest, "/devices/download.json");
+
+            try
+            {
+                if (Convert.ToString(this.m_downloadReply["message"]) == "OK")
+                {
+                    ret = true;
+                }
+                else
+                {
+                    setError("download API call failed: " + this.m_downloadReply["message"].ToJson());
+                }
+            }
+            catch (Exception ex)
+            {
+                ret = false;
+            }
+
+            return ret;
+        }
+
+        /// <summary>
+        /// Provides information on a handset given the vendor and model.
+        /// </summary>
+        /// <param name="vendor">vendor</param>
+        /// <param name="model">model</param>
+        /// <returns>true if successful, false otherwise</returns>
+        public bool information(string vendor, string model)
+        {
+            bool ret = false;
+
+            this.m_detectRequest.Add("vendor", vendor);
+            this.m_detectRequest.Add("model", model);
+
+            this.m_informationReply = sendjson(this.m_detectRequest, "/devices/information.json");
+
+            try
+            {
+                if (Convert.ToString(this.m_informationReply["message"]) == "OK")
+                {
+                    ret = true;
+                }
+                else
+                {
+                    setError("information API call failed: " + this.m_informationReply["message"].ToJson());
+                }
+            }
+            catch (Exception ex)
+            {
+                ret = false;
+            }
+
+            return ret;
+        }
+
+        private void AddKey(Dictionary<string, object> objRequest, string key, object value)
+        {
+            if (objRequest.ContainsKey(key))
+            {
+                objRequest.Remove(key);
+            }
+            objRequest.Add(key, value);
+        }
+
+        #endregion
+
+        #region "Getters"
+
+        /// <summary>
+        /// Gets the last Error information
+        /// </summary>
+        /// <returns>Error string</returns>
+        public string getError() { return this.m_error; }
+
+        /// <summary>
+        /// Get the url Where we will post our queries
+        /// </summary>
+        /// <returns>URL</returns>
+        public string getURL() { return this.m_url; }
+
+        /// <summary>
+        /// Gets the API key defined in web.config
+        /// </summary>
+        /// <returns>api key</returns>
+        public string getv2ApiKey() { return this.m_apiKey; }
+
+        /// <summary>
+        /// Gets the Secret key defined in web.config
+        /// </summary>
+        /// <returns>Secret value</returns>
+        public string getSecret() { return this.m_secret; }
+
+        /// <summary>
+        /// Gets the handsetdetection.com username to connect to the server
+        /// </summary>
+        /// <returns>Username</returns>
+        public string getUsername() { return this.m_userName; }
+
+        /// <summary>
+        /// Gets the Timeout to read data from handsetdetection.com server 
+        /// Default value is 5 seconds
+        /// </summary>
+        /// <returns>Reat timeout in seconds</returns>
+        public int getReadTimeout() { return this.m_readTimeOut; }
+
+        /// <summary>
+        /// Gets the Timeout to ping multiple handsetdetection servers
+        /// Default value is 5 seconds
+        /// </summary>
+        /// <returns>Connect timeout in seconds</returns>
+        public int getConnectTimeout() { return this.m_connectTimeout; }
+
+        /// <summary>
+        /// Gets all supported Vendors available at handsetdetection.com. vendor() function must have been called 
+        /// prior to calling this function.
+        /// </summary>
+        /// <returns>All vendors in json format</returns>
+        public JsonData getVendor() { return this.m_vendorReply; }
+
+        /// <summary>
+        /// Gets all available phone models in handsetdetection.com database. model() function must have been called 
+        /// prior to calling this function.
+        /// </summary>
+        /// <returns>phone models in json format</returns>
+        public JsonData getModel() { return this.m_modelReply; }
+
+        /// <summary>
+        /// Gets the device capabilities. detect() function must have been called 
+        /// prior to calling this function.
+        /// </summary>
+        /// <returns>JsonData</returns>
+        public JsonData getDetect() { return this.m_detectReply; }
+
+        /// <summary>
+        /// Gets all the device capabilities detectAll() function must have been called 
+        /// prior to calling this function.
+        /// </summary>
+        /// <returns>JsonData</returns>
+        public JsonData getDetectAll() { return this.m_detectAllReply; }
+
+        /// <summary>
+        /// Gets a snapshot of handset database. download() function must have been called 
+        /// prior to calling this function.
+        /// </summary>
+        /// <returns>JsonData</returns>
+        public JsonData getDownload() { return this.m_downloadReply; }
+
+        /// <summary>
+        /// Gets information on a handset, information() function must have been called 
+        /// prior to calling this function.
+        /// </summary>
+        /// <returns>information about handset in json format</returns>
+        public JsonData getInformation() { return this.m_informationReply; }
+
+
+        /// <summary>
+        /// Utility method for querying device phone call string. detect() function must have been called
+        /// prior to calling this function
+        /// </summary>
+        /// <returns>empty string if not supported or on error. Valid call string on success</returns>
+        public string getDeviceClickToCall()
+        {
+            string ret = string.Empty;
+
+            try
+            {
+                ret = Convert.ToString(this.m_detectReply["xhtml_ui"]["xhtml_make_phone_call_string"]);
+            }
+            catch (Exception ex)
+            {
+            }
+
+            return ret;
+        }
+
+        /// <summary>
+        /// Utility method for querying device screen resolution. detect() must have been called
+        /// prior to calling this function
+        /// </summary>
+        /// <returns>Empty Rect on error or resolution on success</returns>
+        public Rectangle getDeviceResolution()
+        {
+            Rectangle ret = Rectangle.Empty;
+
+            try
+            {
+                ret.Width = (int)this.m_detectReply["display"]["resolution_width"];
+                ret.Height = (int)this.m_detectReply["display"]["resolution_height"];
+            }
+            catch (Exception ex)
+            {
+            }
+
+            return ret;
+        }
+
+        /// <summary>
+        /// Utility method for returning the SMS sending string of the device if supported, detect()
+        /// must have been called prior to calling this function.
+        /// </summary>
+        /// <returns>empty if not supported or error, string otherwise</returns>
+        public string getDeviceSendSms()
+        {
+            string ret = string.Empty;
+
+            try
+            {
+                ret = Convert.ToString(this.m_detectReply["xhtml_ui"]["xhtml_send_sms_string"]);
+            }
+            catch (Exception ex)
+            {
+            }
+
+            return ret;
+        }
+
+        /// <summary>
+        /// Gets the site ID
+        /// </summary>
+        /// <returns>site ID</returns>
+        public string getSiteID()
+        {
+            return m_siteID;
+        }
+        #endregion
+
+        #region "Setters"
+
+        /// <summary>
+        /// Sets the error message
+        /// </summary>
+        /// <param name="msg"></param>
+        public void setError(string msg) { this.m_error = msg; }
+
+        /// <summary>
+        /// Sets the handsetdetection server url
+        /// </summary>
+        /// <param name="url"></param>
+        public void setURL(string url) { this.m_url = url; }
+
+        /// <summary>
+        /// Sets site ID
+        /// </summary>
+        /// <param name="ID"></param>
+        public void setSiteID(string ID) { this.m_siteID = ID; }
+
+        /// <summary>
+        /// Sets the API key
+        /// </summary>
+        /// <param name="apiKey"></param>
+        public void setv2ApiKey(string apiKey) { this.m_apiKey = apiKey; }
+
+        /// <summary>
+        /// Sets the secret value
+        /// </summary>
+        /// <param name="secret"></param>
+        public void setSecret(string secret) { this.m_secret = secret; }
+
+        /// <summary>
+        /// Sets the username
+        /// </summary>
+        /// <param name="userName"></param>
+        public void setUsername(string userName) { this.m_userName = userName; }
+
+        /// <summary>
+        /// Sets the connect timeout in seconds
+        /// </summary>
+        /// <param name="timeOut"></param>
+        public void setConnectTimeout(int timeOut) { this.m_connectTimeout = timeOut; }
+
+        /// <summary>
+        /// Sets the read timeout in seconds
+        /// </summary>
+        /// <param name="timeOut"></param>
+        public void setReadTimeout(int timeOut) { this.m_readTimeOut = timeOut; }
+
+        /// <summary>
+        /// Sets the detection key and values in the detect request
+        /// </summary>
+        /// <param name="key"></param>
+        /// <param name="val"></param>
+        public void setDetectVar(string key, string val)
+        {
+            try
+            {
+                this.m_detectRequest.Add(key, val);
+            }
+            catch (ArgumentException ex)
+            {
+                this.m_detectRequest.Remove(key);
+                this.m_detectRequest.Add(key, val);
+            }
+            catch (Exception ex)
+            {
+            }
+        }
+
+        #endregion
+    }
+}

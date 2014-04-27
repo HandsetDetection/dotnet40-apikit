@@ -1,0 +1,36 @@
+using System;
+using System.Data;
+using System.Configuration;
+using System.Collections;
+using System.Web;
+using System.Web.Security;
+using System.Web.UI;
+using System.Web.UI.WebControls;
+using System.Web.UI.WebControls.WebParts;
+using System.Web.UI.HtmlControls;
+
+using HDAPI;
+using LitJson;
+
+public partial class sample_detect2 : System.Web.UI.Page
+{
+    protected void Page_Load(object sender, EventArgs e)
+    {
+        HDBase hd = new HDBase(Request);
+
+        Response.Write("<b>Get display, geoip and product info</b><br/>");
+        if (hd.detect("display,geoip, product_info"))
+        {
+            JsonData data = hd.getDetect();
+            foreach (System.Collections.Generic.KeyValuePair<string, JsonData> o in data)
+            {
+                Response.Write(o.Key + ":" + o.Value.ToJson() + "<br>");
+            }
+        }
+        else
+        {
+            Response.Write("Regular Request");
+        }
+
+    }
+}

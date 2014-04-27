@@ -1,0 +1,19 @@
+C:\Users\amol\Desktop\TELEPORT - RICHARDS\HD API\SOURCE CODE\HDAPI lib\bin\Release\HDAPI.dll
+C:\Users\amol\Desktop\TELEPORT - RICHARDS\HD API\SOURCE CODE\HDAPI lib\bin\Release\HDAPI.pdb
+C:\Users\amol\Desktop\TELEPORT - RICHARDS\HD API\SOURCE CODE\HDAPI lib\bin\Release\LitJson.dll
+C:\Users\amol\Desktop\TELEPORT - RICHARDS\HD API\SOURCE CODE\HDAPI lib\obj\Release\ResolveAssemblyReference.cache
+C:\Users\amol\Desktop\TELEPORT - RICHARDS\HD API\SOURCE CODE\HDAPI lib\obj\Release\HDAPI.dll
+C:\Users\amol\Desktop\TELEPORT - RICHARDS\HD API\SOURCE CODE\HDAPI lib\obj\Release\HDAPI.pdb
+E:\MINDSYS\TELEPORT - RICHARDS\HD API\SOURCE CODE\HDAPI lib\bin\Release\HDAPI.XML
+E:\MINDSYS\TELEPORT - RICHARDS\HD API\SOURCE CODE\HDAPI lib\bin\Release\HDAPI.dll
+E:\MINDSYS\TELEPORT - RICHARDS\HD API\SOURCE CODE\HDAPI lib\bin\Release\HDAPI.pdb
+E:\MINDSYS\TELEPORT - RICHARDS\HD API\SOURCE CODE\HDAPI lib\bin\Release\LitJson.dll
+E:\MINDSYS\TELEPORT - RICHARDS\HD API\SOURCE CODE\HDAPI lib\obj\Release\ResolveAssemblyReference.cache
+E:\MINDSYS\TELEPORT - RICHARDS\HD API\SOURCE CODE\HDAPI lib\obj\Release\HDAPI.dll
+E:\MINDSYS\TELEPORT - RICHARDS\HD API\SOURCE CODE\HDAPI lib\obj\Release\HDAPI.pdb
+C:\HD32\HDAPI lib\obj\Release\ResolveAssemblyReference.cache
+C:\HD32\HDAPI lib\bin\Release\HD3.xml
+C:\HD32\HDAPI lib\bin\Release\HD3.dll
+C:\HD32\HDAPI lib\bin\Release\HD3.pdb
+C:\HD32\HDAPI lib\obj\Release\HD3.dll
+C:\HD32\HDAPI lib\obj\Release\HD3.pdb

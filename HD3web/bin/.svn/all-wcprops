@@ -1,0 +1,29 @@
+K 25
+svn:wc:ra_dav:version-url
+V 47
+/svn/!svn/ver/15/trunk/HDAPI/HD%20API%20web/bin
+END
+HDAPI.dll
+K 25
+svn:wc:ra_dav:version-url
+V 57
+/svn/!svn/ver/16/trunk/HDAPI/HD%20API%20web/bin/HDAPI.dll
+END
+HDAPI.XML
+K 25
+svn:wc:ra_dav:version-url
+V 57
+/svn/!svn/ver/10/trunk/HDAPI/HD%20API%20web/bin/HDAPI.XML
+END
+HDAPI.pdb
+K 25
+svn:wc:ra_dav:version-url
+V 57
+/svn/!svn/ver/16/trunk/HDAPI/HD%20API%20web/bin/HDAPI.pdb
+END
+LitJson.dll
+K 25
+svn:wc:ra_dav:version-url
+V 59
+/svn/!svn/ver/14/trunk/HDAPI/HD%20API%20web/bin/LitJson.dll
+END

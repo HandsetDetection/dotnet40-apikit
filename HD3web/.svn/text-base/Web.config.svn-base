@@ -1,0 +1,27 @@
+﻿<?xml version="1.0"?>
+<configuration>
+	<appSettings>
+    <add key="ApiKey" value="51ce43021c8109c7f7054e709b0f7514"/>
+    <!--Timeout in seconds-->
+	  <add key="ReadTimeOut" value="5"/><!--timeout to read data from handset detection server-->
+	  <add key="ConnectTimeOut" value="5"/><!--timeout to ping multiple servers-->
+		
+    <add key="ServerUrl" value="http://api-us1.handsetdetection.com/"/><!--URL of the server-->
+    <add key="Email" value=""/><!--User Email used to connect to the HandsetDetection server-->
+    <add key="Secret" value=""/><!--Secret value used to connect to the HandsetDetection server-->
+    <add key="SiteID" value=""/><!--Site ID used to connect to the HandsetDetection server-->
+		
+    <!--Proxy Settings-->
+    <add key="Use_Proxy" value="false"/>
+    <add key="Proxy_Server" value=""/><!--IP Address of the proxy server-->
+    <add key="Proxy_Port" value=""/><!--port number to connect to the proxy server-->
+    <add key="Proxy_User" value=""/><!--Username for proxy login-->
+    <add key="Proxy_Pass" value=""/><!--Password for proxy login-->
+	</appSettings>
+	<connectionStrings/>
+	<system.web>
+		<compilation debug="true">
+		</compilation>
+		<authentication mode="Forms"/>
+	</system.web>
+</configuration>

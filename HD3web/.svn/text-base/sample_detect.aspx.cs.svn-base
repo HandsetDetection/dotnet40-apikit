@@ -1,0 +1,38 @@
+using System;
+using System.Data;
+using System.Configuration;
+using System.Collections;
+using System.Web;
+using System.Web.Security;
+using System.Web.UI;
+using System.Web.UI.WebControls;
+using System.Web.UI.WebControls.WebParts;
+using System.Web.UI.HtmlControls;
+
+using HDAPI;
+using LitJson;
+
+public partial class sample_detect : System.Web.UI.Page
+{
+    protected void Page_Load(object sender, EventArgs e)
+    {
+        HDBase hd = new HDBase(Request);
+        if (hd.detect("all"))
+        {
+            Response.Write("<b>detectAll sample</b><br/>");
+            System.Drawing.Rectangle res = hd.getDeviceResolution();
+            Response.Write("Device resolution (Width,Height): ");
+            Response.Write(res.Width + " " + res.Height);
+            Response.Write("<BR/>");
+            Response.Write("Click to call string: " + hd.getDeviceClickToCall());
+            Response.Write("<BR/>");
+            Response.Write("Send SMS String: " + hd.getDeviceSendSms());
+            Response.Write("<BR/>");
+        }
+        else
+        {
+            Response.Write("Normal request");
+        }
+
+    }
+}

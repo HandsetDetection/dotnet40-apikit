@@ -1,0 +1,59 @@
+K 25
+svn:wc:ra_dav:version-url
+V 40
+/svn/!svn/ver/15/trunk/HDAPI/HDAPI%20lib
+END
+TimeoutChecker.cs
+K 25
+svn:wc:ra_dav:version-url
+V 58
+/svn/!svn/ver/10/trunk/HDAPI/HDAPI%20lib/TimeoutChecker.cs
+END
+HDAPI.csproj.user
+K 25
+svn:wc:ra_dav:version-url
+V 58
+/svn/!svn/ver/10/trunk/HDAPI/HDAPI%20lib/HDAPI.csproj.user
+END
+HDAPI Lib.suo
+K 25
+svn:wc:ra_dav:version-url
+V 56
+/svn/!svn/ver/10/trunk/HDAPI/HDAPI%20lib/HDAPI%20Lib.suo
+END
+SnKey.snk
+K 25
+svn:wc:ra_dav:version-url
+V 50
+/svn/!svn/ver/14/trunk/HDAPI/HDAPI%20lib/SnKey.snk
+END
+HDAPI.csproj
+K 25
+svn:wc:ra_dav:version-url
+V 53
+/svn/!svn/ver/14/trunk/HDAPI/HDAPI%20lib/HDAPI.csproj
+END
+wsse.cs
+K 25
+svn:wc:ra_dav:version-url
+V 48
+/svn/!svn/ver/10/trunk/HDAPI/HDAPI%20lib/wsse.cs
+END
+Globals.cs
+K 25
+svn:wc:ra_dav:version-url
+V 51
+/svn/!svn/ver/10/trunk/HDAPI/HDAPI%20lib/Globals.cs
+END
+HDBase.cs
+K 25
+svn:wc:ra_dav:version-url
+V 50
+/svn/!svn/ver/16/trunk/HDAPI/HDAPI%20lib/HDBase.cs
+END
+HDKey.snk
+K 25
+svn:wc:ra_dav:version-url
+V 50
+/svn/!svn/ver/14/trunk/HDAPI/HDAPI%20lib/HDKey.snk
+END
