@@ -29,6 +29,8 @@ Thumbs.db
 [Dd]ebug*/
 *.lib
 *.sbr
+*.gitignore
+.gitignore
 obj/
 [Rr]elease*/
 _ReSharper*/
