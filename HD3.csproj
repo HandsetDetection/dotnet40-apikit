@@ -54,6 +54,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Microsoft.CSharp" />
+    <Reference Include="nunit.framework, Version=2.6.3.13283, Culture=neutral, PublicKeyToken=96d09a1eb7f44a77, processorArchitecture=MSIL" />
     <Reference Include="System" />
     <Reference Include="System.configuration" />
     <Reference Include="System.Data" />
@@ -68,7 +69,25 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="HD3.cs" />
+    <Compile Include="HD3web\Default.aspx.cs">
+      <DependentUpon>Default.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="HD3web\Devices.aspx.cs">
+      <DependentUpon>Devices.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="HD3web\Sites.aspx.cs">
+      <DependentUpon>Sites.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="HD3web\Tests.aspx.cs">
+      <DependentUpon>Tests.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Test\HD3Test.cs" />
   </ItemGroup>
   <ItemGroup>
     <BootstrapperPackage Include="Microsoft.Net.Client.3.5">
@@ -98,8 +117,65 @@
     </BootstrapperPackage>
   </ItemGroup>
   <ItemGroup>
+    <None Include="HD3web\.DS_Store" />
+    <None Include="HD3web\.svn\all-wcprops" />
+    <None Include="HD3web\.svn\entries" />
+    <None Include="HD3web\.svn\text-base\Default.aspx.cs.svn-base" />
+    <None Include="HD3web\.svn\text-base\Default.aspx.svn-base" />
+    <None Include="HD3web\.svn\text-base\sample_detect.aspx.cs.svn-base" />
+    <None Include="HD3web\.svn\text-base\sample_detect.aspx.svn-base" />
+    <None Include="HD3web\.svn\text-base\sample_detect2.aspx.cs.svn-base" />
+    <None Include="HD3web\.svn\text-base\sample_detect2.aspx.svn-base" />
+    <None Include="HD3web\.svn\text-base\sample_detectAll.aspx.cs.svn-base" />
+    <None Include="HD3web\.svn\text-base\sample_detectAll.aspx.svn-base" />
+    <None Include="HD3web\.svn\text-base\sample_devicetype.aspx.cs.svn-base" />
+    <None Include="HD3web\.svn\text-base\sample_devicetype.aspx.svn-base" />
+    <None Include="HD3web\.svn\text-base\sample_download.aspx.cs.svn-base" />
+    <None Include="HD3web\.svn\text-base\sample_download.aspx.svn-base" />
+    <None Include="HD3web\.svn\text-base\sample_information.aspx.cs.svn-base" />
+    <None Include="HD3web\.svn\text-base\sample_information.aspx.svn-base" />
+    <None Include="HD3web\.svn\text-base\sample_model.aspx.cs.svn-base" />
+    <None Include="HD3web\.svn\text-base\sample_model.aspx.svn-base" />
+    <None Include="HD3web\.svn\text-base\sample_vendor.aspx.cs.svn-base" />
+    <None Include="HD3web\.svn\text-base\sample_vendor.aspx.svn-base" />
+    <None Include="HD3web\.svn\text-base\Web.config.svn-base" />
+    <None Include="HD3web\bin\.svn\all-wcprops" />
+    <None Include="HD3web\bin\.svn\entries" />
+    <None Include="HD3web\bin\.svn\prop-base\HDAPI.dll.svn-base" />
+    <None Include="HD3web\bin\.svn\prop-base\HDAPI.pdb.svn-base" />
+    <None Include="HD3web\bin\.svn\prop-base\LitJson.dll.svn-base" />
+    <None Include="HD3web\bin\.svn\text-base\HDAPI.dll.svn-base" />
+    <None Include="HD3web\bin\.svn\text-base\HDAPI.pdb.svn-base" />
+    <None Include="HD3web\bin\.svn\text-base\HDAPI.XML.svn-base" />
+    <None Include="HD3web\bin\.svn\text-base\LitJson.dll.svn-base" />
+    <None Include="HD3web\bin\System.Web.Extensions.dll.refresh" />
+    <None Include="HD3web\Web.config" />
     <None Include="HDKey.snk" />
     <None Include="SnKey.snk" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="HD3web\bin\HD3.dll" />
+    <Content Include="HD3web\bin\HD3.pdb" />
+    <Content Include="HD3web\bin\HD3.xml" />
+    <Content Include="HD3web\bin\Microsoft.ServiceModel.Web.dll" />
+    <Content Include="HD3web\bin\System.Web.Extensions.dll" />
+    <Content Include="HD3web\Default.aspx" />
+    <Content Include="HD3web\Devices.aspx" />
+    <Content Include="HD3web\mobile.txt" />
+    <Content Include="HD3web\normal.txt" />
+    <Content Include="HD3web\Sites.aspx" />
+    <Content Include="HD3web\Tests.aspx" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="HD3web\.svn\prop-base\" />
+    <Folder Include="HD3web\.svn\props\" />
+    <Folder Include="HD3web\.svn\tmp\prop-base\" />
+    <Folder Include="HD3web\.svn\tmp\props\" />
+    <Folder Include="HD3web\.svn\tmp\text-base\" />
+    <Folder Include="HD3web\bin\.svn\props\" />
+    <Folder Include="HD3web\bin\.svn\tmp\prop-base\" />
+    <Folder Include="HD3web\bin\.svn\tmp\props\" />
+    <Folder Include="HD3web\bin\.svn\tmp\text-base\" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

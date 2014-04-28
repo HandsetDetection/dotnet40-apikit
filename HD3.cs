@@ -55,7 +55,7 @@ using System.Runtime.Caching;
 namespace HD3 {
 
     public class HD3Cache {
-        private int maxJsonLength = 20000000;
+        private int maxJsonLength = 40000000;
         string prefix = "hd32-";
         ObjectCache myCache;
         CacheItemPolicy policy = new CacheItemPolicy();
@@ -95,7 +95,7 @@ namespace HD3 {
     /// Main class for all handset detection API calls
     /// </summary>
     public class HD3 {
-        int maxJsonLength = 20000000;
+        int maxJsonLength = 40000000;
         int read_timeout = 10;
         int connect_timeout = 10;
         string username = "";
