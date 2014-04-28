@@ -1,0 +1,61 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>HD3</name>
+    </assembly>
+    <members>
+        <member name="T:HD3.HD3">
+            <summary>
+            Main class for all handset detection API calls
+            </summary>
+        </member>
+        <member name="M:HD3.HD3.#ctor(System.Web.HttpRequest)">
+            <summary>
+            Initializes the necessary information for a lookup from request object
+            Accepts Object inializers 
+            </summary>
+            <param name="request">HttpRequest object from page</param>
+        </member>
+        <member name="M:HD3.HD3.setDetectVar(System.String,System.String)">
+            <summary>Sets additional http headers for detection request, will override default headers.</summary>
+            <param name="key"></param>
+            <param name="val"></param>
+        </member>
+        <member name="M:HD3.HD3.Remote(System.String,System.Collections.Generic.Dictionary{System.String,System.String})">
+            <summary>
+            Pre processes the request and try different servers on error/timeout
+            </summary>
+            <param name="data"></param>
+            <param name="service">Service strings vary depending on the information needed</param>
+            <returns>JsonData</returns>
+        </member>
+        <member name="M:HD3.HD3.deviceVendors">
+            <summary>Fetches all supported Vendors available at handsetdetection.com</summary>
+            <returns>true if successful, false otherwise</returns>
+        </member>
+        <member name="M:HD3.HD3.deviceModels(System.String)">
+            <summary>
+            Fetches all available phone models in handsetdetection.com database. If a vendor is specified then
+            only models for that vendor are returned. Call getModel() to get access to the returned list.
+            </summary>
+            <param name="vendor">all or a valid vendor name</param>
+            <returns>true if successful, false otherwise</returns>
+        </member>
+        <member name="M:HD3.HD3.deviceView(System.String,System.String)">
+            <summary>
+            Provides information on a handset given the vendor and model.
+            </summary>
+            <param name="vendor">vendor</param>
+            <param name="model">model</param>
+            <returns>true if successful, false otherwise</returns>
+        </member>
+        <member name="M:HD3.HD3.deviceWhatHas(System.String,System.String)">
+            <summary>
+            Provides information on a handset given the key and value.
+            </summary>
+            <param name="key">key</param>
+            <param name="value">value</param>
+            <returns></returns>
+        </member>
+    </members>
+</doc>

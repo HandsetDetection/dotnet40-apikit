@@ -1,0 +1,11 @@
+C:\HD32b.net40\HD3lib\bin\Debug\HD3.dll
+C:\HD32b.net40\HD3lib\bin\Debug\HD3.pdb
+C:\HD32b.net40\HD3lib\obj\Debug\ResolveAssemblyReference.cache
+C:\HD32b.net40\HD3lib\obj\Debug\HD3.dll
+C:\HD32b.net40\HD3lib\obj\Debug\HD3.pdb
+C:\Users\Bobcat\Desktop\HandsetDetection\dotnet40-apikit\HD3lib\bin\Debug\HD3.dll
+C:\Users\Bobcat\Desktop\HandsetDetection\dotnet40-apikit\HD3lib\bin\Debug\HD3.pdb
+C:\Users\Bobcat\Desktop\HandsetDetection\dotnet40-apikit\HD3lib\bin\Debug\nunit.framework.dll
+C:\Users\Bobcat\Desktop\HandsetDetection\dotnet40-apikit\HD3lib\bin\Debug\nunit.framework.xml
+C:\Users\Bobcat\Desktop\HandsetDetection\dotnet40-apikit\HD3lib\obj\Debug\HD3.dll
+C:\Users\Bobcat\Desktop\HandsetDetection\dotnet40-apikit\HD3lib\obj\Debug\HD3.pdb
