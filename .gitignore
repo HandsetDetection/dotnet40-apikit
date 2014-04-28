@@ -37,3 +37,5 @@ _ReSharper*/
 .svn/
 __MACOSX/
 .DS_Store
+!obj/
+!bin/
