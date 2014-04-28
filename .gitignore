@@ -31,7 +31,6 @@ Thumbs.db
 *.sbr
 *.gitignore
 .gitignore
-obj/
 [Rr]elease*/
 _ReSharper*/
 [Tt]est[Rr]esult*
