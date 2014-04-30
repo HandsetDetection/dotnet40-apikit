@@ -54,11 +54,18 @@ using System.Runtime.Caching;
 
 namespace HD3 {
 
+    ///<Summary>
+    /// The HD3Cache class
+    ///</Summary>
     public class HD3Cache {
         private int maxJsonLength = 40000000;
         string prefix = "hd32-";
         ObjectCache myCache;
         CacheItemPolicy policy = new CacheItemPolicy();
+
+        ///<Summary>
+        /// The HD3Cache class constructor
+        ///</Summary>
         public HD3Cache() {
             policy.AbsoluteExpiration = new DateTimeOffset(DateTime.Now.AddHours(24));
             NameValueCollection CacheSettings = new NameValueCollection(3);
@@ -67,6 +74,11 @@ namespace HD3 {
             this.myCache = MemoryCache.Default;
         }
 
+        /// <summary>
+        /// Write new object to dictionary
+        /// </summary>
+        /// <param name="key"></param>
+        /// <param name="value"></param>
         public void write(string key, Dictionary<string, dynamic> value) {
            if (value != null && key != "") {
                 var jss = new JavaScriptSerializer();
@@ -76,6 +88,11 @@ namespace HD3 {
             }
         }
 
+        /// <summary>
+        /// Read object from dictionary
+        /// </summary>
+        /// <param name="key"></param>
+        /// <returns></returns>
         public Dictionary<string, dynamic> read(string key) {
             try {
                 //return myCache.Get(key) as Dictionary<string, dynamic>;
@@ -138,6 +155,9 @@ namespace HD3 {
 #endif
         }
 
+        /// <summary>
+        /// Return replay
+        /// </summary>
         private void setRawReply() {
             var jss = new JavaScriptSerializer();
             jss.MaxJsonLength = this.maxJsonLength;
@@ -865,6 +885,10 @@ namespace HD3 {
 
         #endregion
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
         public bool siteFetchAll() {
             bool status = false;
             status = this.siteFetchSpecs();
@@ -876,6 +900,10 @@ namespace HD3 {
             return true;
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
         public bool siteFetchTrees() {
             resetLog();
             bool status = this.Remote("/site/fetchtrees/" + this.site_id + ".json", null);
@@ -895,6 +923,10 @@ namespace HD3 {
             return _setCacheTrees();
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
         private bool _setCacheTrees() {
             Dictionary<string, dynamic> data = _localGetTrees();
             if (data == null || ! data.ContainsKey("trees")) {
@@ -913,6 +945,10 @@ namespace HD3 {
             return true;
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
         public bool siteFetchSpecs() {
             resetLog();
             bool status = this.Remote("/site/fetchspecs/" + this.site_id + ".json", null);
@@ -933,6 +969,10 @@ namespace HD3 {
             return _setCacheSpecs();
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
         private bool _setCacheSpecs() {
             Dictionary<string, dynamic> data = _localGetSpecs();
 
@@ -967,6 +1007,12 @@ namespace HD3 {
             return true;
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="id"></param>
+        /// <param name="type"></param>
+        /// <returns></returns>
         private Dictionary<string, dynamic> _getCacheSpecs(int id, string type) {
             // Read local first
             string key = type + Convert.ToInt32(id);
@@ -1002,6 +1048,10 @@ namespace HD3 {
             return null;
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
         private Dictionary<string, dynamic> _localGetSpecs() {
             var jss = new JavaScriptSerializer();
             jss.MaxJsonLength = this.maxJsonLength;
@@ -1016,6 +1066,10 @@ namespace HD3 {
             return null;
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
         private Dictionary<string, dynamic> _localGetTrees() {
             var jss = new JavaScriptSerializer();
             jss.MaxJsonLength = this.maxJsonLength;
@@ -1030,6 +1084,10 @@ namespace HD3 {
             return null;
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
         private bool _localPutSpecs() {
             try {
                 System.IO.File.WriteAllText(Request.PhysicalApplicationPath + "\\hd3specs.json", this.rawreply.ToString());
@@ -1040,6 +1098,10 @@ namespace HD3 {
             return false;
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
         private bool _localPutTrees() {
             try {
                 System.IO.File.WriteAllText(Request.PhysicalApplicationPath + "\\hd3trees.json", this.rawreply.ToString());

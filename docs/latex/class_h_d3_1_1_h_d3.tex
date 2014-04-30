@@ -1,0 +1,429 @@
+\hypertarget{class_h_d3_1_1_h_d3}{\section{H\+D3.\+H\+D3 Class Reference}
+\label{class_h_d3_1_1_h_d3}\index{H\+D3.\+H\+D3@{H\+D3.\+H\+D3}}
+}
+
+
+Main class for all handset detection A\+P\+I calls  
+
+
+\subsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\hypertarget{class_h_d3_1_1_h_d3_a08cdeab81f9bddbfb126a7321ea2fd8c}{string {\bfseries get\+Raw\+Reply} ()}\label{class_h_d3_1_1_h_d3_a08cdeab81f9bddbfb126a7321ea2fd8c}
+
+\item 
+\hypertarget{class_h_d3_1_1_h_d3_ad79fcc6a7b1e5d38abc7219af87b3a2f}{dynamic {\bfseries get\+Reply} ()}\label{class_h_d3_1_1_h_d3_ad79fcc6a7b1e5d38abc7219af87b3a2f}
+
+\item 
+\hypertarget{class_h_d3_1_1_h_d3_a3dc243815bb91775b05d6fb148959983}{string {\bfseries get\+Error} ()}\label{class_h_d3_1_1_h_d3_a3dc243815bb91775b05d6fb148959983}
+
+\item 
+\hyperlink{class_h_d3_1_1_h_d3_a0a238bb9c0e43132312e5c863292c577}{H\+D3} (Http\+Request request)
+\begin{DoxyCompactList}\small\item\em Initializes the necessary information for a lookup from request object Accepts Object inializers \end{DoxyCompactList}\item 
+void \hyperlink{class_h_d3_1_1_h_d3_a658104a63e4bac0a909cdcfed8c2d49b}{set\+Detect\+Var} (string key, string val)
+\begin{DoxyCompactList}\small\item\em Sets additional http headers for detection request, will override default headers.\end{DoxyCompactList}\item 
+\hypertarget{class_h_d3_1_1_h_d3_a92e1a5bec8573497497bb7e4082a6b5c}{void {\bfseries reset\+Log} ()}\label{class_h_d3_1_1_h_d3_a92e1a5bec8573497497bb7e4082a6b5c}
+
+\item 
+\hypertarget{class_h_d3_1_1_h_d3_a2436e33681884291c6ad1b2ee112e17b}{string {\bfseries get\+Log} ()}\label{class_h_d3_1_1_h_d3_a2436e33681884291c6ad1b2ee112e17b}
+
+\item 
+\hypertarget{class_h_d3_1_1_h_d3_a0431d69035a8245a195f9060d5525790}{void {\bfseries clean\+Up} ()}\label{class_h_d3_1_1_h_d3_a0431d69035a8245a195f9060d5525790}
+
+\item 
+bool \hyperlink{class_h_d3_1_1_h_d3_aa2f63450321e2f47b2cb3baf8ff1a5e8}{device\+Vendors} ()
+\begin{DoxyCompactList}\small\item\em Fetches all supported Vendors available at handsetdetection.\+com\end{DoxyCompactList}\item 
+bool \hyperlink{class_h_d3_1_1_h_d3_a5af669048eb1d372a703dd53b242fe2f}{device\+Models} (string vendor)
+\begin{DoxyCompactList}\small\item\em Fetches all available phone models in handsetdetection.\+com database. If a vendor is specified then only models for that vendor are returned. Call get\+Model() to get access to the returned list. \end{DoxyCompactList}\item 
+bool \hyperlink{class_h_d3_1_1_h_d3_aaba6d717a4579ca6fa7c5727e5d92333}{device\+View} (string vendor, string model)
+\begin{DoxyCompactList}\small\item\em Provides information on a handset given the vendor and model. \end{DoxyCompactList}\item 
+bool \hyperlink{class_h_d3_1_1_h_d3_a9640edbaf4dd41cd1c8bec9fa86f53a6}{device\+What\+Has} (string key, string value)
+\begin{DoxyCompactList}\small\item\em Provides information on a handset given the key and value. \end{DoxyCompactList}\item 
+\hypertarget{class_h_d3_1_1_h_d3_a094f2de65aed6b70560ae08c8fabfb2b}{bool {\bfseries site\+Detect} (string options=\char`\"{}hd\+\_\+specs\char`\"{})}\label{class_h_d3_1_1_h_d3_a094f2de65aed6b70560ae08c8fabfb2b}
+
+\item 
+\hypertarget{class_h_d3_1_1_h_d3_ad40ca41ce8ab43e23d9fec5d69eb59b5}{bool {\bfseries site\+Fetch\+All} ()}\label{class_h_d3_1_1_h_d3_ad40ca41ce8ab43e23d9fec5d69eb59b5}
+
+\item 
+\hypertarget{class_h_d3_1_1_h_d3_ab7987ac1e6295533e55dcd5d300ae9cc}{bool {\bfseries site\+Fetch\+Trees} ()}\label{class_h_d3_1_1_h_d3_ab7987ac1e6295533e55dcd5d300ae9cc}
+
+\item 
+\hypertarget{class_h_d3_1_1_h_d3_ae8d86be9f088829ebe42214cfb26672e}{bool {\bfseries site\+Fetch\+Specs} ()}\label{class_h_d3_1_1_h_d3_ae8d86be9f088829ebe42214cfb26672e}
+
+\item 
+\hypertarget{class_h_d3_1_1_h_d3_a08cdeab81f9bddbfb126a7321ea2fd8c}{string {\bfseries get\+Raw\+Reply} ()}\label{class_h_d3_1_1_h_d3_a08cdeab81f9bddbfb126a7321ea2fd8c}
+
+\item 
+\hypertarget{class_h_d3_1_1_h_d3_ad79fcc6a7b1e5d38abc7219af87b3a2f}{dynamic {\bfseries get\+Reply} ()}\label{class_h_d3_1_1_h_d3_ad79fcc6a7b1e5d38abc7219af87b3a2f}
+
+\item 
+\hypertarget{class_h_d3_1_1_h_d3_a3dc243815bb91775b05d6fb148959983}{string {\bfseries get\+Error} ()}\label{class_h_d3_1_1_h_d3_a3dc243815bb91775b05d6fb148959983}
+
+\item 
+\hyperlink{class_h_d3_1_1_h_d3_a0a238bb9c0e43132312e5c863292c577}{H\+D3} (Http\+Request request)
+\begin{DoxyCompactList}\small\item\em Initializes the necessary information for a lookup from request object Accepts Object inializers \end{DoxyCompactList}\item 
+void \hyperlink{class_h_d3_1_1_h_d3_a658104a63e4bac0a909cdcfed8c2d49b}{set\+Detect\+Var} (string key, string val)
+\begin{DoxyCompactList}\small\item\em Sets additional http headers for detection request, will override default headers.\end{DoxyCompactList}\item 
+\hypertarget{class_h_d3_1_1_h_d3_a92e1a5bec8573497497bb7e4082a6b5c}{void {\bfseries reset\+Log} ()}\label{class_h_d3_1_1_h_d3_a92e1a5bec8573497497bb7e4082a6b5c}
+
+\item 
+\hypertarget{class_h_d3_1_1_h_d3_a2436e33681884291c6ad1b2ee112e17b}{string {\bfseries get\+Log} ()}\label{class_h_d3_1_1_h_d3_a2436e33681884291c6ad1b2ee112e17b}
+
+\item 
+\hypertarget{class_h_d3_1_1_h_d3_a0431d69035a8245a195f9060d5525790}{void {\bfseries clean\+Up} ()}\label{class_h_d3_1_1_h_d3_a0431d69035a8245a195f9060d5525790}
+
+\item 
+bool \hyperlink{class_h_d3_1_1_h_d3_aa2f63450321e2f47b2cb3baf8ff1a5e8}{device\+Vendors} ()
+\begin{DoxyCompactList}\small\item\em Fetches all supported Vendors available at handsetdetection.\+com\end{DoxyCompactList}\item 
+bool \hyperlink{class_h_d3_1_1_h_d3_a5af669048eb1d372a703dd53b242fe2f}{device\+Models} (string vendor)
+\begin{DoxyCompactList}\small\item\em Fetches all available phone models in handsetdetection.\+com database. If a vendor is specified then only models for that vendor are returned. Call get\+Model() to get access to the returned list. \end{DoxyCompactList}\item 
+bool \hyperlink{class_h_d3_1_1_h_d3_aaba6d717a4579ca6fa7c5727e5d92333}{device\+View} (string vendor, string model)
+\begin{DoxyCompactList}\small\item\em Provides information on a handset given the vendor and model. \end{DoxyCompactList}\item 
+bool \hyperlink{class_h_d3_1_1_h_d3_a9640edbaf4dd41cd1c8bec9fa86f53a6}{device\+What\+Has} (string key, string value)
+\begin{DoxyCompactList}\small\item\em Provides information on a handset given the key and value. \end{DoxyCompactList}\item 
+\hypertarget{class_h_d3_1_1_h_d3_a094f2de65aed6b70560ae08c8fabfb2b}{bool {\bfseries site\+Detect} (string options=\char`\"{}hd\+\_\+specs\char`\"{})}\label{class_h_d3_1_1_h_d3_a094f2de65aed6b70560ae08c8fabfb2b}
+
+\item 
+bool \hyperlink{class_h_d3_1_1_h_d3_ad40ca41ce8ab43e23d9fec5d69eb59b5}{site\+Fetch\+All} ()
+\item 
+bool \hyperlink{class_h_d3_1_1_h_d3_ab7987ac1e6295533e55dcd5d300ae9cc}{site\+Fetch\+Trees} ()
+\item 
+bool \hyperlink{class_h_d3_1_1_h_d3_ae8d86be9f088829ebe42214cfb26672e}{site\+Fetch\+Specs} ()
+\end{DoxyCompactItemize}
+\subsection*{Public Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\hypertarget{class_h_d3_1_1_h_d3_af413d17666d552b40589ad290802f868}{string {\bfseries log} = \char`\"{}\char`\"{}}\label{class_h_d3_1_1_h_d3_af413d17666d552b40589ad290802f868}
+
+\end{DoxyCompactItemize}
+\subsection*{Properties}
+\begin{DoxyCompactItemize}
+\item 
+\hypertarget{class_h_d3_1_1_h_d3_a52ca1bb216ac5a05d0f97780b5b16dee}{int {\bfseries Read\+Timeout}\hspace{0.3cm}{\ttfamily  \mbox{[}get, set\mbox{]}}}\label{class_h_d3_1_1_h_d3_a52ca1bb216ac5a05d0f97780b5b16dee}
+
+\item 
+\hypertarget{class_h_d3_1_1_h_d3_a9fbf3afb5c9b20dbd781c74864fbed59}{int {\bfseries Connect\+Timeout}\hspace{0.3cm}{\ttfamily  \mbox{[}get, set\mbox{]}}}\label{class_h_d3_1_1_h_d3_a9fbf3afb5c9b20dbd781c74864fbed59}
+
+\item 
+\hypertarget{class_h_d3_1_1_h_d3_af24410685eb95084649ac58b24e5349e}{string {\bfseries Username}\hspace{0.3cm}{\ttfamily  \mbox{[}get, set\mbox{]}}}\label{class_h_d3_1_1_h_d3_af24410685eb95084649ac58b24e5349e}
+
+\item 
+\hypertarget{class_h_d3_1_1_h_d3_ac95f6be2551f612f59bad083abacfb42}{string {\bfseries Secret}\hspace{0.3cm}{\ttfamily  \mbox{[}get, set\mbox{]}}}\label{class_h_d3_1_1_h_d3_ac95f6be2551f612f59bad083abacfb42}
+
+\item 
+\hypertarget{class_h_d3_1_1_h_d3_a2aaf415e233764b3da83eacaeab7d62d}{string {\bfseries Site\+Id}\hspace{0.3cm}{\ttfamily  \mbox{[}get, set\mbox{]}}}\label{class_h_d3_1_1_h_d3_a2aaf415e233764b3da83eacaeab7d62d}
+
+\item 
+\hypertarget{class_h_d3_1_1_h_d3_a0d7be479af393a7f9e17d329f123db41}{bool {\bfseries Use\+Local}\hspace{0.3cm}{\ttfamily  \mbox{[}get, set\mbox{]}}}\label{class_h_d3_1_1_h_d3_a0d7be479af393a7f9e17d329f123db41}
+
+\item 
+\hypertarget{class_h_d3_1_1_h_d3_a812cd4c1d783d795ea5eb013cd2e9e9b}{bool {\bfseries Use\+Proxy}\hspace{0.3cm}{\ttfamily  \mbox{[}get, set\mbox{]}}}\label{class_h_d3_1_1_h_d3_a812cd4c1d783d795ea5eb013cd2e9e9b}
+
+\item 
+\hypertarget{class_h_d3_1_1_h_d3_a964cd4701dc83befef4e9c0fd8e21462}{string {\bfseries Proxy\+Server}\hspace{0.3cm}{\ttfamily  \mbox{[}get, set\mbox{]}}}\label{class_h_d3_1_1_h_d3_a964cd4701dc83befef4e9c0fd8e21462}
+
+\item 
+\hypertarget{class_h_d3_1_1_h_d3_af92cba5e3de6cca12335a77423ba3413}{string {\bfseries Proxy\+Port}\hspace{0.3cm}{\ttfamily  \mbox{[}get, set\mbox{]}}}\label{class_h_d3_1_1_h_d3_af92cba5e3de6cca12335a77423ba3413}
+
+\item 
+\hypertarget{class_h_d3_1_1_h_d3_a4ccc6ceb0f1535917177d94ca8bb8def}{string {\bfseries Proxy\+Pass}\hspace{0.3cm}{\ttfamily  \mbox{[}get, set\mbox{]}}}\label{class_h_d3_1_1_h_d3_a4ccc6ceb0f1535917177d94ca8bb8def}
+
+\item 
+\hypertarget{class_h_d3_1_1_h_d3_a552e44bcefd4244b7279abf1dc2c10fb}{string {\bfseries Proxy\+User}\hspace{0.3cm}{\ttfamily  \mbox{[}get, set\mbox{]}}}\label{class_h_d3_1_1_h_d3_a552e44bcefd4244b7279abf1dc2c10fb}
+
+\item 
+\hypertarget{class_h_d3_1_1_h_d3_a35d1f45be522060d497b7ee727dd1e36}{string {\bfseries Match\+Filter}\hspace{0.3cm}{\ttfamily  \mbox{[}get, set\mbox{]}}}\label{class_h_d3_1_1_h_d3_a35d1f45be522060d497b7ee727dd1e36}
+
+\item 
+\hypertarget{class_h_d3_1_1_h_d3_a6af54b9273944f22dfa1d04b0441f73f}{string {\bfseries Non\+Mobile}\hspace{0.3cm}{\ttfamily  \mbox{[}get, set\mbox{]}}}\label{class_h_d3_1_1_h_d3_a6af54b9273944f22dfa1d04b0441f73f}
+
+\item 
+\hypertarget{class_h_d3_1_1_h_d3_ac6d923a19fa138b6eab2882121106640}{string {\bfseries Api\+Server}\hspace{0.3cm}{\ttfamily  \mbox{[}get, set\mbox{]}}}\label{class_h_d3_1_1_h_d3_ac6d923a19fa138b6eab2882121106640}
+
+\item 
+\hypertarget{class_h_d3_1_1_h_d3_a931745a4ed8826fffcf43c010ee80531}{string {\bfseries Log\+Server}\hspace{0.3cm}{\ttfamily  \mbox{[}get, set\mbox{]}}}\label{class_h_d3_1_1_h_d3_a931745a4ed8826fffcf43c010ee80531}
+
+\end{DoxyCompactItemize}
+
+
+\subsection{Detailed Description}
+Main class for all handset detection A\+P\+I calls 
+
+
+
+\subsection{Constructor \& Destructor Documentation}
+\hypertarget{class_h_d3_1_1_h_d3_a0a238bb9c0e43132312e5c863292c577}{\index{H\+D3\+::\+H\+D3@{H\+D3\+::\+H\+D3}!H\+D3@{H\+D3}}
+\index{H\+D3@{H\+D3}!H\+D3\+::\+H\+D3@{H\+D3\+::\+H\+D3}}
+\subsubsection[{H\+D3}]{\setlength{\rightskip}{0pt plus 5cm}H\+D3.\+H\+D3.\+H\+D3 (
+\begin{DoxyParamCaption}
+\item[{Http\+Request}]{request}
+\end{DoxyParamCaption}
+)}}\label{class_h_d3_1_1_h_d3_a0a238bb9c0e43132312e5c863292c577}
+
+
+Initializes the necessary information for a lookup from request object Accepts Object inializers 
+
+
+\begin{DoxyParams}{Parameters}
+{\em request} & Http\+Request object from page\\
+\hline
+\end{DoxyParams}
+\hypertarget{class_h_d3_1_1_h_d3_a0a238bb9c0e43132312e5c863292c577}{\index{H\+D3\+::\+H\+D3@{H\+D3\+::\+H\+D3}!H\+D3@{H\+D3}}
+\index{H\+D3@{H\+D3}!H\+D3\+::\+H\+D3@{H\+D3\+::\+H\+D3}}
+\subsubsection[{H\+D3}]{\setlength{\rightskip}{0pt plus 5cm}H\+D3.\+H\+D3.\+H\+D3 (
+\begin{DoxyParamCaption}
+\item[{Http\+Request}]{request}
+\end{DoxyParamCaption}
+)}}\label{class_h_d3_1_1_h_d3_a0a238bb9c0e43132312e5c863292c577}
+
+
+Initializes the necessary information for a lookup from request object Accepts Object inializers 
+
+
+\begin{DoxyParams}{Parameters}
+{\em request} & Http\+Request object from page\\
+\hline
+\end{DoxyParams}
+
+
+\subsection{Member Function Documentation}
+\hypertarget{class_h_d3_1_1_h_d3_a5af669048eb1d372a703dd53b242fe2f}{\index{H\+D3\+::\+H\+D3@{H\+D3\+::\+H\+D3}!device\+Models@{device\+Models}}
+\index{device\+Models@{device\+Models}!H\+D3\+::\+H\+D3@{H\+D3\+::\+H\+D3}}
+\subsubsection[{device\+Models}]{\setlength{\rightskip}{0pt plus 5cm}bool H\+D3.\+H\+D3.\+device\+Models (
+\begin{DoxyParamCaption}
+\item[{string}]{vendor}
+\end{DoxyParamCaption}
+)}}\label{class_h_d3_1_1_h_d3_a5af669048eb1d372a703dd53b242fe2f}
+
+
+Fetches all available phone models in handsetdetection.\+com database. If a vendor is specified then only models for that vendor are returned. Call get\+Model() to get access to the returned list. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em vendor} & all or a valid vendor name\\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+true if successful, false otherwise
+\end{DoxyReturn}
+\hypertarget{class_h_d3_1_1_h_d3_a5af669048eb1d372a703dd53b242fe2f}{\index{H\+D3\+::\+H\+D3@{H\+D3\+::\+H\+D3}!device\+Models@{device\+Models}}
+\index{device\+Models@{device\+Models}!H\+D3\+::\+H\+D3@{H\+D3\+::\+H\+D3}}
+\subsubsection[{device\+Models}]{\setlength{\rightskip}{0pt plus 5cm}bool H\+D3.\+H\+D3.\+device\+Models (
+\begin{DoxyParamCaption}
+\item[{string}]{vendor}
+\end{DoxyParamCaption}
+)}}\label{class_h_d3_1_1_h_d3_a5af669048eb1d372a703dd53b242fe2f}
+
+
+Fetches all available phone models in handsetdetection.\+com database. If a vendor is specified then only models for that vendor are returned. Call get\+Model() to get access to the returned list. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em vendor} & all or a valid vendor name\\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+true if successful, false otherwise
+\end{DoxyReturn}
+\hypertarget{class_h_d3_1_1_h_d3_aa2f63450321e2f47b2cb3baf8ff1a5e8}{\index{H\+D3\+::\+H\+D3@{H\+D3\+::\+H\+D3}!device\+Vendors@{device\+Vendors}}
+\index{device\+Vendors@{device\+Vendors}!H\+D3\+::\+H\+D3@{H\+D3\+::\+H\+D3}}
+\subsubsection[{device\+Vendors}]{\setlength{\rightskip}{0pt plus 5cm}bool H\+D3.\+H\+D3.\+device\+Vendors (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)}}\label{class_h_d3_1_1_h_d3_aa2f63450321e2f47b2cb3baf8ff1a5e8}
+
+
+Fetches all supported Vendors available at handsetdetection.\+com
+
+\begin{DoxyReturn}{Returns}
+true if successful, false otherwise
+\end{DoxyReturn}
+\hypertarget{class_h_d3_1_1_h_d3_aa2f63450321e2f47b2cb3baf8ff1a5e8}{\index{H\+D3\+::\+H\+D3@{H\+D3\+::\+H\+D3}!device\+Vendors@{device\+Vendors}}
+\index{device\+Vendors@{device\+Vendors}!H\+D3\+::\+H\+D3@{H\+D3\+::\+H\+D3}}
+\subsubsection[{device\+Vendors}]{\setlength{\rightskip}{0pt plus 5cm}bool H\+D3.\+H\+D3.\+device\+Vendors (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)}}\label{class_h_d3_1_1_h_d3_aa2f63450321e2f47b2cb3baf8ff1a5e8}
+
+
+Fetches all supported Vendors available at handsetdetection.\+com
+
+\begin{DoxyReturn}{Returns}
+true if successful, false otherwise
+\end{DoxyReturn}
+\hypertarget{class_h_d3_1_1_h_d3_aaba6d717a4579ca6fa7c5727e5d92333}{\index{H\+D3\+::\+H\+D3@{H\+D3\+::\+H\+D3}!device\+View@{device\+View}}
+\index{device\+View@{device\+View}!H\+D3\+::\+H\+D3@{H\+D3\+::\+H\+D3}}
+\subsubsection[{device\+View}]{\setlength{\rightskip}{0pt plus 5cm}bool H\+D3.\+H\+D3.\+device\+View (
+\begin{DoxyParamCaption}
+\item[{string}]{vendor, }
+\item[{string}]{model}
+\end{DoxyParamCaption}
+)}}\label{class_h_d3_1_1_h_d3_aaba6d717a4579ca6fa7c5727e5d92333}
+
+
+Provides information on a handset given the vendor and model. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em vendor} & vendor\\
+\hline
+{\em model} & model\\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+true if successful, false otherwise
+\end{DoxyReturn}
+\hypertarget{class_h_d3_1_1_h_d3_aaba6d717a4579ca6fa7c5727e5d92333}{\index{H\+D3\+::\+H\+D3@{H\+D3\+::\+H\+D3}!device\+View@{device\+View}}
+\index{device\+View@{device\+View}!H\+D3\+::\+H\+D3@{H\+D3\+::\+H\+D3}}
+\subsubsection[{device\+View}]{\setlength{\rightskip}{0pt plus 5cm}bool H\+D3.\+H\+D3.\+device\+View (
+\begin{DoxyParamCaption}
+\item[{string}]{vendor, }
+\item[{string}]{model}
+\end{DoxyParamCaption}
+)}}\label{class_h_d3_1_1_h_d3_aaba6d717a4579ca6fa7c5727e5d92333}
+
+
+Provides information on a handset given the vendor and model. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em vendor} & vendor\\
+\hline
+{\em model} & model\\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+true if successful, false otherwise
+\end{DoxyReturn}
+\hypertarget{class_h_d3_1_1_h_d3_a9640edbaf4dd41cd1c8bec9fa86f53a6}{\index{H\+D3\+::\+H\+D3@{H\+D3\+::\+H\+D3}!device\+What\+Has@{device\+What\+Has}}
+\index{device\+What\+Has@{device\+What\+Has}!H\+D3\+::\+H\+D3@{H\+D3\+::\+H\+D3}}
+\subsubsection[{device\+What\+Has}]{\setlength{\rightskip}{0pt plus 5cm}bool H\+D3.\+H\+D3.\+device\+What\+Has (
+\begin{DoxyParamCaption}
+\item[{string}]{key, }
+\item[{string}]{value}
+\end{DoxyParamCaption}
+)}}\label{class_h_d3_1_1_h_d3_a9640edbaf4dd41cd1c8bec9fa86f53a6}
+
+
+Provides information on a handset given the key and value. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em key} & key\\
+\hline
+{\em value} & value\\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+
+\end{DoxyReturn}
+\hypertarget{class_h_d3_1_1_h_d3_a9640edbaf4dd41cd1c8bec9fa86f53a6}{\index{H\+D3\+::\+H\+D3@{H\+D3\+::\+H\+D3}!device\+What\+Has@{device\+What\+Has}}
+\index{device\+What\+Has@{device\+What\+Has}!H\+D3\+::\+H\+D3@{H\+D3\+::\+H\+D3}}
+\subsubsection[{device\+What\+Has}]{\setlength{\rightskip}{0pt plus 5cm}bool H\+D3.\+H\+D3.\+device\+What\+Has (
+\begin{DoxyParamCaption}
+\item[{string}]{key, }
+\item[{string}]{value}
+\end{DoxyParamCaption}
+)}}\label{class_h_d3_1_1_h_d3_a9640edbaf4dd41cd1c8bec9fa86f53a6}
+
+
+Provides information on a handset given the key and value. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em key} & key\\
+\hline
+{\em value} & value\\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+
+\end{DoxyReturn}
+\hypertarget{class_h_d3_1_1_h_d3_a658104a63e4bac0a909cdcfed8c2d49b}{\index{H\+D3\+::\+H\+D3@{H\+D3\+::\+H\+D3}!set\+Detect\+Var@{set\+Detect\+Var}}
+\index{set\+Detect\+Var@{set\+Detect\+Var}!H\+D3\+::\+H\+D3@{H\+D3\+::\+H\+D3}}
+\subsubsection[{set\+Detect\+Var}]{\setlength{\rightskip}{0pt plus 5cm}void H\+D3.\+H\+D3.\+set\+Detect\+Var (
+\begin{DoxyParamCaption}
+\item[{string}]{key, }
+\item[{string}]{val}
+\end{DoxyParamCaption}
+)}}\label{class_h_d3_1_1_h_d3_a658104a63e4bac0a909cdcfed8c2d49b}
+
+
+Sets additional http headers for detection request, will override default headers.
+
+
+\begin{DoxyParams}{Parameters}
+{\em key} & \\
+\hline
+{\em val} & \\
+\hline
+\end{DoxyParams}
+\hypertarget{class_h_d3_1_1_h_d3_a658104a63e4bac0a909cdcfed8c2d49b}{\index{H\+D3\+::\+H\+D3@{H\+D3\+::\+H\+D3}!set\+Detect\+Var@{set\+Detect\+Var}}
+\index{set\+Detect\+Var@{set\+Detect\+Var}!H\+D3\+::\+H\+D3@{H\+D3\+::\+H\+D3}}
+\subsubsection[{set\+Detect\+Var}]{\setlength{\rightskip}{0pt plus 5cm}void H\+D3.\+H\+D3.\+set\+Detect\+Var (
+\begin{DoxyParamCaption}
+\item[{string}]{key, }
+\item[{string}]{val}
+\end{DoxyParamCaption}
+)}}\label{class_h_d3_1_1_h_d3_a658104a63e4bac0a909cdcfed8c2d49b}
+
+
+Sets additional http headers for detection request, will override default headers.
+
+
+\begin{DoxyParams}{Parameters}
+{\em key} & \\
+\hline
+{\em val} & \\
+\hline
+\end{DoxyParams}
+\hypertarget{class_h_d3_1_1_h_d3_ad40ca41ce8ab43e23d9fec5d69eb59b5}{\index{H\+D3\+::\+H\+D3@{H\+D3\+::\+H\+D3}!site\+Fetch\+All@{site\+Fetch\+All}}
+\index{site\+Fetch\+All@{site\+Fetch\+All}!H\+D3\+::\+H\+D3@{H\+D3\+::\+H\+D3}}
+\subsubsection[{site\+Fetch\+All}]{\setlength{\rightskip}{0pt plus 5cm}bool H\+D3.\+H\+D3.\+site\+Fetch\+All (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)}}\label{class_h_d3_1_1_h_d3_ad40ca41ce8ab43e23d9fec5d69eb59b5}
+
+
+
+
+\begin{DoxyReturn}{Returns}
+
+\end{DoxyReturn}
+\hypertarget{class_h_d3_1_1_h_d3_ae8d86be9f088829ebe42214cfb26672e}{\index{H\+D3\+::\+H\+D3@{H\+D3\+::\+H\+D3}!site\+Fetch\+Specs@{site\+Fetch\+Specs}}
+\index{site\+Fetch\+Specs@{site\+Fetch\+Specs}!H\+D3\+::\+H\+D3@{H\+D3\+::\+H\+D3}}
+\subsubsection[{site\+Fetch\+Specs}]{\setlength{\rightskip}{0pt plus 5cm}bool H\+D3.\+H\+D3.\+site\+Fetch\+Specs (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)}}\label{class_h_d3_1_1_h_d3_ae8d86be9f088829ebe42214cfb26672e}
+
+
+
+
+\begin{DoxyReturn}{Returns}
+
+\end{DoxyReturn}
+\hypertarget{class_h_d3_1_1_h_d3_ab7987ac1e6295533e55dcd5d300ae9cc}{\index{H\+D3\+::\+H\+D3@{H\+D3\+::\+H\+D3}!site\+Fetch\+Trees@{site\+Fetch\+Trees}}
+\index{site\+Fetch\+Trees@{site\+Fetch\+Trees}!H\+D3\+::\+H\+D3@{H\+D3\+::\+H\+D3}}
+\subsubsection[{site\+Fetch\+Trees}]{\setlength{\rightskip}{0pt plus 5cm}bool H\+D3.\+H\+D3.\+site\+Fetch\+Trees (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)}}\label{class_h_d3_1_1_h_d3_ab7987ac1e6295533e55dcd5d300ae9cc}
+
+
+
+
+\begin{DoxyReturn}{Returns}
+
+\end{DoxyReturn}
+
+
+The documentation for this class was generated from the following files\+:\begin{DoxyCompactItemize}
+\item 
+H\+D3-\/mine.\+cs\item 
+H\+D3.\+cs\end{DoxyCompactItemize}

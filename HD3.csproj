@@ -85,7 +85,6 @@
       <DependentUpon>Tests.aspx</DependentUpon>
       <SubType>ASPXCodeBehind</SubType>
     </Compile>
-    <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Test\HD3Test.cs" />
   </ItemGroup>
