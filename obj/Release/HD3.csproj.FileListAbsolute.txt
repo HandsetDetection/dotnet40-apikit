@@ -24,3 +24,4 @@ C:\Users\Bobcat\Desktop\HandsetDetection\dotnet40-apikit\HD3web\bin\HD3.pdb
 C:\Users\Bobcat\Desktop\HandsetDetection\dotnet40-apikit\HD3web\bin\HD3.xml
 C:\Users\Bobcat\Desktop\HandsetDetection\dotnet40-apikit\HD3lib\obj\Release\HD3.dll
 C:\Users\Bobcat\Desktop\HandsetDetection\dotnet40-apikit\HD3lib\obj\Release\HD3.pdb
+C:\Users\Bobcat\Desktop\HandsetDetection\dotnet40-apikit\HD3lib\obj\Release\HD3.csprojResolveAssemblyReference.cache

@@ -18,6 +18,7 @@ public partial class Tests : System.Web.UI.Page {
         string file = Request.PhysicalApplicationPath + "\\normal.txt";
         string[] lines = System.IO.File.ReadAllLines(file);
         char[] separator = new char[] { '|' };
+        Console.WriteLine(Request);
         var hd3 = new HD3.HD3(Request);
         int i=0;
         // Display the file contents by using a foreach loop.
