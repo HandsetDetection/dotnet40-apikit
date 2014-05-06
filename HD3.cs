@@ -51,6 +51,7 @@ using System.Text.RegularExpressions;
 using System.Web.Script.Serialization;
 using System.Configuration;
 using System.Runtime.Caching;
+using System.Xml;
 
 namespace HD3 {
 
@@ -212,6 +213,30 @@ namespace HD3 {
             AddKey("request_uri", request.Url.ToString());
         }
 
+        /// <summary>
+        /// No argument default constructor
+        /// </summary>
+        public HD3() {            
+            NameValueCollection appSettings = System.Configuration.ConfigurationManager.AppSettings;
+            string path = System.IO.Path.GetFullPath("HD3Web/Web.config");
+            Hashtable htResource = new Hashtable();
+            XmlDocument document = new XmlDocument();
+            document.Load(new StreamReader(path));
+            foreach (XmlNode node in document["configuration"]["appSettings"]) {
+                if ((node.NodeType != XmlNodeType.Comment) && !htResource.Contains(node.Attributes["key"].Value)) {
+                    htResource[node.Attributes["key"].Value] = node.Attributes["value"].Value;
+                }
+            }            
+            Username = (htResource["username"] != null) ? htResource["username"].ToString() : this.username;
+            Secret = (htResource["secret"] != null) ? htResource["secret"].ToString() : this.secret;
+            SiteId = (htResource["site_id"] != null) ? htResource["site_id"].ToString() : this.site_id;
+            UseLocal = (htResource["use_local"] != null) ? Convert.ToBoolean(htResource["use_local"]) : this.use_local;
+            UseProxy = (htResource["use_proxy"] != null) ? Convert.ToBoolean(htResource["use_proxy"]) : this.use_proxy;
+            MatchFilter = (htResource["match_filter"] != null) ? htResource["match_filter"].ToString() : this.match_filter;
+            ApiServer = (htResource["api_server"] != null) ? htResource["api_server"].ToString() : this.api_server;
+            LogServer = (htResource["log_server"] != null) ? htResource["log_server"].ToString() : this.log_server;                        
+        }
+
         /// <summary>Sets additional http headers for detection request, will override default headers.</summary>
         /// <param name="key"></param>
         /// <param name="val"></param>
@@ -249,7 +274,7 @@ namespace HD3 {
             var jss = new JavaScriptSerializer();
             jss.MaxJsonLength = this.maxJsonLength;
 
-            Uri url = new Uri("http://" + this.api_server + "/apiv3" + service);
+            Uri url = new Uri("http://" + this.api_server + "/apiv3" + service);            
 #if HD3_DEBUG
             _log("Preparing to send to " + "http://" + this.api_server + "/apiv3" + service);
 #endif
@@ -259,10 +284,10 @@ namespace HD3 {
                 request = jss.Serialize(data);
             
             try {
-                status = post(this.api_server, url, request);
+                status = post(this.api_server, url, request);                
                 if (status) {
                     this.reply = jss.Deserialize<Dictionary<string, dynamic>>(this.rawreply);
-                }
+                }                
                 if (this.reply == null || ! this.reply.ContainsKey("status")) {
                     this.setError("Empty Reply");
                     return false;
@@ -310,10 +335,10 @@ namespace HD3 {
                     string snonce = "APIv3";
                     string cnonce = _helperMD5Hash(DateTime.Now.ToString() + this.secret);
                     string qop = "auth";
-                    string ha1 = _helperMD5Hash(this.username + ":" + realm + ":" + this.secret);
+                    string ha1 = _helperMD5Hash(this.Username + ":" + realm + ":" + this.Secret);
                     string ha2 = _helperMD5Hash("POST:" + url.PathAndQuery);
                     string response = _helperMD5Hash(ha1 + ":" + snonce + ":" + nc + ":" + cnonce + ":" + qop + ":" + ha2);
-                    string digest = "Digest username=\"" + username + "\", realm=\"" + realm + "\", nonce=\"" + snonce + "\", uri=\"" + url.PathAndQuery + "\", qop=" + qop + ", nc=" + nc + ", cnonce=\"" + cnonce + "\", response=\"" + response + "\", opaque=\"" + realm + "\"";
+                    string digest = "Digest username=\"" + Username + "\", realm=\"" + realm + "\", nonce=\"" + snonce + "\", uri=\"" + url.PathAndQuery + "\", qop=" + qop + ", nc=" + nc + ", cnonce=\"" + cnonce + "\", response=\"" + response + "\", opaque=\"" + realm + "\"";
 #if HD3_DEBUG
                     this._log("ha1 : " + ha1);
                     this._log("ha2 : " + ha2);
@@ -342,8 +367,7 @@ namespace HD3 {
                     if (httpResponse.StatusCode == HttpStatusCode.OK)
                         return true;
                 }
-            } catch (Exception ex) {
-                Console.WriteLine(ex.Message);
+            } catch (Exception ex) {                
                 this.setError("Exception : " + ex.Message + " " + ex.StackTrace);
             }
 
@@ -394,7 +418,7 @@ namespace HD3 {
             try {
                 if (this.use_local) {
                     return _localDeviceModels(vendor);
-                } else {
+                } else {                    
                     return Remote("/device/models/" + vendor + ".json", null);
                 }
             } catch (Exception ex) {
@@ -1057,7 +1081,7 @@ namespace HD3 {
             jss.MaxJsonLength = this.maxJsonLength;
 
             try {
-                string jsonText = System.IO.File.ReadAllText(Request.PhysicalApplicationPath + "\\hd3specs.json");
+                string jsonText = System.IO.File.ReadAllText(Request.PhysicalApplicationPath + "\\hd3specs.json");                
                 Dictionary<string, dynamic> data = jss.Deserialize<Dictionary<string, dynamic>>(jsonText);
                 return data;
             } catch (Exception ex) {

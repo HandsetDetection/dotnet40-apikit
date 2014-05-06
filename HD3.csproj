@@ -52,6 +52,10 @@
     <WarningLevel>4</WarningLevel>
     <DocumentationFile>bin\Release\HD3.xml</DocumentationFile>
   </PropertyGroup>
+  <PropertyGroup>
+    <StartupObject>
+    </StartupObject>
+  </PropertyGroup>
   <ItemGroup>
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="Microsoft.VisualStudio.QualityTools.UnitTestFramework, Version=10.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL" />
@@ -86,7 +90,10 @@
       <SubType>ASPXCodeBehind</SubType>
     </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Test\HD3Test.cs" />
+    <Compile Include="Test\HD3Test.cs">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Compile>
+    <Compile Include="Test\SecretConfig.cs" />
   </ItemGroup>
   <ItemGroup>
     <BootstrapperPackage Include="Microsoft.Net.Client.3.5">
@@ -148,7 +155,10 @@
     <None Include="HD3web\bin\.svn\text-base\HDAPI.XML.svn-base" />
     <None Include="HD3web\bin\.svn\text-base\LitJson.dll.svn-base" />
     <None Include="HD3web\bin\System.Web.Extensions.dll.refresh" />
-    <None Include="HD3web\Web.config" />
+    <None Include="HD3web\Web.config">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <SubType>Designer</SubType>
+    </None>
     <None Include="HDKey.snk" />
     <None Include="SnKey.snk" />
   </ItemGroup>
@@ -163,9 +173,7 @@
     <Content Include="HD3web\mobile.txt" />
     <Content Include="HD3web\normal.txt" />
     <Content Include="HD3web\Sites.aspx" />
-    <Content Include="HD3web\Tests.aspx">
-      <SubType>ASPXCodeBehind</SubType>
-    </Content>
+    <Content Include="HD3web\Tests.aspx" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="HD3web\.svn\prop-base\" />
@@ -177,6 +185,9 @@
     <Folder Include="HD3web\bin\.svn\tmp\prop-base\" />
     <Folder Include="HD3web\bin\.svn\tmp\props\" />
     <Folder Include="HD3web\bin\.svn\tmp\text-base\" />
+  </ItemGroup>
+  <ItemGroup>
+    <Service Include="{82A7F48D-3B50-4B1E-B82E-3ADA8210C358}" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

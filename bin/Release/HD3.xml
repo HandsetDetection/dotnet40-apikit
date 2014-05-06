@@ -45,6 +45,11 @@
             </summary>
             <param name="request">HttpRequest object from page</param>
         </member>
+        <member name="M:HD3.HD3.#ctor">
+            <summary>
+            No argument default constructor
+            </summary>
+        </member>
         <member name="M:HD3.HD3.setDetectVar(System.String,System.String)">
             <summary>Sets additional http headers for detection request, will override default headers.</summary>
             <param name="key"></param>
@@ -177,10 +182,78 @@
             
             </summary>
         </member>
-        <member name="M:HD3.Test.HD3Test.test_HD3">
+        <member name="M:HD3.Test.HD3Test.Initialize">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="M:HD3.Test.HD3Test.Test_HD3WrongCredentials">
             <summary>
             Test HD3 Constructor
             </summary>
+        </member>
+        <member name="M:HD3.Test.HD3Test.Test_HD3CorrectCredentials">
+            <summary>
+            Test HD3 Constructor
+            </summary>
+        </member>
+        <member name="M:HD3.Test.HD3Test.Test_SiteDetect">
+            <summary>
+            Test Site detect
+            </summary>
+        </member>
+        <member name="M:HD3.Test.HD3Test.Test_SiteDetectLocal">
+            <summary>
+            Test Site detect in local mode
+            </summary>
+        </member>
+        <member name="M:HD3.Test.HD3Test.Test_DeviceVendorsWithWrongUsername">
+            <summary>
+            Test Device Vendors with wrong username.
+            </summary>
+        </member>
+        <member name="M:HD3.Test.HD3Test.Test_DeviceVendorsWithCorrectUsername">
+            <summary>
+            Test Device Vendors with correct username.
+            </summary>
+        </member>
+        <member name="M:HD3.Test.HD3Test.Test_DeviceModelsNokia">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="M:HD3.Test.HD3Test.Test_DeviceModelsLorem">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="T:SecretConfiguraton.SecretConfig">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="M:SecretConfiguraton.SecretConfig.#ctor">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="M:SecretConfiguraton.SecretConfig.GetConfigUsername">
+            <summary>
+            
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:SecretConfiguraton.SecretConfig.GetConfigSecret">
+            <summary>
+            
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:SecretConfiguraton.SecretConfig.GetConfigSiteId">
+            <summary>
+            
+            </summary>
+            <returns></returns>
         </member>
     </members>
 </doc>
