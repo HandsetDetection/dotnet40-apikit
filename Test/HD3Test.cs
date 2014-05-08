@@ -11,28 +11,19 @@ using System.Collections;
 
 namespace HD3.Test
 {
-    /// <summary>
-    /// 
-    /// </summary>
     [TestClass]
     public class HD3Test
     {
         private HD3 hd3;
         private SecretConfig secretConfig;
-        
-        /// <summary>
-        /// 
-        /// </summary>
+       
         [TestInitialize]
         public void Initialize()
         {
             hd3 = new HD3();
             secretConfig = new SecretConfig();
-        }
+        } 
 
-        /// <summary>
-        /// Test HD3 with wrong user config.
-        /// </summary>
         [TestMethod]
         public void Test_HD3WrongCredentials()
         {            
@@ -41,9 +32,6 @@ namespace HD3.Test
             Assert.AreEqual<string>(hd3.SiteId, "your_api_siteId");
         }
 
-        /// <summary>
-        /// Test HD3 with correct user config.
-        /// </summary>
         [TestMethod]
         public void Test_HD3CorrectCredentials()
         {
@@ -55,27 +43,18 @@ namespace HD3.Test
                 secretConfig.GetConfigSiteId());
         }
 
-        /// <summary>
-        /// Test Site detect
-        /// </summary>
         [TestMethod]
         public void Test_SiteDetect()
         {
             Assert.IsFalse(hd3.siteDetect());
         }
 
-        /// <summary>
-        /// Test Site detect in local mode
-        /// </summary>
         [TestMethod]
         public void Test_SiteDetectLocal()
         {
             Assert.IsTrue(hd3.siteDetect());
         }
 
-        /// <summary>
-        /// Test Device Vendors with wrong username.
-        /// </summary>
         [TestMethod]
         public void Test_DeviceVendorsWithWrongUsername()
         {
@@ -83,9 +62,6 @@ namespace HD3.Test
             Assert.IsFalse(hd3.deviceVendors());                  
         } 
 
-        /// <summary>
-        /// Test Device Vendors with correct username.
-        /// </summary>
         [TestMethod]
         public void Test_DeviceVendorsWithCorrectUsername()
         {
@@ -93,9 +69,6 @@ namespace HD3.Test
             Assert.IsTrue(hd3.deviceVendors());            
         } 
 
-        /// <summary>
-        /// 
-        /// </summary>
         [TestMethod]
         public void Test_DeviceModelsNokia()
         {
@@ -103,19 +76,46 @@ namespace HD3.Test
             Assert.IsTrue(hd3.getRawReply().Contains("model"));
         } 
 
-        /// <summary>
-        /// 
-        /// </summary>
         [TestMethod]
         public void Test_DeviceModelsLorem()
         {
-            hd3.deviceModels("Nokia");
+            hd3.deviceModels("Lorem");
             Assert.IsFalse(hd3.getRawReply().Contains("model"));
         } 
-       
-        /*static void Main(string[] args)
-        {          
-            var hd3 = new HD3();            
-        } */
+
+        [TestMethod]
+        public void Test_DeviceViewNokia95()
+        {
+            Assert.IsTrue(hd3.deviceView("Nokia", "N95"));
+            dynamic reply = hd3.getReply();
+            Assert.AreEqual(reply["device"]["general_vendor"], "Nokia");
+            Assert.AreEqual(reply["device"]["general_model"], "N95");
+            Assert.AreEqual(reply["device"]["general_platform"], "Symbian");
+        }
+
+        [TestMethod]
+        public void Test_DeviceViewXCode()
+        {
+            Assert.IsFalse(hd3.deviceView("XCode", "XC14"));
+            dynamic reply = hd3.getReply();
+            Assert.AreEqual(reply["device"]["general_vendor"], "Apple");
+            Assert.AreEqual(reply["device"]["general_model"], "XC14");
+            Assert.AreEqual(reply["device"]["general_platform"], "iOS");
+        } 
+
+        [TestMethod]
+        public void Test_DeviceWhatHasTrue()
+        {
+            hd3.ReadTimeout = 600;
+            Assert.IsTrue(hd3.deviceWhatHas("network", "cdma"));
+            dynamic reply = hd3.getReply();
+            Assert.AreEqual(reply["status"], 0);
+        }
+
+        [TestMethod]
+        public void Test_DeviceWhatHasFalse()
+        {
+            Assert.IsFalse(hd3.deviceWhatHas("cloud", "wifi"));            
+        }       
     }    
 }

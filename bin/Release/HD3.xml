@@ -177,56 +177,6 @@
             <param name="sender"></param>
             <param name="e"></param>
         </member>
-        <member name="T:HD3.Test.HD3Test">
-            <summary>
-            
-            </summary>
-        </member>
-        <member name="M:HD3.Test.HD3Test.Initialize">
-            <summary>
-            
-            </summary>
-        </member>
-        <member name="M:HD3.Test.HD3Test.Test_HD3WrongCredentials">
-            <summary>
-            Test HD3 Constructor
-            </summary>
-        </member>
-        <member name="M:HD3.Test.HD3Test.Test_HD3CorrectCredentials">
-            <summary>
-            Test HD3 Constructor
-            </summary>
-        </member>
-        <member name="M:HD3.Test.HD3Test.Test_SiteDetect">
-            <summary>
-            Test Site detect
-            </summary>
-        </member>
-        <member name="M:HD3.Test.HD3Test.Test_SiteDetectLocal">
-            <summary>
-            Test Site detect in local mode
-            </summary>
-        </member>
-        <member name="M:HD3.Test.HD3Test.Test_DeviceVendorsWithWrongUsername">
-            <summary>
-            Test Device Vendors with wrong username.
-            </summary>
-        </member>
-        <member name="M:HD3.Test.HD3Test.Test_DeviceVendorsWithCorrectUsername">
-            <summary>
-            Test Device Vendors with correct username.
-            </summary>
-        </member>
-        <member name="M:HD3.Test.HD3Test.Test_DeviceModelsNokia">
-            <summary>
-            
-            </summary>
-        </member>
-        <member name="M:HD3.Test.HD3Test.Test_DeviceModelsLorem">
-            <summary>
-            
-            </summary>
-        </member>
         <member name="T:SecretConfiguraton.SecretConfig">
             <summary>
             
