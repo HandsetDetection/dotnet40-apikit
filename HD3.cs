@@ -595,7 +595,7 @@ namespace HD3 {
                     return _localSiteDetect(this.m_detectRequest);
                 } else {
                     this.AddKey("options", options);
-                    return Remote("/site/detect/" + this.site_id + ".json", this.m_detectRequest);
+                    return Remote("/site/detect/" + this.site_id + ".json", this.m_detectRequest);                    
                 }
             } catch (Exception ex) {
                 this.setError("Exception : " + ex.Message + " " + ex.StackTrace);

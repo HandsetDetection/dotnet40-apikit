@@ -1,7 +1,6 @@
 ﻿using System;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using HD3;
-using SecretConfiguraton;
 using System.Diagnostics;
 using System.IO;
 using System.Configuration;
@@ -47,6 +46,29 @@ namespace HD3.Test
         public void Test_SiteDetect()
         {
             Assert.IsFalse(hd3.siteDetect());
+        }
+
+        [TestMethod]
+        public void Test_NokiaSiteDetect()
+        {
+            hd3.setDetectVar("user-agent", "Mozilla/5.0 (SymbianOS/9.2; U; Series60/3.1 NokiaN95-3/20.2.011 Profile/MIDP-2.0 Configuration/CLDC-1.1 ) AppleWebKit/413");
+            hd3.setDetectVar("x-wap-profile", "http://nds1.nds.nokia.com/uaprof/NN95-1r100.xml");
+            hd3.siteDetect();
+            dynamic reply = hd3.getReply();
+            Assert.AreEqual("Nokia", reply["hd_specs"]["general_vendor"]);
+            Assert.AreEqual("Symbian", reply["hd_specs"]["general_platform"]);
+        }
+
+        [TestMethod]
+        public void Test_GeoipSiteDetect()
+        {
+            hd3.setDetectVar("ipaddress", "64.34.165.180");
+            Hashtable openWith = new Hashtable();
+            openWith.Add("options", "geoip,hd_specs");
+            hd3.siteDetect(openWith["options"].ToString());            
+            dynamic reply = hd3.getReply();
+            Assert.AreEqual("38.9266", reply["geoip"]["latitude"]);
+            Assert.AreEqual("US", reply["geoip"]["countrycode"]);
         }
 
         [TestMethod]

@@ -177,29 +177,29 @@
             <param name="sender"></param>
             <param name="e"></param>
         </member>
-        <member name="T:SecretConfiguraton.SecretConfig">
+        <member name="T:HD3.Test.SecretConfig">
             <summary>
             
             </summary>
         </member>
-        <member name="M:SecretConfiguraton.SecretConfig.#ctor">
+        <member name="M:HD3.Test.SecretConfig.#ctor">
             <summary>
             
             </summary>
         </member>
-        <member name="M:SecretConfiguraton.SecretConfig.GetConfigUsername">
-            <summary>
-            
-            </summary>
-            <returns></returns>
-        </member>
-        <member name="M:SecretConfiguraton.SecretConfig.GetConfigSecret">
+        <member name="M:HD3.Test.SecretConfig.GetConfigUsername">
             <summary>
             
             </summary>
             <returns></returns>
         </member>
-        <member name="M:SecretConfiguraton.SecretConfig.GetConfigSiteId">
+        <member name="M:HD3.Test.SecretConfig.GetConfigSecret">
+            <summary>
+            
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:HD3.Test.SecretConfig.GetConfigSiteId">
             <summary>
             
             </summary>

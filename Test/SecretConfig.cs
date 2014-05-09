@@ -4,7 +4,7 @@ using System.Collections.Specialized;
 using System.IO;
 using System.Xml;
 
-namespace SecretConfiguraton
+namespace HD3.Test
 {
     /// <summary>
     /// 
