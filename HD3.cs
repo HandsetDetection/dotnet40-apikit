@@ -268,6 +268,7 @@ namespace HD3 {
         /// <param name="service">Service strings vary depending on the information needed</param>
         /// <returns>JsonData</returns>
         private bool Remote(string service, Dictionary<string, string> data) {
+            
             bool status;
             string request;
             this.reply = null;
@@ -283,8 +284,8 @@ namespace HD3 {
             else
                 request = jss.Serialize(data);
             
-            try {
-                status = post(this.api_server, url, request);                
+            try {                
+                status = post(this.api_server, url, request);                                
                 if (status) {
                     this.reply = jss.Deserialize<Dictionary<string, dynamic>>(this.rawreply);
                 }                
@@ -303,7 +304,7 @@ namespace HD3 {
             }
         }
 
-        private bool post(string host, Uri url, string data) {
+        private bool post(string host, Uri url, string data) {            
             try {
                 IPAddress[] ipv4Addresses = Array.FindAll(Dns.GetHostEntry(this.api_server).AddressList, a => a.AddressFamily == AddressFamily.InterNetwork);
                 // ToDo : Randomize the order of entries in ipList
@@ -588,14 +589,16 @@ namespace HD3 {
 #if HD3_DEBUG
                 this._log("user-agent not set");
 #endif
-            }
- 
+            }            
             try {
-                if (this.use_local) {
+                if (this.use_local) {                    
                     return _localSiteDetect(this.m_detectRequest);
                 } else {
                     this.AddKey("options", options);
-                    return Remote("/site/detect/" + this.site_id + ".json", this.m_detectRequest);                    
+
+                    //this.site_id = (this.site_id == null) ? this.SiteId : this.site_id;
+
+                    return Remote("/site/detect/" + this.SiteId + ".json", this.m_detectRequest);                    
                 }
             } catch (Exception ex) {
                 this.setError("Exception : " + ex.Message + " " + ex.StackTrace);
@@ -606,8 +609,7 @@ namespace HD3 {
         private bool _localSiteDetect(Dictionary<string, string> headers) {
             Dictionary<string, dynamic> device = null;
             Dictionary<string, dynamic> platform = null;
-            Dictionary<string, dynamic> browser = null;
-
+            Dictionary<string, dynamic> browser = null;            
             int id = _getDevice(headers);
             if (id > 0) {
                 device = _getCacheSpecs(id, "device");

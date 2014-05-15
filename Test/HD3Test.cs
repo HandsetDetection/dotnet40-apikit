@@ -40,7 +40,7 @@ namespace HD3.Test
                 secretConfig.GetConfigSecret());
             Assert.AreEqual<string>(hd3.SiteId, 
                 secretConfig.GetConfigSiteId());
-        }
+        } 
 
         [TestMethod]
         public void Test_SiteDetect()
