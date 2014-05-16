@@ -217,7 +217,7 @@ namespace HD3 {
         /// No argument default constructor
         /// </summary>
         public HD3() {            
-            NameValueCollection appSettings = System.Configuration.ConfigurationManager.AppSettings;
+            /*NameValueCollection appSettings = System.Configuration.ConfigurationManager.AppSettings;
             string path = System.IO.Path.GetFullPath("HD3Web/Web.config");
             Hashtable htResource = new Hashtable();
             XmlDocument document = new XmlDocument();
@@ -234,8 +234,9 @@ namespace HD3 {
             UseProxy = (htResource["use_proxy"] != null) ? Convert.ToBoolean(htResource["use_proxy"]) : this.use_proxy;
             MatchFilter = (htResource["match_filter"] != null) ? htResource["match_filter"].ToString() : this.match_filter;
             ApiServer = (htResource["api_server"] != null) ? htResource["api_server"].ToString() : this.api_server;
-            LogServer = (htResource["log_server"] != null) ? htResource["log_server"].ToString() : this.log_server;                        
+            LogServer = (htResource["log_server"] != null) ? htResource["log_server"].ToString() : this.log_server; */                        
         }
+                    
 
         /// <summary>Sets additional http headers for detection request, will override default headers.</summary>
         /// <param name="key"></param>
