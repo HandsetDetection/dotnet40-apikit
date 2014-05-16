@@ -75,6 +75,28 @@ namespace HD3.Test
         public void Test_SiteDetectLocal()
         {
             Assert.IsTrue(hd3.siteDetect());
+        } 
+
+        [TestMethod]
+        public void Test_DeviceVendorsFound()
+        {
+            hd3.deviceVendors();
+            var reply = hd3.getReply();
+            string key = "vendor";
+            Assert.IsTrue(InJsonList("Asus", key, reply));
+            Assert.IsTrue(InJsonList("Satellite", key, reply));
+            Assert.IsTrue(InJsonList("Tecno", key, reply));
+        }
+
+        [TestMethod]
+        public void Test_DeviceVendorsNotFound()
+        {
+            hd3.deviceVendors();
+            var reply = hd3.getReply();
+            string key = "vendor";
+            Assert.IsFalse(InJsonList("Flame", key, reply));
+            Assert.IsFalse(InJsonList("Xeon", key, reply));
+            Assert.IsFalse(InJsonList("Advance", key, reply));
         }
 
         [TestMethod]
@@ -92,19 +114,29 @@ namespace HD3.Test
         } 
 
         [TestMethod]
-        public void Test_DeviceModelsNokia()
+        public void Test_DeviceModelsNokiaPass()
         {
             hd3.deviceModels("Nokia");
-            Assert.IsTrue(hd3.getRawReply().Contains("model"));
-        } 
+            var reply = hd3.getReply();
+            string key = "model";
+            Assert.IsTrue(InJsonList("3310i", key, reply));
+            Assert.IsTrue(InJsonList("Lumia 610 NFC", key, reply));
+            Assert.IsTrue(InJsonList("2720 Fold", key, reply));
+            Assert.IsTrue(InJsonList("1110i", key, reply));            
+        }
 
         [TestMethod]
-        public void Test_DeviceModelsLorem()
+        public void Test_DeviceModelsNokiaFail()
         {
-            hd3.deviceModels("Lorem");
-            Assert.IsFalse(hd3.getRawReply().Contains("model"));
+            hd3.deviceModels("Nokia");
+            var reply = hd3.getReply();
+            string key = "model";
+            Assert.IsFalse(InJsonList("5050i", key, reply));
+            Assert.IsFalse(InJsonList("x120", key, reply));
+            Assert.IsFalse(InJsonList("10101", key, reply));
+            Assert.IsFalse(InJsonList("abc123", key, reply));
         } 
-
+       
         [TestMethod]
         public void Test_DeviceViewNokia95()
         {
@@ -113,7 +145,23 @@ namespace HD3.Test
             Assert.AreEqual(reply["device"]["general_vendor"], "Nokia");
             Assert.AreEqual(reply["device"]["general_model"], "N95");
             Assert.AreEqual(reply["device"]["general_platform"], "Symbian");
+            Assert.IsTrue(InJsonMultiList("Alarm", "device", "features", reply));
+            Assert.IsTrue(InJsonMultiList("Push-to-Talk", "device", "features", reply));
+            Assert.IsTrue(InJsonMultiList("Computer sync", "device", "features", reply));
+            Assert.IsTrue(InJsonMultiList("VoIP", "device", "features", reply));
         }
+        [TestMethod]
+        public void Test_DeviceViewAppleIPhone5s()
+        {
+            Assert.IsTrue(hd3.deviceView("Apple", "IPhone 5s"));
+            dynamic reply = hd3.getReply();
+            Assert.AreEqual(reply["device"]["general_vendor"], "Apple");
+            Assert.AreEqual(reply["device"]["general_model"], "iPhone 5S");
+            Assert.IsTrue(InJsonMultiList("Video Call", "device", "features", reply));
+            Assert.IsTrue(InJsonMultiList("AGPS", "device", "features", reply));
+            Assert.IsTrue(InJsonMultiList("LED Flash", "device", "features", reply));
+            Assert.IsTrue(InJsonMultiList("Electronic Compass", "device", "features", reply));
+        } 
 
         [TestMethod]
         public void Test_DeviceViewXCode()
@@ -124,20 +172,52 @@ namespace HD3.Test
             Assert.AreEqual(reply["device"]["general_model"], "XC14");
             Assert.AreEqual(reply["device"]["general_platform"], "iOS");
         } 
-
+        
         [TestMethod]
-        public void Test_DeviceWhatHasTrue()
+        public void Test_DeviceWhatHas()
         {
             hd3.ReadTimeout = 600;
-            Assert.IsTrue(hd3.deviceWhatHas("network", "cdma"));
+            hd3.deviceWhatHas("network", "cdma");
             dynamic reply = hd3.getReply();
+            Assert.AreEqual(reply["devices"][0]["id"], 10);
+            Assert.AreEqual(reply["devices"][0]["general_vendor"], "Samsung");
+            Assert.AreEqual(reply["devices"][0]["general_model"], "SPH-A680");
+            Assert.AreEqual(reply["devices"][1]["id"], 1003);
+            Assert.AreEqual(reply["devices"][1]["general_vendor"], "LG");
+            Assert.AreEqual(reply["devices"][1]["general_model"], "CU6060");
+            Assert.AreEqual(reply["devices"][2]["id"], 1020);
+            Assert.AreEqual(reply["devices"][2]["general_vendor"], "Nokia");
+            Assert.AreEqual(reply["devices"][2]["general_model"], "2270");
             Assert.AreEqual(reply["status"], 0);
         }
-
+        
         [TestMethod]
         public void Test_DeviceWhatHasFalse()
         {
             Assert.IsFalse(hd3.deviceWhatHas("cloud", "wifi"));            
         }       
+
+        [Ignore]
+        public bool InJsonList(string value, string key, dynamic reply)
+        {
+            foreach (var data in reply[key])
+            {
+                if (data == value)
+                    return true;
+            }
+            return false;
+        }
+
+        [Ignore]
+        public bool InJsonMultiList(string value, string key1, string key2, dynamic reply)
+        {
+            foreach (var data in reply[key1][key2])
+            {
+                if (data == value)
+                    return true;
+            }
+            return false;
+        }
+
     }    
 }

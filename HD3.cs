@@ -591,13 +591,12 @@ namespace HD3 {
 #endif
             }            
             try {
-                if (this.use_local) {                    
+                if (this.UseLocal)
+                {                    
                     return _localSiteDetect(this.m_detectRequest);
-                } else {
+                } else {                    
                     this.AddKey("options", options);
-
-                    //this.site_id = (this.site_id == null) ? this.SiteId : this.site_id;
-
+                    
                     return Remote("/site/detect/" + this.SiteId + ".json", this.m_detectRequest);                    
                 }
             } catch (Exception ex) {
