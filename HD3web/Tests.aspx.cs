@@ -12,78 +12,125 @@ using System.Web.UI.WebControls;
 using System.Web.UI.WebControls.WebParts;
 using HD3;
 
-public partial class Tests : System.Web.UI.Page {
-    
-    protected void Page_Load(object sender, EventArgs e) {
-        string file = Request.PhysicalApplicationPath + "\\normal.txt";
-        string[] lines = System.IO.File.ReadAllLines(file);
-        char[] separator = new char[] { '|' };
-        Console.WriteLine(Request);
-        var hd3 = new HD3.HD3(Request);
-        int i=0;
-        // Display the file contents by using a foreach loop.
-        Response.Write("Expect all normal agents to return 301 - Test begins.<br/>");
-        foreach (string line in lines) {
-            if (i++ > 30) break ;
-            string[] strSplitArr = line.Split(separator);
-            if (strSplitArr.Length > 1) {
-                hd3.setDetectVar("user-agent", strSplitArr[0]);
-                hd3.setDetectVar("x-wap-profile", strSplitArr[1]);
-            } else {
-                hd3.setDetectVar("user-agent", strSplitArr[0]);
-            }
+public partial class Tests : System.Web.UI.Page
+{
 
-            if (hd3.siteDetect()) {
-                string rawreply = hd3.getRawReply();
-                Response.Write("JSON object dump " + rawreply + "<br/>");
-                dynamic reply = hd3.getReply();
-                Response.Write("Vendor " + reply["hd_specs"]["general_vendor"] + "<br/>");
-                Response.Write("Model " + reply["hd_specs"]["general_model"] + "<br/>");
-                Response.Write("Browser " + reply["hd_specs"]["general_browser"] + "<br/>");
-                Response.Write("Platform " + reply["hd_specs"]["general_platform"] + "<br/>");
-                Response.Write(hd3.getLog());
-            } else {
-                dynamic reply = hd3.getReply();
-                Response.Write("Count "+i+" got "+reply["status"]+" on "+line+"<br/>");
-                //Response.Write(hd3.getLog());
-            }
-            hd3.cleanUp();       
-        }
-        Response.Write("Test complete.<br/>");
-
-
-        string file2 = Request.PhysicalApplicationPath + "\\mobile.txt";
-        string[] lines2 = System.IO.File.ReadAllLines(file2);
-        i = 0;
-        // Display the file contents by using a foreach loop.
-        Response.Write("Expect all mobile agents to return JSON and display some device info.<br/>");
-        foreach (string line in lines2) {
-            if (i++ > 30) break;
-            string[] strSplitArr = line.Split(separator);
-            if (strSplitArr.Length > 1) {
-                hd3.setDetectVar("user-agent", strSplitArr[0]);
-                hd3.setDetectVar("x-wap-profile", strSplitArr[1]);
-            } else {
-                hd3.setDetectVar("user-agent", strSplitArr[0]);
-            }
-
-            if (hd3.siteDetect()) {
-                string rawreply = hd3.getRawReply();
-                dynamic reply = hd3.getReply();
-                Response.Write("<b>Vendor " + reply["hd_specs"]["general_vendor"]);
-                Response.Write(",Model " + reply["hd_specs"]["general_model"]);
-                Response.Write(",Browser " + reply["hd_specs"]["general_browser"]);
-                Response.Write(",Platform " + reply["hd_specs"]["general_platform"] + "</b><br/>");
-                Response.Write("JSON object dump " + rawreply + "<br/>");    
-                //Response.Write(hd3.getLog());
-            } else {
-                dynamic reply = hd3.getReply();
-                Response.Write("<h2>FAIL</h2>");
-                Response.Write(hd3.getLog());
-                //Response.Write("Count " + i + " got " + reply["status"] + " on " + line + "<br/>");
-            }
-            hd3.cleanUp();
-        }
-        Response.Write("Test complete.<br/>");
+    protected void Page_Load(object sender, EventArgs e)
+    {
+        singleInstance();
     }
+
+    private void singleInstance()
+    {
+        string file = Request.PhysicalApplicationPath + "\\headers.txt";
+        char[] separator = new char[] { '|' };
+        var hd3 = new HD3.HD3(Request);
+        int totalCount = 0;
+        header();
+        var timer = System.Diagnostics.Stopwatch.StartNew();
+        using (StreamReader sr = File.OpenText(file))
+        {
+            string s = String.Empty;
+            while ((s = sr.ReadLine()) != null)
+            {
+                string[] strSplitArr = s.Split(separator);
+                String userAgent = strSplitArr[0];
+                String profile = strSplitArr[1];
+                for (int j = 0; j < 10; j++)
+                {
+                    Response.Write("<tr>");
+                    hd3.setDetectVar("user-agent", userAgent);
+                    hd3.setDetectVar("x-wap-profile", profile);
+                    if (hd3.siteDetect())
+                    {
+                        dynamic reply = hd3.getReply();
+                        Response.Write("<td>" + totalCount + "</td>");
+                        Response.Write("<td>" + reply["hd_specs"]["general_vendor"] + "</td>");
+                        Response.Write("<td>" + reply["hd_specs"]["general_model"] + "</td>");
+                        Response.Write("<td>" + reply["hd_specs"]["general_platform"] + "</td>");
+                        Response.Write("<td>" + reply["hd_specs"]["general_platform_version"] + "</td>");
+                        Response.Write("<td>" + reply["hd_specs"]["general_browser"] + "</td>");
+                        Response.Write("<td>" + reply["hd_specs"]["general_browser_version"] + "</td>");
+                        Response.Write("<td>" + strSplitArr[0] + "</td>");
+                    }
+                    else
+                    {
+                        dynamic reply = hd3.getReply();
+                        Response.Write("<td>" + totalCount + "</td>");
+                        Response.Write("<td colspan=\"7\">Got " + reply["status"] + " on " + s + "</td>");
+                    }
+                    totalCount++;
+                    hd3.cleanUp();
+                    Response.Write("</tr>");
+                }
+            }
+        }
+        timer.Stop();
+        hd3.cleanUp();
+        Response.Write("</table>");
+        Response.Write("<h1>Test complete</h1>");
+        float elapsedTimeSec = (float)timer.Elapsed.TotalMilliseconds / 1000F;
+        int dps = (int)((int)totalCount / elapsedTimeSec);
+        Response.Write("<h3>Elapsed Time " + elapsedTimeSec + "ms, Total detections: " + totalCount + ", Detections per second: " + dps + "</h3>");
+    }
+
+
+    private void multipleInstance()
+    {
+        string file = Request.PhysicalApplicationPath + "\\headers.txt";
+        char[] separator = new char[] { '|' };
+        int totalCount = 0;
+        header();
+        var timer = System.Diagnostics.Stopwatch.StartNew();
+        using (StreamReader sr = File.OpenText(file))
+        {
+            string s = String.Empty;
+            while ((s = sr.ReadLine()) != null)
+            {
+                string[] strSplitArr = s.Split(separator);
+                String userAgent = strSplitArr[0];
+                String profile = strSplitArr[1];
+                for (int j = 0; j < 10; j++)
+                {
+                    Response.Write("<tr>");
+                    var hd3 = new HD3.HD3(Request);
+                    hd3.setDetectVar("user-agent", userAgent);
+                    hd3.setDetectVar("x-wap-profile", profile);
+                    if (hd3.siteDetect())
+                    {
+                        dynamic reply = hd3.getReply();
+                        Response.Write("<td>" + totalCount + "</td>");
+                        Response.Write("<td>" + reply["hd_specs"]["general_vendor"] + "</td>");
+                        Response.Write("<td>" + reply["hd_specs"]["general_model"] + "</td>");
+                        Response.Write("<td>" + reply["hd_specs"]["general_platform"] + "</td>");
+                        Response.Write("<td>" + reply["hd_specs"]["general_platform_version"] + "</td>");
+                        Response.Write("<td>" + reply["hd_specs"]["general_browser"] + "</td>");
+                        Response.Write("<td>" + reply["hd_specs"]["general_browser_version"] + "</td>");
+                        Response.Write("<td>" + strSplitArr[0] + "</td>");
+                    }
+                    else
+                    {
+                        dynamic reply = hd3.getReply();
+                        Response.Write("<td>" + totalCount + "</td>");
+                        Response.Write("<td colspan=\"7\">Got " + reply["status"] + " on " + s + "</td>");
+                    }
+                    totalCount++;
+                    hd3.cleanUp();
+                    Response.Write("</tr>");
+                }
+            }
+        }
+        timer.Stop();
+        Response.Write("</table>");
+        Response.Write("<h1>Test complete</h1>");
+        float elapsedTimeSec = (float)timer.Elapsed.TotalMilliseconds / 1000F;
+        int dps = (int)((int)totalCount / elapsedTimeSec);
+        Response.Write("<h3>Elapsed Time " + elapsedTimeSec + "ms, Total detections: " + totalCount + ", Detections per second: " + dps + "</h3>");
+    }
+
+    private void header()
+    {
+        Response.Write("<table style='font-size:12px'><tr><th>Count</th><th>Vendor</th><th>Model</th><th>Platform</th><th>Platform Version</th><th>Browser</th><th>Browser Version</th><th>HTTP Headers</th></tr>");
+    }
+
 }
