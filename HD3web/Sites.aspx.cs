@@ -72,34 +72,17 @@ public partial class Sites : System.Web.UI.Page {
         }
         hd3.cleanUp();
 
-        //===========================================================
-        Response.Write("<b>All Detection Information</b><br/>");
-        hd3.ReadTimeout = 600;    // Increse the read timeout on long running requests
+        hd3.ReadTimeout = 600;
         var timer = System.Diagnostics.Stopwatch.StartNew();
-        if (hd3.siteFetchTrees()) {
-            string rawreply = hd3.getRawReply();
-            Response.Write("Size returned : "+ rawreply.Length + "<br/>");
-        } else {
-            Response.Write(hd3.getError() + "<br/>");
-            Response.Write(hd3.getLog());
-        }
-        float elapsedTimeSec = (float)timer.Elapsed.TotalMilliseconds / 1000F;
-        Response.Write("<br/>Elapsed time: " + elapsedTimeSec);
-        hd3.cleanUp();
-
-        //=========================================
-        Response.Write("<b>All Handset Information</b><br/>");
-        hd3.ReadTimeout = 600;    // Increse the read timeout on long running requests
-        timer = System.Diagnostics.Stopwatch.StartNew();
-        if (hd3.siteFetchSpecs()) {
+        if (hd3.siteFetchArchive()) {
             string rawreply = hd3.getRawReply();
             Response.Write("Size returned : " + rawreply.Length + "<br/>");
         } else {
             Response.Write(hd3.getError() + "<br/>");
             Response.Write(hd3.getLog());
         }
-        elapsedTimeSec = (float)timer.Elapsed.TotalMilliseconds / 1000F;
-        Response.Write("<br/>Elapsed time: " + elapsedTimeSec);
-        hd3.cleanUp();
+
+        float elapsedTimeSec = (float)timer.Elapsed.TotalMilliseconds / 1000F;
+        Response.Write("<h3>Elapsed Time " + elapsedTimeSec + "ms");
     }
 }

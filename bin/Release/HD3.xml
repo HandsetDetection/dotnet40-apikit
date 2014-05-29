@@ -97,6 +97,18 @@
             </summary>
             <returns></returns>
         </member>
+        <member name="M:HD3.HD3.siteFetchArchive">
+            <summary>
+            
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:HD3.HD3._setCachecArchives">
+            <summary>
+            
+            </summary>
+            <returns></returns>
+        </member>
         <member name="M:HD3.HD3.siteFetchTrees">
             <summary>
             

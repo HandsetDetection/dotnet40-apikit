@@ -930,9 +930,83 @@ namespace HD3 {
         /// 
         /// </summary>
         /// <returns></returns>
+        public bool siteFetchArchive()
+        {
+            resetLog();
+            bool status = this.Remote("/site/fetcharchive/" + this.SiteId + ".json", null);
+
+            if (!status)
+                return false;
+
+            try
+            {
+                if (!this.reply.ContainsKey("status") || (int)this.reply["status"] != 0)
+                {
+                    this.setError("siteFetchArchive API call failed: " + this.reply["message"].ToString());
+                    return false;
+                }
+                // Write rawreply to file hd3specs.json file.
+                _localPutSpecs();
+            }
+            catch (Exception ex)
+            {
+                this.setError("Exception : " + ex.Message + " " + ex.StackTrace);
+                return false;
+            }
+            return _setCachecArchives();
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
+        private bool _setCachecArchives()
+        {
+            Dictionary<string, object> data = _localGetSpecs();
+
+            if (data == null)
+            {
+                this.reply = new Dictionary<string, object>();
+                this.reply["status"] = 299;
+                this.reply["message"] = "Unable to open specs file hd3specs.json";
+                this.setError("Error : 299, Message : _setCacheSpecs cannot open hd3specs.json. Is it there ? Is it world readable ?");
+                this.setRawReply();
+                return false;
+            }
+            // Cache Devices
+            foreach (Dictionary<string, object> device in (IEnumerable)data["devices"])
+            {
+                string device_id = ((IDictionary)device["Device"])["_id"].ToString();
+                string key = "device" + device_id;
+                if (device != null && device["Device"] != null && ((IDictionary)device["Device"])["hd_specs"] != null && key != null)
+                {
+                    this.specs[key] = ((IDictionary)device["Device"])["hd_specs"];
+                    // Save to Application Cache
+                    myCache.write(key, (Dictionary<string, object>)this.specs[key]);
+                }
+            }
+            // Cache Extras
+            foreach (Dictionary<string, object> extra in (IEnumerable)data["extras"])
+            {
+                string extra_id = ((IDictionary)extra["Extra"])["_id"].ToString();
+                string key = "extra" + extra_id;
+                if (extra["Extra"] != null && ((IDictionary)extra["Extra"])["hd_specs"] != null)
+                {
+                    this.specs[key] = ((IDictionary)extra["Extra"])["hd_specs"] as Dictionary<string, object>;
+                    // Save to Applications Cache
+                    myCache.write(key, (Dictionary<string, object>)this.specs[key]);
+                }
+            }
+            return true;
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
         public bool siteFetchTrees() {
             resetLog();
-            bool status = this.Remote("/site/fetchtrees/" + this.site_id + ".json", null);
+            bool status = this.Remote("/site/fetchtrees/" + this.SiteId + ".json", null);
             if (!status)
                 return false;
             try {
