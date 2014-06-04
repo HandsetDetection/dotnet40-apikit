@@ -132,11 +132,26 @@ namespace HD3 {
 
         public int ReadTimeout { get; set; }
         public int ConnectTimeout { get; set; }
-        public string Username { get; set; }
-        public string Secret { get; set; }
-        public string SiteId { get; set; }
-        public bool UseLocal { get; set; }
-        public bool UseProxy { get; set; }
+        public string Username {
+            get { return this.username; }
+            set { this.username = value;  }
+        }
+        public string Secret {
+            get { return this.secret; }
+            set { this.secret = value;  }
+        }
+        public string SiteId {
+            get { return this.site_id;  }
+            set { this.site_id = value;  }
+        }
+        public bool UseLocal {
+            get { return this.use_local; }
+            set { this.use_local = value;  }
+        }
+        public bool UseProxy {
+            get { return this.use_proxy;  }
+            set { this.use_proxy = value;  }
+        }
         public string ProxyServer { get; set; }
         public string ProxyPort { get; set; }
         public string ProxyPass { get; set; }
@@ -216,25 +231,7 @@ namespace HD3 {
         /// <summary>
         /// No argument default constructor
         /// </summary>
-        public HD3() {            
-            /*NameValueCollection appSettings = System.Configuration.ConfigurationManager.AppSettings;
-            string path = System.IO.Path.GetFullPath("HD3Web/Web.config");
-            Hashtable htResource = new Hashtable();
-            XmlDocument document = new XmlDocument();
-            document.Load(new StreamReader(path));
-            foreach (XmlNode node in document["configuration"]["appSettings"]) {
-                if ((node.NodeType != XmlNodeType.Comment) && !htResource.Contains(node.Attributes["key"].Value)) {
-                    htResource[node.Attributes["key"].Value] = node.Attributes["value"].Value;
-                }
-            }            
-            Username = (htResource["username"] != null) ? htResource["username"].ToString() : this.username;
-            Secret = (htResource["secret"] != null) ? htResource["secret"].ToString() : this.secret;
-            SiteId = (htResource["site_id"] != null) ? htResource["site_id"].ToString() : this.site_id;
-            UseLocal = (htResource["use_local"] != null) ? Convert.ToBoolean(htResource["use_local"]) : this.use_local;
-            UseProxy = (htResource["use_proxy"] != null) ? Convert.ToBoolean(htResource["use_proxy"]) : this.use_proxy;
-            MatchFilter = (htResource["match_filter"] != null) ? htResource["match_filter"].ToString() : this.match_filter;
-            ApiServer = (htResource["api_server"] != null) ? htResource["api_server"].ToString() : this.api_server;
-            LogServer = (htResource["log_server"] != null) ? htResource["log_server"].ToString() : this.log_server; */                        
+        public HD3() {                               
         }
                     
 
