@@ -23,11 +23,11 @@ public partial class Tests : System.Web.UI.Page
     private void singleInstance()
     {
         string file = Request.PhysicalApplicationPath + "\\headers.txt";
-        char[] separator = new char[] { '|' };
-        var hd3 = new HD3.HD3(Request);
+        char[] separator = new char[] { '|' };        
         int totalCount = 0;
         header();
         var timer = System.Diagnostics.Stopwatch.StartNew();
+        var hd3 = new HD3.HD3(Request); 
         using (StreamReader sr = File.OpenText(file))
         {
             string s = String.Empty;
