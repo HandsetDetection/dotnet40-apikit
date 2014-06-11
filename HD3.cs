@@ -74,21 +74,21 @@ namespace HD3 {
             //myCache = new MemoryCache("HD3Cache", CacheSettings);
             this.myCache = MemoryCache.Default;
         }
-
+        
         /// <summary>
         /// Write new object to dictionary
         /// </summary>
         /// <param name="key"></param>
         /// <param name="value"></param>
         public void write(string key, Dictionary<string, dynamic> value) {
-           if (value != null && key != "") {
+           if (value != null && key != "") {    
                 var jss = new JavaScriptSerializer();
                 jss.MaxJsonLength = this.maxJsonLength;
                 string storethis = jss.Serialize(value);
                 this.myCache.Set(this.prefix+key, storethis, policy);
             }
-        }
-
+        } 
+        
         /// <summary>
         /// Read object from dictionary
         /// </summary>
@@ -106,8 +106,29 @@ namespace HD3 {
                 // Not in cache
                 return null;
             }
+        } 
+
+       
+        /*private static ObjectCache MyCache = MemoryCache.Default;
+
+        public static void Write<T>(string key, T value) where T : class
+        {            
+            MyCache.Add("hd32-" + key, value, DateTime.Now.AddDays(30));            
         }
-     }
+
+        public static T Read<T>(string key) where T : class
+        {
+            try
+            {
+                return (T)MyCache[key];
+            }
+            catch
+            {
+                return null;
+            }
+        } */
+
+     } 
 
     /// <summary>
     /// Main class for all handset detection API calls
@@ -200,15 +221,16 @@ namespace HD3 {
         /// <summary>
         /// No argument default constructor
         /// </summary>
-        public HD3() {                               
+        public HD3() {
+            setupProperties();
         }
 
         /// <summary>
         /// set other fields
         /// </summary>
         private void setupProperties() {
-            ReadTimeout = 10;
-            ConnectTimeout = 10;
+            ReadTimeout = 120;
+            ConnectTimeout = 120;
             UseProxy = false;
             UseLocal = false;
             ProxyPort = 80;
@@ -268,7 +290,7 @@ namespace HD3 {
                 status = post(ApiServer, url, request);
                 if (status)
                 {
-                    this.reply = jss.Deserialize<Dictionary<string, dynamic>>(this.rawreply);
+                    this.reply = jss.Deserialize<Dictionary<string, dynamic>>(this.rawreply);                                        
                 }
                 if (this.reply == null || !this.reply.ContainsKey("status"))
                 {
@@ -312,8 +334,9 @@ namespace HD3 {
                         req.Proxy = proxy;
                     }
                     req.Timeout = ReadTimeout * 1000;
+                    req.AllowWriteStreamBuffering = false;
                     //req.PreAuthenticate = true;
-                    req.Method = "POST";
+                    req.Method = "POST";                   
                     req.ContentType = "application/json";
 
                     // AuthDigest Components - 
@@ -336,7 +359,7 @@ namespace HD3 {
 #endif
                     byte[] payload = System.Text.Encoding.ASCII.GetBytes(data);
                     req.ContentLength = payload.Length;
-                    req.Headers.Add("Authorization", digest);
+                    req.Headers.Add("Authorization", digest);             
 #if HD3_DEBUG
                     this._log("Send Headers: " + req.ToString());
                     this._log("Send Data: " + data);
@@ -346,8 +369,49 @@ namespace HD3 {
                     dataStream.Close();
 
                     var httpResponse = (HttpWebResponse)req.GetResponse();
+                    var s = httpResponse.GetResponseStream();
                     var streamReader = new StreamReader(httpResponse.GetResponseStream());
                     this.rawreply = streamReader.ReadToEnd();
+
+                    /*var fs = new FileStream(string.Format("{0}{1}", "C:\\", "ultimate.zip"), FileMode.Create, FileAccess.Write);
+                    int bytesRead = 0;
+                    byte[] buffer = new byte[2048];
+                    using (BinaryWriter writer = new BinaryWriter(fs))
+                    {
+                        while ((bytesRead = s.Read(buffer, 0, buffer.Length)) > 0)
+                        {
+                            fs.Write(buffer, 0, bytesRead);
+                        }
+                    }
+                    fs.Close(); */
+                    using (BinaryReader reader = new BinaryReader(s))
+                    {
+                        using (FileStream fileStream = File.Open(string.Format("{0}{1}", "C:\\", "ultimate.zip"), FileMode.Create, FileAccess.Write))
+                        {
+                            using (BinaryWriter writer = new BinaryWriter(fileStream))
+                            {
+                                byte[] buffer = new byte[2048];
+                                int count = reader.Read(buffer, 0, buffer.Length);
+                                while (count != 0)
+                                {
+                                    writer.Write(buffer, 0, count);
+                                    writer.Flush();
+                                    count = reader.Read(buffer, 0, buffer.Length);
+                                }
+                                writer.Close();
+                                reader.Close();
+                            }
+                        }
+                    }
+                    /*byte[] buffer = new byte[1024];
+                    int bytesRead = 0;
+                    FileStream fs = File.Create(Directory.GetCurrentDirectory() + "/files");
+                    while ((bytesRead = s.Read(buffer, 0, buffer.Length)) != 0)
+                    {
+                        fs.Write(buffer, 0, bytesRead);
+                    }
+                    fs.Close();*/
+
 #if HD3_DEBUG
                     _log("Received : " + this.rawreply);
 #endif
@@ -868,6 +932,7 @@ namespace HD3 {
 		    }
             // Not in class - try Cache.
             Dictionary<string, dynamic> obj = myCache.read(treetag);
+            //Dictionary<string, dynamic> obj = HD3Cache.Read<dynamic>(treetag);
             if (obj != null && obj.Count != 0) {
 #if HD3_DEBUG
                 this._log(treetag + " fetched from cache. count : "+obj.Count);
@@ -908,7 +973,7 @@ namespace HD3 {
         /// <returns></returns>
         public bool siteFetchArchive() {
             resetLog();
-            bool status = this.Remote("/site/fetcharchive/" + SiteId + ".json", null);
+            bool status = this.Remote("/site/fetcharchive/" + SiteId + ".json", null);            
             if (!status)
                 return false;
             try {
@@ -948,7 +1013,8 @@ namespace HD3 {
                 if (device != null && device["Device"] != null && ((IDictionary)device["Device"])["hd_specs"] != null && key != null) {
                     this.specs[key] = ((IDictionary)device["Device"])["hd_specs"];
                     // Save to Application Cache
-                    myCache.write(key, (Dictionary<string, object>)this.specs[key]);
+                    myCache.write(key, (Dictionary<string, object>)this.specs[key]);                    
+                    //HD3Cache.Write(key, (Dictionary<string, object>)this.specs[key]);
                 }
             }
             // Cache Extras
@@ -958,7 +1024,8 @@ namespace HD3 {
                 if (extra["Extra"] != null && ((IDictionary)extra["Extra"])["hd_specs"] != null) {
                     this.specs[key] = ((IDictionary)extra["Extra"])["hd_specs"] as Dictionary<string, object>;
                     // Save to Applications Cache
-                    myCache.write(key, (Dictionary<string, object>)this.specs[key]);
+                    myCache.write(key, (Dictionary<string, object>)this.specs[key]);                    
+                    //HD3Cache.Write(key, (Dictionary<string, object>)this.specs[key]);
                 }
             }
             return true;
@@ -1004,7 +1071,8 @@ namespace HD3 {
             foreach (KeyValuePair<string, dynamic> branch in data["trees"]) {
                 this.tree[branch.Key] = branch.Value as Dictionary<string, dynamic>;
                 // Write to memory cache
-                myCache.write(branch.Key, this.tree[branch.Key]);
+                myCache.write(branch.Key, this.tree[branch.Key]);                
+                //HD3Cache.Write(branch.Key, this.tree[branch.Key]);
             }
             return true;
         }
@@ -1054,7 +1122,8 @@ namespace HD3 {
                 if (device != null && device["Device"] != null && device["Device"]["hd_specs"] != null && key != null) {
                     this.specs[key] = device["Device"]["hd_specs"];
                     // Save to Application Cache
-                    myCache.write(key, this.specs[key]);
+                    myCache.write(key, this.specs[key]);                    
+                    //HD3Cache.Write(key, this.specs[key]);
                 }
             }
             // Cache Extras
@@ -1064,7 +1133,8 @@ namespace HD3 {
                 if (extra["Extra"] != null && extra["Extra"]["hd_specs"] != null) {
                     this.specs[key] = extra["Extra"]["hd_specs"] as Dictionary<string, dynamic>;
                     // Save to Applications Cache
-                    myCache.write(key, this.specs[key]);
+                    myCache.write(key, this.specs[key]);                    
+                    //HD3Cache.Write(key, this.specs[key]);
                 }
 			}	
             return true;
@@ -1088,6 +1158,7 @@ namespace HD3 {
 
             // Try Cache
             Dictionary<string, dynamic> obj = myCache.read(key);
+            //Dictionary<string, dynamic> obj = HD3Cache.Read<dynamic>(key);
             if (obj != null && obj.Count != 0) {
 #if HD3_DEBUG
                 this._log(key + " fetched from cache");
@@ -1201,5 +1272,33 @@ namespace HD3 {
             }
             return sb.ToString().ToLower();
         }
+        
+        public static void Main()
+        {
+            var hd3 = new HD3(new HttpRequest("Tests.aspx", "localhost:54215", null));
+            hd3.siteFetchArchive();
+            //Console.WriteLine(Directory.GetCurrentDirectory());
+            //string directory = Directory.GetCurrentDirectory();
+            //if (!Directory.Exists("files"))
+                //Directory.CreateDirectory(directory + "/files");
+            hd3.setDetectVar("user-agent", "Dalvik/1.4.0 (Linux; U; Android 2.3.1; TM-7022 Build/GINGERBREAD)");
+            hd3.setDetectVar("x-wap-profile", "http://wap.sonyericsson.com/UAprof/LT15iR301.xml");
+            if (hd3.siteDetect())
+            {
+                var reply = (IDictionary)hd3.getReply();
+                Console.WriteLine(((IDictionary)reply["hd_specs"])["general_vendor"]);
+                Console.WriteLine(((IDictionary)reply["hd_specs"])["general_model"]);
+                Console.WriteLine(((IDictionary)reply["hd_specs"])["general_platform"]);
+                Console.WriteLine(((IDictionary)reply["hd_specs"])["general_platform_version"]);
+                Console.WriteLine(((IDictionary)reply["hd_specs"])["general_browser"]);
+                Console.WriteLine(((IDictionary)reply["hd_specs"])["general_browser_version"]);
+            }
+            else
+            {
+                var reply = (IDictionary)hd3.getReply();
+                Console.WriteLine(reply["status"]);
+            }
+            Console.ReadLine();
+        } 
     }
 }
