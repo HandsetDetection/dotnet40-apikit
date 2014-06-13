@@ -52,6 +52,7 @@ using System.Web.Script.Serialization;
 using System.Configuration;
 using System.Runtime.Caching;
 using System.Xml;
+using System.Linq;
 
 namespace HD3 {
 
@@ -384,7 +385,7 @@ namespace HD3 {
                         }
                     }
                     fs.Close(); */
-                    using (BinaryReader reader = new BinaryReader(s))
+                    /*using (BinaryReader reader = new BinaryReader(s))
                     {
                         using (FileStream fileStream = File.Open(string.Format("{0}{1}", "C:\\", "ultimate.zip"), FileMode.Create, FileAccess.Write))
                         {
@@ -402,7 +403,7 @@ namespace HD3 {
                                 reader.Close();
                             }
                         }
-                    }
+                    } */
                     /*byte[] buffer = new byte[1024];
                     int bytesRead = 0;
                     FileStream fs = File.Create(Directory.GetCurrentDirectory() + "/files");
@@ -1190,8 +1191,14 @@ namespace HD3 {
             var jss = new JavaScriptSerializer();
             jss.MaxJsonLength = this.maxJsonLength;
             try {
-                string jsonText = System.IO.File.ReadAllText(Request.PhysicalApplicationPath + "\\hd3specs.json");                
-                Dictionary<string, dynamic> data = jss.Deserialize<Dictionary<string, dynamic>>(jsonText);
+                //string jsonText = System.IO.File.ReadAllText(Request.PhysicalApplicationPath + "\\hd3specs.json");                
+                string jsonText = System.IO.File.ReadAllText("C:\\hd3specs.json");
+                /*string[] files = Directory.GetFiles(@"C:\files2", "Device_*.json");
+                foreach (string name in files)
+                {
+                    Console.WriteLine(name);
+                }*/
+                Dictionary<string, dynamic> data = jss.Deserialize<Dictionary<string, dynamic>>(jsonText);                
                 return data;
             } catch (Exception ex) {
                 this.setError("Exception : " + ex.Message + " " + ex.StackTrace);
@@ -1207,8 +1214,9 @@ namespace HD3 {
             var jss = new JavaScriptSerializer();
             jss.MaxJsonLength = this.maxJsonLength;
             try {
-                string jsonText = System.IO.File.ReadAllText(Request.PhysicalApplicationPath + "\\hd3trees.json");
-                Dictionary<string, dynamic> data = jss.Deserialize<Dictionary<string, dynamic>>(jsonText);
+                //string jsonText = System.IO.File.ReadAllText(Request.PhysicalApplicationPath + "\\hd3trees.json");
+                string jsonText = System.IO.File.ReadAllText("C:\\hd3trees.json");
+                Dictionary<string, dynamic> data = jss.Deserialize<Dictionary<string, dynamic>>(jsonText);                
                 return data;
             } catch (Exception ex) {
                 this.setError("Exception : " + ex.Message + " " + ex.StackTrace);
@@ -1222,7 +1230,8 @@ namespace HD3 {
         /// <returns></returns>
         private bool _localPutSpecs() {
             try {
-                System.IO.File.WriteAllText(Request.PhysicalApplicationPath + "\\hd3specs.json", this.rawreply.ToString());
+                //System.IO.File.WriteAllText(Request.PhysicalApplicationPath + "\\hd3specs.json", this.rawreply.ToString());
+                System.IO.File.WriteAllText("C:\\hd3specs.json", this.rawreply.ToString());
                 return true;
             } catch (Exception ex) {
                 this.setError("Exception : " + ex.Message + " " + ex.StackTrace);
@@ -1236,7 +1245,8 @@ namespace HD3 {
         /// <returns></returns>
         private bool _localPutTrees() {
             try {
-                System.IO.File.WriteAllText(Request.PhysicalApplicationPath + "\\hd3trees.json", this.rawreply.ToString());
+                //System.IO.File.WriteAllText(Request.PhysicalApplicationPath + "\\hd3trees.json", this.rawreply.ToString());
+                System.IO.File.WriteAllText("C:\\hd3trees.json", this.rawreply.ToString());
                 return true;
             } catch (Exception ex) {
                 this.setError("Exception : " + ex.Message + " " + ex.StackTrace);
@@ -1272,16 +1282,101 @@ namespace HD3 {
             }
             return sb.ToString().ToLower();
         }
+
+        public class JsonItem
+        {
+            public string devices;
+        }
         
+        public class MyDevice
+        {
+            public string _id;
+            public string Device { get; set; }
+            //public string general_vendor;
+        }
+
+        static string StripSlashes(string inputText)
+        {
+
+            return System.Text.RegularExpressions.Regex.Replace(inputText, @"(\\)([\000\010\011\012\015\032\042\047\134\140])", "$2");
+        }
+
+        static string StripSlashes2(string inputText)
+        {
+
+            string Result = System.Text.RegularExpressions.Regex.Replace(inputText, @"(\\)([\000\010\011\012\015\032\042\047\134\140])", "$2");
+            return Result.Replace(@"\", @"\\");            
+        }
+
         public static void Main()
         {
-            var hd3 = new HD3(new HttpRequest("Tests.aspx", "localhost:54215", null));
-            hd3.siteFetchArchive();
+            var hd3 = new HD3();
+            string[] files = Directory.GetFiles(@"C:\files2", "Device_*.json");
+            var jss = new JavaScriptSerializer();
+            jss.MaxJsonLength = hd3.maxJsonLength;
+            string jsonText = System.IO.File.ReadAllText("C:\\hd32.json");
+            Dictionary<string, dynamic> data = jss.Deserialize<Dictionary<string, dynamic>>(jsonText);
+            //Console.WriteLine(jsonText);
+            List<JsonItem> items = new List<JsonItem>();
+            //List<string> items = new List<string>();                                    
+            foreach (string name in files) {
+                string js = System.IO.File.ReadAllText(name);                                
+                items.Add(new JsonItem { devices = js });                                                                
+                //items.Add(js);
+                //str +=  "{" + "\"" + "devices" + "\"" + ":[" + js + "]}";
+                //Console.WriteLine(js);
+            }
+
+            //Console.WriteLine(jss.Serialize(items));            
+            //Console.WriteLine(Newtonsoft.Json.JsonConvert.DeserializeObject<object>(jsonText));      
+            //dynamic dy = Newtonsoft.Json.JsonConvert.DeserializeObject<dynamic>(jsonText);
+            //Newtonsoft.Json.Linq.JObject jObject = new Newtonsoft.Json.Linq.JObject(dy);
+
+            //Console.WriteLine(dy.devices);
+            //dynamic dd = Newtonsoft.Json.Linq.JObject.Parse(jsonText);
+            //Console.WriteLine(dd["_id"]);
+
+
+            var users = Newtonsoft.Json.Linq.JObject.Parse(jsonText).SelectToken("devices").ToString();
+            var vkUsers = Newtonsoft.Json.JsonConvert.DeserializeObject<List<dynamic>>(users);
+
+            //Console.WriteLine(users);
+
+            Newtonsoft.Json.Linq.JObject rss = Newtonsoft.Json.Linq.JObject.Parse(jsonText);
+
+            //Console.WriteLine(rss["devices"]);
+            foreach (dynamic device in rss["devices"])
+            {
+                //Console.WriteLine(device["Device"]["_id"]);
+                Console.WriteLine(device["Device"]["hd_specs"]["general_vendor"]);
+            }
+
+            /*foreach (Dictionary<string, dynamic> device in dd["devices"])
+            {
+                Console.WriteLine(device["Device"]["_id"]);
+            }*/
+            //Console.WriteLine(jObject["devices"]["Device"]["_id"]);
+            /*foreach (Dictionary<string, dynamic> device in data["devices"])
+            {
+                string device_id = device["Device"]["_id"];
+                string specs = device["Device"]["hd_specs"]["general_vendor"];
+                Console.WriteLine(specs + " " + device_id);                                
+                /*string key = "device" + device_id;
+                if (device != null && device["Device"] != null && device["Device"]["hd_specs"] != null && key != null)
+                {
+                    this.specs[key] = device["Device"]["hd_specs"];
+                    // Save to Application Cache
+                    myCache.write(key, this.specs[key]);
+                    //HD3Cache.Write(key, this.specs[key]);
+                }*/
+            //} 
+            //hd3.siteFetchArchive();
             //Console.WriteLine(Directory.GetCurrentDirectory());
             //string directory = Directory.GetCurrentDirectory();
             //if (!Directory.Exists("files"))
                 //Directory.CreateDirectory(directory + "/files");
-            hd3.setDetectVar("user-agent", "Dalvik/1.4.0 (Linux; U; Android 2.3.1; TM-7022 Build/GINGERBREAD)");
+
+            /*hd3.setDetectVar("user-agent", "Dalvik/1.4.0 (Linux; U; Android 2.3.1; TM-7022 Build/GINGERBREAD)");
             hd3.setDetectVar("x-wap-profile", "http://wap.sonyericsson.com/UAprof/LT15iR301.xml");
             if (hd3.siteDetect())
             {
@@ -1297,7 +1392,8 @@ namespace HD3 {
             {
                 var reply = (IDictionary)hd3.getReply();
                 Console.WriteLine(reply["status"]);
-            }
+            }*/
+            Console.WriteLine("Done!");
             Console.ReadLine();
         } 
     }
