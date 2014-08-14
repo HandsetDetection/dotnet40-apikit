@@ -6,6 +6,5 @@ C:\Users\Bobcat\Desktop\HandsetDetection\dotnet40-apikit\HD3lib\bin\Debug\Newton
 C:\Users\Bobcat\Desktop\HandsetDetection\dotnet40-apikit\HD3lib\bin\Debug\nunit.framework.dll
 C:\Users\Bobcat\Desktop\HandsetDetection\dotnet40-apikit\HD3lib\bin\Debug\Newtonsoft.Json.xml
 C:\Users\Bobcat\Desktop\HandsetDetection\dotnet40-apikit\HD3lib\bin\Debug\nunit.framework.xml
-C:\Users\Bobcat\Desktop\HandsetDetection\dotnet40-apikit\HD3lib\obj\Debug\HD3.csprojResolveAssemblyReference.cache
 C:\Users\Bobcat\Desktop\HandsetDetection\dotnet40-apikit\HD3lib\obj\Debug\HD3.dll
 C:\Users\Bobcat\Desktop\HandsetDetection\dotnet40-apikit\HD3lib\obj\Debug\HD3.pdb
