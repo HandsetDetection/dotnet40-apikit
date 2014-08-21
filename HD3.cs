@@ -53,6 +53,7 @@ using System.Configuration;
 using System.Runtime.Caching;
 using System.Xml;
 using System.Linq;
+using Ionic.Zip;
 
 namespace HD3 {
 
@@ -61,7 +62,7 @@ namespace HD3 {
     ///</Summary>
     public class HD3Cache {
         private int maxJsonLength = 40000000;
-        string prefix = "hd32-";
+        string prefix = "hd4-";
         ObjectCache myCache;
         CacheItemPolicy policy = new CacheItemPolicy();
 
@@ -84,8 +85,9 @@ namespace HD3 {
            if (value != null && key != "") {    
                 var jss = new JavaScriptSerializer();
                 jss.MaxJsonLength = this.maxJsonLength;
-                //string storethis = jss.Serialize(value);
-                this.myCache.Set(this.prefix + key, value, policy);
+                string storethis = jss.Serialize(value);
+                //this.myCache.Set(this.prefix + key, value, policy);
+                this.myCache.Set(this.prefix + key, storethis, policy);
             }
         } 
         
@@ -96,7 +98,7 @@ namespace HD3 {
         /// <returns></returns>
         public Dictionary<string, dynamic> read(string key) {
             try {                
-                string fromCache = this.myCache.Get(this.prefix+key) as string;
+                string fromCache = this.myCache.Get(this.prefix+key) as string;                
                 var jss = new JavaScriptSerializer();
                 jss.MaxJsonLength = this.maxJsonLength;
                 return jss.Deserialize<Dictionary<string, dynamic>>(fromCache);                
@@ -113,12 +115,12 @@ namespace HD3 {
     public class HD3 {
         int maxJsonLength = 40000000;
         public int ReadTimeout { get; set; }
-        public int ConnectTimeout { get; set; }
+        public int ConnectTimeout { get; set; }        
         public string Username { get; set; }
         public string Secret { get; set; }
         public string SiteId { get; set; }
         public bool UseLocal { get; set; }
-        public bool UseProxy { get; set; }
+        public bool UseProxy { get; set; }        
         public string ProxyServer { get; set; }
         public int ProxyPort { get; set; }
         public string ProxyPass { get; set; }
@@ -126,10 +128,23 @@ namespace HD3 {
         public string MatchFilter { get; set; }
         public string NonMobile { get; set; }
         public string ApiServer { get; set; }
-        public string LogServer { get; set; }
+        public string LogServer { get; set; }        
         public string getRawReply() { return this.rawreply;  }
         public dynamic getReply() { return this.reply; }
         public string getError() { return this.error; }
+        private BinaryReader reader { get; set; }
+        private string projectDir = Directory.GetParent(Directory.GetCurrentDirectory()).Parent.FullName;
+        private Stream responseStream = null;
+        public string pathString = "hd4cache";
+        public bool isDownloadableFiles = false;
+        public string FileDirectory 
+        {
+            get {                 
+                return System.IO.Path.Combine(projectDir, this.pathString);
+            }
+            set { value = System.IO.Path.Combine(projectDir,this.pathString); }
+        }
+
         private void setError(string msg) { 
             this.error = msg; 
 #if HD3_DEBUG
@@ -184,7 +199,6 @@ namespace HD3 {
                 ApiServer = appSettings["api_server"];
             if (appSettings["log_server"] != null)
                 LogServer = appSettings["log_server"];
-
             Regex reg = new Regex("^x|^http", RegexOptions.IgnoreCase);
             foreach (string header in request.Headers) {
                 if (reg.IsMatch(header)) {
@@ -215,7 +229,7 @@ namespace HD3 {
             MatchFilter = " _\\#-,./:\"'";
             NonMobile = "^Feedfetcher|^FAST|^gsa_crawler|^Crawler|^goroam|^GameTracker|^http://|^Lynx|^Link|^LegalX|libwww|^LWP::Simple|FunWebProducts|^Nambu|^WordPress|^yacybot|^YahooFeedSeeker|^Yandex|^MovableType|^Baiduspider|SpamBlockerUtility|AOLBuild|Link Checker|Media Center|Creative ZENcast|GoogleToolbar|MEGAUPLOAD|Alexa Toolbar|^User-Agent|SIMBAR|Wazzup|PeoplePal|GTB5|Dealio Toolbar|Zango|MathPlayer|Hotbar|Comcast Install|WebMoney Advisor|OfficeLiveConnector|IEMB3|GTB6|Avant Browser|America Online Browser|SearchSystem|WinTSI|FBSMTWB|NET_lghpset";
             LogServer = "log.handsetdetection.com";
-            ApiServer = "api.handsetdetection.com";
+            ApiServer = "api.handsetdetection.com";            
         }
                     
         /// <summary>Sets additional http headers for detection request, will override default headers.</summary>
@@ -248,13 +262,13 @@ namespace HD3 {
         /// <param name="data"></param>
         /// <param name="service">Service strings vary depending on the information needed</param>
         /// <returns>JsonData</returns>
-        private bool Remote(string service, Dictionary<string, string> data) {
-            bool status;
+        private bool Remote(string service, Dictionary<string, string> data)
+        {
+            bool status = false;
             string request;
             this.reply = null;
             var jss = new JavaScriptSerializer();
             jss.MaxJsonLength = this.maxJsonLength;
-
             Uri url = new Uri("http://" + ApiServer + "/apiv3" + service);
 #if HD3_DEBUG
             _log("Preparing to send to " + "http://" + this.api_server + "/apiv3" + service);
@@ -263,25 +277,21 @@ namespace HD3 {
                 request = "";
             else
                 request = jss.Serialize(data);
-            try {
+            try {                
                 status = post(ApiServer, url, request);
-                if (status) {
-                    this.reply = jss.Deserialize<Dictionary<string, dynamic>>(this.rawreply);                                        
-                } if (this.reply == null || !this.reply.ContainsKey("status")) {
-                    this.setError("Empty Reply");
-                    return false;
-                } if (this.reply["status"] != 0) {
-                    this.setError(this.reply["status"].ToString() + " : " + this.reply["message"]);
-                    return false;
-                }
-                return true;
+                if(status)
+                {
+                    status = true;
+                    this.reply = jss.Deserialize<Dictionary<string, dynamic>>(this.rawreply);                    
+                }                
             } catch (Exception ex) {
-                this.setError("Exception : " + ex.Message + " " + ex.StackTrace);
-                return false;
+                this.setError("Exception : " + ex.Message + " " + ex.StackTrace);                
             }
+            return status;
         }
 
-        private bool post(string host, Uri url, string data) {
+        private bool post(string host, Uri url, string data)
+        {
             try {
                 IPAddress[] ipv4Addresses = Array.FindAll(Dns.GetHostEntry(ApiServer).AddressList, a => a.AddressFamily == AddressFamily.InterNetwork);
                 // ToDo : Randomize the order of entries in ipList
@@ -301,9 +311,9 @@ namespace HD3 {
                     }
                     req.Timeout = ReadTimeout * 1000;
                     req.AllowWriteStreamBuffering = false;
-                    //req.PreAuthenticate = true;
+                    req.PreAuthenticate = true;
                     req.Method = "POST";                   
-                    req.ContentType = "application/json";
+                    req.ContentType = "application/json";                    
 
                     // AuthDigest Components - 
                     // Precomputing the digest saves on the server having to issue a challenge so its much quicker (network wise)
@@ -325,7 +335,7 @@ namespace HD3 {
 #endif
                     byte[] payload = System.Text.Encoding.ASCII.GetBytes(data);
                     req.ContentLength = payload.Length;
-                    req.Headers.Add("Authorization", digest);             
+                    req.Headers.Add("Authorization", digest);                                 
 #if HD3_DEBUG
                     this._log("Send Headers: " + req.ToString());
                     this._log("Send Data: " + data);
@@ -333,21 +343,27 @@ namespace HD3 {
                     Stream dataStream = req.GetRequestStream();
                     dataStream.Write(payload, 0, payload.Length);
                     dataStream.Close();
-
-                    var httpResponse = (HttpWebResponse)req.GetResponse();
-                    var s = httpResponse.GetResponseStream();
-                    var streamReader = new StreamReader(httpResponse.GetResponseStream());
-                    this.rawreply = streamReader.ReadToEnd();
+                    var httpResponse = (HttpWebResponse)req.GetResponse();                    
+                    responseStream = new MemoryStream();
+                    responseStream = httpResponse.GetResponseStream();
+                    this.reader = new BinaryReader(responseStream);               
 #if HD3_DEBUG
                     _log("Received : " + this.rawreply);
 #endif
-                    streamReader.Close();
-                    httpResponse.Close();
                     if (httpResponse.StatusCode == HttpStatusCode.OK)
+                    {
+                        if (this.isDownloadableFiles)
+                        {
+                            this.rawreply = "{\"status\":0}";                            
+                        }
+                        else
+                        {
+                            this.rawreply = new StreamReader(responseStream).ReadToEnd();
+                        }
                         return true;
+                    }
                 }
-            } catch (Exception ex) {
-                Console.WriteLine(ex.Message);
+            } catch (Exception ex) {                
                 this.setError("Exception : " + ex.Message + " " + ex.StackTrace);
             }
             return false;
@@ -373,7 +389,7 @@ namespace HD3 {
         /// </summary>
         /// <returns></returns>
         private bool _localDeviceVendors() {
-            Dictionary<string, dynamic> data = _localGetSpecs();
+            Dictionary<string, dynamic> data =  _localGetSpecs();
             if (data == null)
                 return false;            
             var temp = new HashSet<string>();
@@ -566,8 +582,7 @@ namespace HD3 {
                 if (UseLocal) {                    
                     return _localSiteDetect(this.m_detectRequest);
                 } else {                    
-                    this.AddKey("options", options);
-                    
+                    this.AddKey("options", options);                    
                     return Remote("/site/detect/" + SiteId + ".json", this.m_detectRequest);                    
                 }
             } catch (Exception ex) {
@@ -579,10 +594,10 @@ namespace HD3 {
         private bool _localSiteDetect(Dictionary<string, string> headers) {
             dynamic device = null;
             dynamic platform = null;
-            dynamic browser = null;            
+            dynamic browser = null;
             int id = _getDevice(headers);
             if (id > 0) {
-                device = _getCacheSpecs(id, "device");
+                device = _getCacheSpecs(id, "Device");
 			    if (device == null) {
                     this.reply = new Dictionary<string, dynamic>();
 				    this.reply["status"] = 225;
@@ -595,9 +610,9 @@ namespace HD3 {
 			    int platform_id = _getExtra("platform", headers);
 			    int browser_id = _getExtra("browser", headers);
 			    if (platform_id > 0) 
-				    platform = _getCacheSpecs(platform_id, "extra");
+				    platform = _getCacheSpecs(platform_id, "Extra");
 			    if (browser_id > 0)
-				    browser = _getCacheSpecs(browser_id, "extra");							    
+				    browser = _getCacheSpecs(browser_id, "Extra");							    
 			    if (browser != null && browser.ContainsKey("general_browser")) {
 				    platform["general_browser"] = browser["general_browser"];
 				    platform["general_browser_version"] = browser["general_browser_version"];
@@ -868,6 +883,7 @@ namespace HD3 {
         /// <returns></returns>
         public bool siteFetchArchive() {
             resetLog();
+            this.isDownloadableFiles = true;
             bool status = this.Remote("/site/fetcharchive/" + SiteId + ".json", null);            
             if (!status)
                 return false;
@@ -876,24 +892,65 @@ namespace HD3 {
                     this.setError("siteFetchArchive API call failed: " + this.reply["message"].ToString());
                     return false;
                 }
-                // Write rawreply to file hd3specs.json file.
-                _localPutSpecs();
+                _localPutArchive();
             }
             catch (Exception ex) {
                 this.setError("Exception : " + ex.Message + " " + ex.StackTrace);
                 return false;
             }
-            return _setCachecArchives();
+            _setCachecArchive();
+            return true;
         }
 
         /// <summary>
         /// 
         /// </summary>
         /// <returns></returns>
-        private bool _setCachecArchives()
+        private bool _localPutArchive()
         {
-            string s = Request.PhysicalApplicationPath;
-            string[] fileNames = Directory.GetFiles(Request.PhysicalApplicationPath + @"\files\", "Device_*.json");
+            try
+            {
+                if (!Directory.Exists(FileDirectory))
+                {
+                    System.IO.Directory.CreateDirectory(FileDirectory);
+                }
+                BinaryWriter bw = new BinaryWriter(new FileStream(FileDirectory + @"\\ultimate.zip", FileMode.Create), Encoding.UTF8);
+                byte[] buff = new byte[1024];
+                int c = 1;
+                while (c > 0)
+                {
+                    c = this.reader.Read(buff, 0, 1024);
+                    for (int i = 0; i < c; i++)
+                        bw.Write(buff[i]);
+                }
+                bw.Close();
+                responseStream.Close();
+                using (ZipFile zip = ZipFile.Read(FileDirectory + @"\\ultimate.zip"))
+                {
+                    zip.ToList().ForEach(entry =>
+                    {
+                        entry.FileName = System.IO.Path.GetFileName(entry.FileName.Replace(':', '_'));
+                        entry.Extract(FileDirectory);
+                    });
+                } 
+                return true;
+            }
+            catch (Exception ex)
+            {
+                this.setError("Exception : " + ex.Message + " " + ex.StackTrace);
+            }
+            return false;
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
+        private bool _setCachecArchive()
+        {
+            var jss = new JavaScriptSerializer();
+            jss.MaxJsonLength = this.maxJsonLength;
+            string[] fileNames = Directory.GetFiles(FileDirectory, "Device_*.json");
             if (fileNames.Length == 0)
             {
                 this.reply = new Dictionary<string, object>();
@@ -905,11 +962,11 @@ namespace HD3 {
             }
             foreach (string fileName in fileNames)
             {
-                string contents = System.IO.File.ReadAllText(fileName);
-                Newtonsoft.Json.Linq.JObject device = Newtonsoft.Json.Linq.JObject.Parse(contents);
+                string contents = System.IO.File.ReadAllText(fileName);                
                 //Dictionary<string, dynamic> device = Newtonsoft.Json.JsonConvert.DeserializeObject<Dictionary<string, dynamic>>(contents);                
+                Dictionary<string, dynamic> device = jss.Deserialize<Dictionary<string, dynamic>>(contents);
                 string device_id = device["Device"]["_id"].ToString();
-                string key = "device" + device_id;
+                string key = "Device_" + device_id;
                 if (device != null && device["Device"] != null && device["Device"]["hd_specs"] != null && key != null)
                 {
                     this.devices[key] = device["Device"]["hd_specs"];                    
@@ -925,6 +982,7 @@ namespace HD3 {
         /// <returns></returns>
         public bool siteFetchTrees() {
             resetLog();
+            this.isDownloadableFiles = true;
             bool status = this.Remote("/site/fetchtrees/" + SiteId + ".json", null);
             if (!status)
                 return false;
@@ -971,6 +1029,7 @@ namespace HD3 {
         /// <returns></returns>
         public bool siteFetchSpecs() {
             resetLog();
+            this.isDownloadableFiles = true;
             bool status = this.Remote("/site/fetchspecs/" + SiteId + ".json", null);
             if (!status)
                 return false;
@@ -986,15 +1045,24 @@ namespace HD3 {
                 this.setError("Exception : " + ex.Message + " " + ex.StackTrace);
                 return false;
             }
-            return _setCacheSpecs();
+            return true; // _setCacheSpecs(key);
         }
 
         /// <summary>
         /// 
         /// </summary>
         /// <returns></returns>
-        private bool _setCacheSpecs() {
-            Dictionary<string, dynamic> data = _localGetSpecs();
+        private bool _setCacheSpecs(string cachekey, string type) {
+            var jss = new JavaScriptSerializer();
+            jss.MaxJsonLength = this.maxJsonLength;
+            Dictionary<string, dynamic> data = null;
+            try {                         
+                string keyvalue = cachekey + ".json";
+                string jsonText = System.IO.File.ReadAllText(FileDirectory + @"\\" + keyvalue);
+                data = jss.Deserialize<Dictionary<string, dynamic>>(jsonText);                
+            } catch (Exception ex) {
+                this.setError("Exception : " + ex.Message + " " + ex.StackTrace);
+            }                        
             if (data == null) {
                 this.reply = new Dictionary<string, dynamic>();
                 this.reply["status"] = 299;
@@ -1003,28 +1071,8 @@ namespace HD3 {
                 this.setRawReply();
                 return false;
             }
-            // Cache Devices
-            foreach (Dictionary<string, dynamic> device in data["devices"]) {
-                string device_id = device["Device"]["_id"];
-                string key = "device"+device_id;
-                if (device != null && device["Device"] != null && device["Device"]["hd_specs"] != null && key != null) {
-                    this.specs[key] = device["Device"]["hd_specs"];
-                    // Save to Application Cache
-                    myCache.write(key, this.specs[key]);                    
-                    //HD3Cache.Write(key, this.specs[key]);
-                }
-            }
-            // Cache Extras
-            foreach (Dictionary<string, dynamic> extra in data["extras"]) {
-                string extra_id = extra["Extra"]["_id"];
-                string key = "extra" + extra_id;
-                if (extra["Extra"] != null && extra["Extra"]["hd_specs"] != null) {
-                    this.specs[key] = extra["Extra"]["hd_specs"] as Dictionary<string, dynamic>;
-                    // Save to Applications Cache
-                    myCache.write(key, this.specs[key]);                    
-                    //HD3Cache.Write(key, this.specs[key]);
-                }
-			} 
+            this.specs[cachekey] = data[type]["hd_specs"];
+            myCache.write(cachekey, this.specs[cachekey]);
             return true;
         }
 
@@ -1035,18 +1083,9 @@ namespace HD3 {
         /// <param name="type"></param>
         /// <returns></returns>
         private dynamic _getCacheSpecs(int id, string type) {
-            // Read local first
-            string key = type + Convert.ToInt32(id);
-            if (this.devices.ContainsKey(key)) {
-#if HD3_DEBUG
-                this._log(key + " fetched from memory");
-#endif
-                return this.devices[key];
-            }
-
-            // Try Cache
+            // Read local first            
+            string key = String.Format("{0}{1}{2}", type,"_",Convert.ToInt32(id));
             Dictionary<string, dynamic> obj = myCache.read(key);
-            //Dictionary<string, dynamic> obj = HD3Cache.Read<dynamic>(key);
             if (obj != null && obj.Count != 0) {
 #if HD3_DEBUG
                 this._log(key + " fetched from cache");
@@ -1055,18 +1094,12 @@ namespace HD3 {
                 return obj;
             }
 
-            // re-cache & re-read local.
-#if HD3_DEBUG
-            this._log(key + " not found - rebuilding");
-#endif
-            //_setCacheSpecs();
-            _setCachecArchives();
-            if (this.devices.ContainsKey(key))
+            if(_setCacheSpecs(key, type))
             {
 #if HD3_DEBUG
                 this._log(key + " found after rebuilding");
 #endif
-                return this.devices[key];
+                return this.specs[key];
             }
             this._log(key + " not found");
             return null;
@@ -1076,12 +1109,22 @@ namespace HD3 {
         /// 
         /// </summary>
         /// <returns></returns>
-        private Dictionary<string, dynamic> _localGetSpecs() {
+        private Dictionary<string, dynamic> _localGetSpecs()
+        {
             var jss = new JavaScriptSerializer();
-            jss.MaxJsonLength = this.maxJsonLength;
+            jss.MaxJsonLength = this.maxJsonLength;            
             try {
-                string jsonText = System.IO.File.ReadAllText(Request.PhysicalApplicationPath + "\\hd3specs.json");                                
-                Dictionary<string, dynamic> data = jss.Deserialize<Dictionary<string, dynamic>>(jsonText);                
+                string jsonText = System.IO.File.ReadAllText(FileDirectory + "\\hd3specs.json");
+                Dictionary<string, dynamic> data = jss.Deserialize<Dictionary<string, dynamic>>(jsonText);
+                /*Dictionary<string, dynamic> data = new Dictionary<string, dynamic>();
+                List<dynamic> temp = new List<dynamic>();
+                foreach (string fileName in Directory.GetFiles(FileDirectory, "Device_*.json"))
+                {                    
+                    string contents = System.IO.File.ReadAllText(fileName);                    
+                    var jsonstr = jss.Deserialize<Dictionary<string, dynamic>>(contents);
+                    temp.Add(jsonstr);                 
+                }
+                data["devices"] = temp;*/
                 return data;
             } catch (Exception ex) {
                 this.setError("Exception : " + ex.Message + " " + ex.StackTrace);
@@ -1097,7 +1140,7 @@ namespace HD3 {
             var jss = new JavaScriptSerializer();
             jss.MaxJsonLength = this.maxJsonLength;
             try {
-                string jsonText = System.IO.File.ReadAllText(Request.PhysicalApplicationPath + "\\hd3trees.json");                
+                string jsonText = System.IO.File.ReadAllText(FileDirectory + @"\\hd3trees.json");                               
                 Dictionary<string, dynamic> data = jss.Deserialize<Dictionary<string, dynamic>>(jsonText);                
                 return data;
             } catch (Exception ex) {
@@ -1110,9 +1153,22 @@ namespace HD3 {
         /// 
         /// </summary>
         /// <returns></returns>
-        private bool _localPutSpecs() {
+        private bool _localPutSpecs() {            
             try {
-                System.IO.File.WriteAllText(Request.PhysicalApplicationPath + "\\hd3specs.json", this.rawreply.ToString());                
+                if (!Directory.Exists(FileDirectory)) {
+                    System.IO.Directory.CreateDirectory(FileDirectory);
+                }                                
+                BinaryWriter bw = new BinaryWriter(new FileStream(FileDirectory + @"\\hd3specs.json", FileMode.Create), Encoding.UTF8);
+                byte[] buff = new byte[1024];
+                int c = 1;
+                while (c > 0)
+                {
+                    c = this.reader.Read(buff, 0, 1024);
+                    for (int i = 0; i < c; i++)
+                        bw.Write(buff[i]);
+                }
+                bw.Close();
+                responseStream.Close(); 
                 return true;
             } catch (Exception ex) {
                 this.setError("Exception : " + ex.Message + " " + ex.StackTrace);
@@ -1124,9 +1180,22 @@ namespace HD3 {
         /// 
         /// </summary>
         /// <returns></returns>
-        private bool _localPutTrees() {
+        private bool _localPutTrees() {            
             try {
-                System.IO.File.WriteAllText(Request.PhysicalApplicationPath + "\\hd3trees.json", this.rawreply.ToString());                
+                if (!Directory.Exists(FileDirectory)) {
+                    System.IO.Directory.CreateDirectory(FileDirectory);
+                }                
+                BinaryWriter bw = new BinaryWriter(new FileStream(FileDirectory + @"\\hd3trees.json", FileMode.Create), Encoding.UTF8);
+                byte[] buff = new byte[1024];
+                int c = 1;
+                while (c > 0)
+                {
+                    c = this.reader.Read(buff, 0, 1024);
+                    for (int i = 0; i < c; i++)
+                        bw.Write(buff[i]);
+                }
+                bw.Close();
+                responseStream.Close();                
                 return true;
             } catch (Exception ex) {
                 this.setError("Exception : " + ex.Message + " " + ex.StackTrace);
@@ -1162,5 +1231,6 @@ namespace HD3 {
             }
             return sb.ToString().ToLower();
         }
+  
     }
 }
