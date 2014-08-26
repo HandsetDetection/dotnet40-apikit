@@ -9,15 +9,8 @@ using System.Web.UI.HtmlControls;
 using System.Web.UI.WebControls;
 using System.Web.UI.WebControls.WebParts;
 using HD3;
-/// <summary>
-/// 
-/// </summary>
+
 public partial class Devices : System.Web.UI.Page {
-    /// <summary>
-    /// 
-    /// </summary>
-    /// <param name="sender"></param>
-    /// <param name="e"></param>
     protected void Page_Load(object sender, EventArgs e) {
         var hd3 = new HD3.HD3(Request);
 

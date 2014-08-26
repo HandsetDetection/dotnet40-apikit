@@ -1,5 +1,0 @@
-﻿1>------ Build started: Project: HD3, Configuration: Debug Any CPU ------
-1>C:\Users\Bobcat\Desktop\HandsetDetection\dotnet40-apikit\HD3lib\HD3.cs(105,32,105,34): warning CS0168: The variable 'ex' is declared but never used
-1>C:\Users\Bobcat\Desktop\HandsetDetection\dotnet40-apikit\HD3lib\HD3.cs(915,36,915,38): warning CS0168: The variable 'ex' is declared but never used
-1>  HD3 -> C:\Users\Bobcat\Desktop\HandsetDetection\dotnet40-apikit\HD3lib\bin\Debug\HD3.exe
-========== Build: 1 succeeded, 0 failed, 0 up-to-date, 0 skipped ==========

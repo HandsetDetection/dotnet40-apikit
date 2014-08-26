@@ -54,6 +54,7 @@ using System.Runtime.Caching;
 using System.Xml;
 using System.Linq;
 using Ionic.Zip;
+using Newtonsoft.Json.Linq;
 
 namespace HD3 {
 
@@ -85,8 +86,7 @@ namespace HD3 {
            if (value != null && key != "") {    
                 var jss = new JavaScriptSerializer();
                 jss.MaxJsonLength = this.maxJsonLength;
-                string storethis = jss.Serialize(value);
-                //this.myCache.Set(this.prefix + key, value, policy);
+                string storethis = jss.Serialize(value);                
                 this.myCache.Set(this.prefix + key, storethis, policy);
             }
         } 
@@ -131,20 +131,18 @@ namespace HD3 {
         public string LogServer { get; set; }        
         public string getRawReply() { return this.rawreply;  }
         public dynamic getReply() { return this.reply; }
-        public string getError() { return this.error; }
-        private BinaryReader reader { get; set; }
-        private string projectDir = Directory.GetParent(Directory.GetCurrentDirectory()).Parent.FullName;
+		private BinaryReader reader { get; set; }
+        private string projectDir = String.Empty;
         private Stream responseStream = null;
         public string pathString = "hd4cache";
         public bool isDownloadableFiles = false;
-        public string FileDirectory 
-        {
+        public string FileDirectory  {
             get {                 
                 return System.IO.Path.Combine(projectDir, this.pathString);
             }
             set { value = System.IO.Path.Combine(projectDir,this.pathString); }
         }
-
+        public string getError() { return this.error; }        
         private void setError(string msg) { 
             this.error = msg; 
 #if HD3_DEBUG
@@ -163,7 +161,7 @@ namespace HD3 {
 
         private HD3Cache myCache = new HD3Cache();
         //Parameters to send for detection request
-        private Dictionary<string, string> m_detectRequest = new Dictionary<string, string>();
+        public Dictionary<string, string> m_detectRequest = new Dictionary<string, string>();
         private string rawreply;
         private Dictionary<string, dynamic> reply = new Dictionary<string, dynamic>();
         private Dictionary<string, dynamic> tree = new Dictionary<string, dynamic>();
@@ -229,7 +227,15 @@ namespace HD3 {
             MatchFilter = " _\\#-,./:\"'";
             NonMobile = "^Feedfetcher|^FAST|^gsa_crawler|^Crawler|^goroam|^GameTracker|^http://|^Lynx|^Link|^LegalX|libwww|^LWP::Simple|FunWebProducts|^Nambu|^WordPress|^yacybot|^YahooFeedSeeker|^Yandex|^MovableType|^Baiduspider|SpamBlockerUtility|AOLBuild|Link Checker|Media Center|Creative ZENcast|GoogleToolbar|MEGAUPLOAD|Alexa Toolbar|^User-Agent|SIMBAR|Wazzup|PeoplePal|GTB5|Dealio Toolbar|Zango|MathPlayer|Hotbar|Comcast Install|WebMoney Advisor|OfficeLiveConnector|IEMB3|GTB6|Avant Browser|America Online Browser|SearchSystem|WinTSI|FBSMTWB|NET_lghpset";
             LogServer = "log.handsetdetection.com";
-            ApiServer = "api.handsetdetection.com";            
+            ApiServer = "api.handsetdetection.com";
+            if (!String.IsNullOrEmpty(HttpRuntime.AppDomainAppVirtualPath))
+            {
+                projectDir = Request.PhysicalApplicationPath;
+            }
+            else
+            {
+                projectDir = Directory.GetParent(Directory.GetCurrentDirectory()).Parent.FullName;
+            }
         }
                     
         /// <summary>Sets additional http headers for detection request, will override default headers.</summary>
@@ -350,14 +356,10 @@ namespace HD3 {
 #if HD3_DEBUG
                     _log("Received : " + this.rawreply);
 #endif
-                    if (httpResponse.StatusCode == HttpStatusCode.OK)
-                    {
-                        if (this.isDownloadableFiles)
-                        {
+                    if (httpResponse.StatusCode == HttpStatusCode.OK) {
+                        if (this.isDownloadableFiles) {
                             this.rawreply = "{\"status\":0}";                            
-                        }
-                        else
-                        {
+                        } else {
                             this.rawreply = new StreamReader(responseStream).ReadToEnd();
                         }
                         return true;
@@ -962,8 +964,7 @@ namespace HD3 {
             }
             foreach (string fileName in fileNames)
             {
-                string contents = System.IO.File.ReadAllText(fileName);                
-                //Dictionary<string, dynamic> device = Newtonsoft.Json.JsonConvert.DeserializeObject<Dictionary<string, dynamic>>(contents);                
+                string contents = System.IO.File.ReadAllText(fileName);                                           
                 Dictionary<string, dynamic> device = jss.Deserialize<Dictionary<string, dynamic>>(contents);
                 string device_id = device["Device"]["_id"].ToString();
                 string key = "Device_" + device_id;
@@ -1231,6 +1232,5 @@ namespace HD3 {
             }
             return sb.ToString().ToLower();
         }
-  
     }
 }

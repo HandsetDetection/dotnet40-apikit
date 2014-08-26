@@ -72,17 +72,28 @@ public partial class Sites : System.Web.UI.Page {
         }
         hd3.cleanUp();
 
-        hd3.ReadTimeout = 600;
-        var timer = System.Diagnostics.Stopwatch.StartNew();
-        if (hd3.siteFetchArchive()) {
+        //===========================================================
+        Response.Write("<b>All Detection Information</b><br/>");
+        hd3.ReadTimeout = 600;    // Increse the read timeout on long running requests
+        if (hd3.siteFetchTrees()) {
+            string rawreply = hd3.getRawReply();
+            Response.Write("Size returned : "+ rawreply.Length + "<br/>");
+        } else {
+            Response.Write(hd3.getError() + "<br/>");
+            Response.Write(hd3.getLog());
+        }
+        hd3.cleanUp();
+
+        //=========================================
+        Response.Write("<b>All Handset Information</b><br/>");
+        hd3.ReadTimeout = 600;    // Increse the read timeout on long running requests
+        if (hd3.siteFetchSpecs()) {
             string rawreply = hd3.getRawReply();
             Response.Write("Size returned : " + rawreply.Length + "<br/>");
         } else {
             Response.Write(hd3.getError() + "<br/>");
             Response.Write(hd3.getLog());
         }
-
-        float elapsedTimeSec = (float)timer.Elapsed.TotalMilliseconds / 1000F;
-        Response.Write("<h3>Elapsed Time " + elapsedTimeSec + "ms");
+        hd3.cleanUp();
     }
 }

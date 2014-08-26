@@ -18,9 +18,9 @@
         <a href="Sites.aspx">Sites</a><br />
 	<a href="Devices.aspx">Devices</a><br />
         <a href="Tests.aspx">Tests</a><br />
-	<h3>By Default these should not be viewable (requires licence)</h3>
+	<!--<h3>By Default these should not be viewable (requires licence)</h3>
 	<a href="hd3specs.json">hd3specs</a><br />
-        <a href="hd3trees.json">hd3trees</a><br />
+        <a href="hd3trees.json">hd3trees</a><br />-->
     </div>
     </form>
 </body>

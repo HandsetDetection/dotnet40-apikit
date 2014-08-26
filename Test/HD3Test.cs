@@ -9,11 +9,12 @@ using System.Collections;
 using System.Web.Script.Serialization;
 using System.Collections.Generic;
 using Newtonsoft.Json.Linq;
+using System.Linq;
+using System.Web;
+using NUnit.Framework;
 
 namespace HD3.Test
-{
-    using NUnit.Framework;
-
+{    
     [TestFixture]
     public class HD3Test
     {
@@ -418,6 +419,9 @@ namespace HD3.Test
 		    { "SonyEricssonX10I", SonyEricssonX10I }
         };
 
+        /// <summary>
+        /// initialize objects
+        /// </summary>
         [TestFixtureSetUp]
         public void Initialize()
         {
@@ -434,10 +438,13 @@ namespace HD3.Test
                 Username = "your_api_username",
                 Secret = "your_api_secret",
                 SiteId = "your_api_siteId",
-                UseLocal = true
+                UseLocal = false
             };
         }
 
+        /// <summary>
+        /// Test for runtime exception
+        /// </summary>
         [Test]
         public void Test_UsernameRequired()
         {
@@ -445,6 +452,9 @@ namespace HD3.Test
             Assert.AreEqual("", hd3.Username);
         }
 
+        /// <summary>
+        /// Test for runtime exception
+        /// </summary>
         [Test]
         public void Test_SecretRequired()
         {
@@ -452,6 +462,9 @@ namespace HD3.Test
             Assert.AreEqual("", hd3.Secret);
         }
 
+        /// <summary>
+        /// Test for a config passed to the constructor
+        /// </summary>
         [Test]
         public void Test_PassedConfig()
         {
@@ -470,6 +483,9 @@ namespace HD3.Test
             Assert.AreEqual(hd3.ProxyPass, "123abc");
         }
 
+        /// <summary>
+        /// Test for default config readon from config file
+        /// </summary>
         [Test]
         public void Test_DefaultFileConfig()
         {
@@ -480,31 +496,52 @@ namespace HD3.Test
             Assert.NotNull(hd3.SiteId);
             Assert.NotNull(hd3.ApiServer);
         }
-
+        
+        /// <summary>
+        /// Test for default http headers read when a new object is instantiated
+        /// </summary>
         [Test]
         public void Test_DefaultSetup()
         {
             string header = "Mozilla/5.0 (SymbianOS/9.2; U; Series60/3.1 NokiaN95-3/20.2.011 Profile/MIDP-2.0 Configuration/CLDC-1.1 ) AppleWebKit/413";
             string profile = "http://nds1.nds.nokia.com/uaprof/NN95-1r100.xml";
-            string ipaddress = "127.0.0.1";
-            //JObject data = new JObject();
+            string ipaddress = "http://localhost";            
             dynamic data = null;
             data.Add("user-agent", header);
             data.Add("x-wap-profile", profile);
             data.Add("ipaddress", ipaddress);
-            //var hd3 = new HD3()
+            HttpRequest request = new HttpRequest(null, "http://localhost", null);
+            var hd = new HD3(request);
+            hd.UseLocal = false;
+            hd.setDetectVar("user-agent", header);
+            hd.setDetectVar("x-wap-profile", profile);
+            hd.setDetectVar("ipaddress", ipaddress);
+            Assert.AreEqual(data["user-agent"], hd.m_detectRequest["user-agent"]);
+            Assert.AreEqual(data["x-wap-profile"], hd.m_detectRequest["x-wap-profile"]);
+            Assert.AreEqual(data["ipaddress"], hd.m_detectRequest["ipaddress"]);
         }
 
+        /// <summary>
+        /// Test for manual setting of http headers
+        /// </summary>
         [Test]
         public void Test_ManualSetup()
         {
             string header = "Mozilla/5.0 (SymbianOS/9.2; U; Series60/3.1 NokiaN95-3/20.2.011 Profile/MIDP-2.0 Configuration/CLDC-1.1 ) AppleWebKit/413";
             string profile = "http://nds1.nds.nokia.com/uaprof/NN95-1r100.xml";
-            dynamic json = new JObject();
-            json.Add("user-agent", header);
-            json.Add("x-wap-profile", profile);
+            dynamic data = null;
+            data.Add("user-agent", header);
+            data.Add("x-wap-profile", profile);                        
+            hd3.UseLocal = true;
+            hd3.setDetectVar("user-agent", header);
+            hd3.setDetectVar("x-wap-profile", profile);
+            Assert.AreEqual(data["user-agent"], hd3.m_detectRequest["user-agent"]);
+            Assert.AreEqual(data["x-wap-profile"], hd3.m_detectRequest["x-wap-profile"]);
         }
 
+        /// <summary>
+        /// Test for invalis API credentials
+        /// </summary>
         [Test]
         public void Test_InvalidCredentials()
         {
@@ -518,6 +555,11 @@ namespace HD3.Test
             Assert.AreEqual("200", data["status"].ToString());
         }
 
+        /// <summary>
+        /// The list is continually growing so ensure its a min length and common vendors are present
+        /// </summary>
+        /// <param name="local">True if running in local mode, false otherwise</param>
+        /// <param name="proxy">True if using proxy for API queries</param>
         [Test]
         public void DeviceVendors(bool local, bool proxy)
         {
@@ -529,12 +571,16 @@ namespace HD3.Test
             dynamic data = hd3.getReply();
             Assert.AreEqual("OK", data["message"].ToString());
             Assert.AreEqual(0, int.Parse(data["status"].ToString()));
+            Assert.IsTrue(data["vendor"].Count > 1000);
             foreach (string vendor in vendors)
             {
                 Assert.IsTrue(InJsonList(vendor, "vendor", data));
             }
         }
 
+        /// <summary>
+        /// The list is continually growing so ensure its a min length and common vendors are present
+        /// </summary>
         [Test]
         public void Test_DeviceVendorsFail()
         {
@@ -547,6 +593,11 @@ namespace HD3.Test
             }
         }
 
+        /// <summary>
+        /// This list is also continually growing so ensure its a minimum length
+        /// </summary>
+        /// <param name="local">True if running in local mode, false otherwise</param>
+        /// <param name="proxy">True if using proxy for API queries</param>
         [Test]
         public void DeviceModels(bool local, bool proxy)
         {
@@ -559,6 +610,11 @@ namespace HD3.Test
             Assert.AreEqual(0, int.Parse(data["status"].ToString()));
         }
 
+        /// <summary>
+        /// View detailed information about one device
+        /// </summary>
+        /// <param name="local">True if running in local mode, false otherwise</param>
+        /// <param name="proxy">True if using proxy for API queries</param>
         [Test]
         public void DeviceView(bool local, bool proxy)
         {
@@ -569,17 +625,40 @@ namespace HD3.Test
             Assert.IsTrue(reply);
             Assert.AreEqual("OK", data["message"].ToString());
             Assert.AreEqual(0, int.Parse(data["status"].ToString()));
+            JObject json = JObject.Parse(data);
+            Test_CompareDevices(json["device"].ToString(), nokiaN95);
         }
 
+        /// <summary>
+        /// Find which devices have a specific property
+        /// </summary>
+        /// <param name="local">True if running in local mode, false otherwise</param>
+        /// <param name="proxy">True if using proxy for API queries</param>
         [Test]
         public void DeviceWhatHas(bool local, bool proxy)
         {
             hd3.UseLocal = local;
             hd3.UseProxy = proxy;
             bool reply = hd3.deviceWhatHas("design_dimensions", "101 x 44 x 16");
-            dynamic data = hd3.getReply();            
+            string data = hd3.getRawReply();
+            JObject json = JObject.Parse(data);
+            List<string> specs = new List<string>() { "Asus", "V80", "Spice", "S900", "Voxtel", "RX800" };
+            Assert.IsTrue(reply);
+            foreach (string spec in specs)
+            {
+                var retSpec = (from pt in json["devices"]
+                               where (string)pt["id"] == spec || (string)pt["general_vendor"] == spec || (string)pt["general_model"] == spec
+                               select pt).Any();
+
+                Assert.IsTrue(retSpec);
+            }
         }
 
+        /// <summary>
+        /// Perform a battery of detection tests
+        /// </summary>
+        /// <param name="local">True if running in local mode, false otherwise</param>
+        /// <param name="proxy">True if using proxy for API queries</param>
         [Test]
         public void SiteDetect(bool local, bool proxy)
         {
@@ -593,8 +672,43 @@ namespace HD3.Test
                 Assert.IsFalse(reply);
                 Assert.AreEqual(301, int.Parse(data["status"].ToString()));
             }
+            foreach (KeyValuePair<string, Dictionary<string, string>> entries in map)
+            {
+                string agent = entries.Value["user-agent"];
+                string profile = entries.Value["x-wap-profile"];
+                string matchKey = entries.Value["match"];
+                if (agent.Length > 0)
+                {                    
+                    hd3.setDetectVar("user-agent", agent);                    
+                }
+                if (profile.Length > 0)
+                {                    
+                    hd3.setDetectVar("x-wap-profile", profile);
+                }
+                bool reply = hd3.siteDetect();
+                string data = hd3.getRawReply();
+                JObject json = JObject.Parse(data);
+                Assert.AreEqual(0, int.Parse(json["status"].ToString()));
+                Assert.AreEqual("OK", json["message"]);
+                Assert.AreEqual(json["class"], json["hd_specs"]["general_type"]);
+                var enumerator = headers.GetEnumerator();
+                while (enumerator.MoveNext())
+                {
+                    string key = enumerator.Current.Key;
+                    string value = enumerator.Current.Value;
+                    if (key.Equals(matchKey))
+                    {
+                        json.Remove("general_language");
+                        json.Remove("general_language_full");
+                        this.Test_CompareDevices(json["hd_specs"].ToString(), value);
+                    }
+                }
+            }
         }
 
+        /// <summary>
+        /// Test device nokia browser detect
+        /// </summary>
         [Test]
         public void Test_NokiaSiteDetect()
         {
@@ -606,24 +720,9 @@ namespace HD3.Test
             Assert.AreEqual("Symbian", reply["hd_specs"]["general_platform"]);
         }
 
-        [Test]
-        public void Test_GeoipSiteDetect()
-        {
-            hd3.setDetectVar("ipaddress", "64.34.165.180");
-            Hashtable openWith = new Hashtable();
-            openWith.Add("options", "geoip,hd_specs");
-            hd3.siteDetect(openWith["options"].ToString());            
-            dynamic reply = hd3.getReply();
-            Assert.AreEqual("38.9266", reply["geoip"]["latitude"]);
-            Assert.AreEqual("US", reply["geoip"]["countrycode"]);
-        }
-
-        [Test]
-        public void Test_SiteDetectLocal()
-        {
-            Assert.IsTrue(hd3.siteDetect());
-        }
-
+        /// <summary>
+        /// Test device vendors found
+        /// </summary>
         [Test]
         public void Test_DeviceVendorsFound()
         {
@@ -635,6 +734,9 @@ namespace HD3.Test
             Assert.IsTrue(InJsonList("Tecno", key, reply));
         }
 
+        /// <summary>
+        /// Test devices vendors not found
+        /// </summary>
         [Test]
         public void Test_DeviceVendorsNotFound()
         {
@@ -646,13 +748,9 @@ namespace HD3.Test
             Assert.IsFalse(InJsonList("Advance", key, reply));
         }
 
-        [Test]
-        public void Test_DeviceVendorsWithUsername()
-        {
-            Assert.AreEqual(hd3.Username, "your_api_username");   
-            Assert.IsFalse(hd3.deviceVendors());                  
-        }
-
+        /// <summary>
+        /// Test device nokia models; true
+        /// </summary>
         [Test]
         public void Test_DeviceModelsNokiaPass()
         {
@@ -665,6 +763,9 @@ namespace HD3.Test
             Assert.IsTrue(InJsonList("1110i", key, reply));            
         }
 
+        /// <summary>
+        /// Test device nokia models; false
+        /// </summary>
         [Test]
         public void Test_DeviceModelsNokiaFail()
         {
@@ -677,6 +778,9 @@ namespace HD3.Test
             Assert.IsFalse(InJsonList("abc123", key, reply));
         }
 
+        /// <summary>
+        /// Test device view nokia n95
+        /// </summary>
         [Test]
         public void Test_DeviceViewNokia95()
         {
@@ -690,6 +794,10 @@ namespace HD3.Test
             Assert.IsTrue(InJsonMultiList("Computer sync", "device", "features", reply));
             Assert.IsTrue(InJsonMultiList("VoIP", "device", "features", reply));
         }
+
+        /// <summary>
+        /// Test device view apple iphone 5s
+        /// </summary>
         [Test]
         public void Test_DeviceViewAppleIPhone5s()
         {
@@ -703,40 +811,9 @@ namespace HD3.Test
             Assert.IsTrue(InJsonMultiList("Electronic Compass", "device", "features", reply));
         }
 
-        [Test]
-        public void Test_DeviceViewXCode()
-        {
-            Assert.IsFalse(hd3.deviceView("XCode", "XC14"));
-            dynamic reply = hd3.getReply();
-            Assert.AreEqual(reply["device"]["general_vendor"], "Apple");
-            Assert.AreEqual(reply["device"]["general_model"], "XC14");
-            Assert.AreEqual(reply["device"]["general_platform"], "iOS");
-        }
-
-        [Test]
-        public void Test_DeviceWhatHas()
-        {
-            hd3.ReadTimeout = 600;
-            hd3.deviceWhatHas("network", "cdma");
-            dynamic reply = hd3.getReply();
-            Assert.AreEqual(reply["devices"][0]["id"], 10);
-            Assert.AreEqual(reply["devices"][0]["general_vendor"], "Samsung");
-            Assert.AreEqual(reply["devices"][0]["general_model"], "SPH-A680");
-            Assert.AreEqual(reply["devices"][1]["id"], 1003);
-            Assert.AreEqual(reply["devices"][1]["general_vendor"], "LG");
-            Assert.AreEqual(reply["devices"][1]["general_model"], "CU6060");
-            Assert.AreEqual(reply["devices"][2]["id"], 1020);
-            Assert.AreEqual(reply["devices"][2]["general_vendor"], "Nokia");
-            Assert.AreEqual(reply["devices"][2]["general_model"], "2270");
-            Assert.AreEqual(reply["status"], 0);
-        }
-
-        [Test]
-        public void Test_DeviceWhatHasFalse()
-        {
-            Assert.IsFalse(hd3.deviceWhatHas("cloud", "wifi"));            
-        }
-
+        /// <summary>
+        /// Runs the Api tests against the Cloud web service
+        /// </summary>
         [Test]
         public void Test_CloudApiCalls()
         {
@@ -747,6 +824,9 @@ namespace HD3.Test
             this.SiteDetect(false, false);
         }
 
+        /// <summary>
+        /// Runs the same tests as testCloudApiCalls() but through a proxy
+        /// </summary>
         [Test]
         public void Test_CloudProxyApiCalls()
         {
@@ -763,14 +843,29 @@ namespace HD3.Test
             this.SiteDetect(false, true);
         }
 
+        /// <summary>
+        /// Test fetching the detection trees
+        /// </summary>
         [Test]
         public void Test_UltimateFetchTrees()
         {
             hd3.UseLocal = true;
             hd3.UseProxy = false;
             hd3.ReadTimeout = 120;
+            hd3.FileDirectory = "tmp";
+            bool reply = hd3.siteFetchTrees();
+            Assert.IsTrue(reply);
+            Assert.AreEqual(true, File.Exists(hd3.FileDirectory + "\\hd3trees.json"));
+            string[] devices = { "user-agent0.json", "user-agent1.json", "user-agentplatform.json", "user-agentbrowser.json", "profile0.json" };
+            foreach (string device in devices)
+            {
+                Assert.AreEqual(true, File.Exists(hd3.FileDirectory + "\\" + device));
+            }
         }
 
+        /// <summary>
+        /// Test invalid credentials for accessing fetchTrees
+        /// </summary>
         [Test]
         public void Test_UltimateFetchTreesFail()
         {
@@ -780,16 +875,37 @@ namespace HD3.Test
             hd3.ReadTimeout = 120;
             hd3.UseLocal = true;
             hd3.UseProxy = false;
+            bool reply = hd3.siteFetchTrees();
+            Assert.AreEqual(false, reply);
         }
 
+        /// <summary>
+        /// Fetch the device specs
+        /// </summary>
         [Test]
         public void Test_UltimateFetchSpecs()
         {
             hd3.UseLocal = true;
             hd3.UseProxy = false;
             hd3.ReadTimeout = 120;
+            hd3.FileDirectory = "tmp";
+            bool reply = hd3.siteFetchSpecs();
+            Assert.IsTrue(reply);
+            Assert.AreEqual(true, File.Exists(hd3.FileDirectory + "\\hd3trees.json"));
+            string[] filenames = { "Device_10.json", "Extra_546.json", "Device_46142.json", "Extra_9.json", "Extra_102.json", "user-agent0.json", "user-agent1.json", "user-agentplatform.json", "user-agentbrowser.json", "profile0.json" };
+            foreach (string filename in filenames)
+            {
+                Assert.AreEqual(true, File.Exists(hd3.FileDirectory + "\\" + filename));
+            }
+            string content = System.IO.File.ReadAllText(hd3.FileDirectory + "\\device_10.json");
+            JObject json1 = JObject.Parse(Device_10);
+            JObject json2 = JObject.Parse(content);
+            Assert.IsTrue(JToken.DeepEquals(json1, json2));
         }
 
+        /// <summary>
+        /// Test invalid credentials for accessing fetchSpecs
+        /// </summary>
         [Test]
         public void Test_UltimateFetchSpecsFail()
         {
@@ -799,24 +915,36 @@ namespace HD3.Test
             hd3.ReadTimeout = 120;
             hd3.UseLocal = true;
             hd3.UseProxy = false;
-            //bool reply = hd3
+            hd3.FileDirectory = "tmp";
+            bool reply = hd3.siteFetchTrees();
+            Assert.IsFalse(reply);
         }
 
+        /// <summary>
+        /// Test fetchArchive
+        /// </summary>
         [Test]
         public void Test_UltimateFetchArchive()
         {
-            string[] devices = { "Device_10.json", "Extra_546.json", "Device_46142.json", "Extra_9.json", "Extra_102.json", "user-agent0.json", "user-agent1.json", "user-agentplatform.json", "user-agentbrowser.json", "profile0.json" };
+            string[] filenames = { "Device_10.json", "Extra_546.json", "Device_46142.json", "Extra_9.json", "Extra_102.json", "user-agent0.json", "user-agent1.json", "user-agentplatform.json", "user-agentbrowser.json", "profile0.json" };
             hd3.UseLocal = true;
             hd3.UseProxy = false;
             hd3.ReadTimeout = 120;
             bool reply = hd3.siteFetchArchive();
             Assert.AreEqual(true, reply);
-            foreach (string device in devices)
+            foreach (string filename in filenames)
             {
-                Assert.AreEqual(true, true);
+                Assert.AreEqual(true, File.Exists(hd3.FileDirectory + "\\" + filename));
             }
+            string content = System.IO.File.ReadAllText(hd3.FileDirectory + "\\device_10.json");
+            JObject json1 = JObject.Parse(Device_10);
+            JObject json2 = JObject.Parse(content);
+            Assert.IsTrue(JToken.DeepEquals(json1, json2));
         }
 
+        /// <summary>
+        /// Test Ultimate mode for API calls
+        /// </summary>
         [Test]
         public void Test_UltimateApiCalls()
         {
@@ -827,9 +955,32 @@ namespace HD3.Test
             this.SiteDetect(true, false);
         }
 
+        /// <summary>
+        /// Compare two json contents
+        /// </summary>
+        /// <param name="value1"></param>
+        /// <param name="value2"></param>
+        [Test]
+        public void Test_CompareDevices(string value1, string value2)
+        {
+            JObject json1 = JObject.Parse(value1);
+            JObject json2 = JObject.Parse(value2);
+            Assert.AreEqual(true, JToken.DeepEquals(json1, json2));
+        }
+
+        /// <summary>
+        /// Clean object
+        /// </summary>
         [TestFixtureTearDown]
         public void TearDown() { hd3.cleanUp(); }
 
+        /// <summary>
+        /// Check if key exist
+        /// </summary>
+        /// <param name="value"></param>
+        /// <param name="key"></param>
+        /// <param name="reply"></param>
+        /// <returns></returns>
         [Ignore]
         public bool InJsonList(string value, string key, dynamic reply)
         {
@@ -841,6 +992,14 @@ namespace HD3.Test
             return false;
         }
 
+        /// <summary>
+        /// Check if keys exist
+        /// </summary>
+        /// <param name="value"></param>
+        /// <param name="key1"></param>
+        /// <param name="key2"></param>
+        /// <param name="reply"></param>
+        /// <returns>boolean</returns>
         [Ignore]
         public bool InJsonMultiList(string value, string key1, string key2, dynamic reply)
         {
