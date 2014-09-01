@@ -1,7 +1,8 @@
 var searchData=
 [
-  ['hd3',['HD3',['../class_h_d3_1_1_h_d3.html',1,'HD3']]],
-  ['hd3',['HD3',['../namespace_h_d3.html',1,'HD3'],['../class_h_d3_1_1_h_d3.html#a0a238bb9c0e43132312e5c863292c577',1,'HD3.HD3.HD3(HttpRequest request)'],['../class_h_d3_1_1_h_d3.html#a0a238bb9c0e43132312e5c863292c577',1,'HD3.HD3.HD3(HttpRequest request)'],['../class_h_d3_1_1_h_d3.html#a6f369b558b21414a20af987df0007a75',1,'HD3.HD3.HD3()']]],
-  ['hd3cache',['HD3Cache',['../class_h_d3_1_1_h_d3_cache.html',1,'HD3']]],
-  ['handset_20detection',['Handset Detection',['../md__c_1__users__bobcat__desktop__handset_detection_dotnet40-apikit__h_d3lib__r_e_a_d_m_e.html',1,'']]]
+  ['devicemodels',['DeviceModels',['../class_h_d3_1_1_test_1_1_h_d3_test.html#a2adb09017cb44d368c271f12af27e3e2',1,'HD3.Test.HD3Test.DeviceModels(bool local, bool proxy)'],['../class_h_d3_1_1_test_1_1_h_d3_test.html#a2adb09017cb44d368c271f12af27e3e2',1,'HD3.Test.HD3Test.DeviceModels(bool local, bool proxy)'],['../class_h_d3_1_1_h_d3.html#a5af669048eb1d372a703dd53b242fe2f',1,'HD3.HD3.deviceModels()']]],
+  ['devices',['Devices',['../class_devices.html',1,'']]],
+  ['devicevendors',['deviceVendors',['../class_h_d3_1_1_h_d3.html#aa2f63450321e2f47b2cb3baf8ff1a5e8',1,'HD3.HD3.deviceVendors()'],['../class_h_d3_1_1_test_1_1_h_d3_test.html#a8c45dad93eac37046ff73898012d94e0',1,'HD3.Test.HD3Test.DeviceVendors(bool local, bool proxy)'],['../class_h_d3_1_1_test_1_1_h_d3_test.html#a8c45dad93eac37046ff73898012d94e0',1,'HD3.Test.HD3Test.DeviceVendors(bool local, bool proxy)']]],
+  ['deviceview',['DeviceView',['../class_h_d3_1_1_test_1_1_h_d3_test.html#a495b9e3d48918da6aeb416b5d4291f7a',1,'HD3.Test.HD3Test.DeviceView(bool local, bool proxy)'],['../class_h_d3_1_1_test_1_1_h_d3_test.html#a495b9e3d48918da6aeb416b5d4291f7a',1,'HD3.Test.HD3Test.DeviceView(bool local, bool proxy)'],['../class_h_d3_1_1_h_d3.html#aaba6d717a4579ca6fa7c5727e5d92333',1,'HD3.HD3.deviceView()']]],
+  ['devicewhathas',['deviceWhatHas',['../class_h_d3_1_1_h_d3.html#a9640edbaf4dd41cd1c8bec9fa86f53a6',1,'HD3.HD3.deviceWhatHas()'],['../class_h_d3_1_1_test_1_1_h_d3_test.html#a60e604c7c80fe95810989db32be9a68c',1,'HD3.Test.HD3Test.DeviceWhatHas(bool local, bool proxy)'],['../class_h_d3_1_1_test_1_1_h_d3_test.html#a60e604c7c80fe95810989db32be9a68c',1,'HD3.Test.HD3Test.DeviceWhatHas(bool local, bool proxy)']]]
 ];

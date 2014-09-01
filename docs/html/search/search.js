@@ -7,10 +7,10 @@
 
 var indexSectionsWithContent =
 {
-  0: "dhrsw",
-  1: "h",
+  0: "_dhirstw",
+  1: "_dhst",
   2: "h",
-  3: "dhrsw",
+  3: "dhirstw",
   4: "h"
 };
 
