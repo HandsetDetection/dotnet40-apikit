@@ -301,5 +301,85 @@ namespace HandsetDetectionAPI
                 return false;
             }
         }
+
+        /// <summary>
+        ///  Fetch an archive from handset detection which contains all the device specs and matching trees as individual json files.
+        /// </summary>
+        /// <returns>hd_specs data on success, false otherwise</returns>
+        public dynamic deviceFetchArchive()
+        {
+            if (!this.Remote("device/fetcharchive", null, "zip"))
+                return false;
+
+            var data = this.getRawReply();
+
+            if (data.Count() == 0)
+                return this.setError(299, "Error : FetchArchive failed. Bad Download. File is zero length");
+            else if (data.Length < 9000000)
+            {
+                var serializer = new JavaScriptSerializer();
+                var trythis = serializer.Deserialize<Dictionary<string, string>>(data);
+                if (trythis.Count > 0 && trythis.ContainsKey("status") && trythis.ContainsKey("message"))
+                    return setError(Convert.ToInt32(trythis["status"]), trythis["message"]);
+                return setError(299, "Error : FetchArchive failed. Bad Download. File too short at '.strlen($data).' bytes.");
+            }
+
+            //$status = file_put_contents($this->config['filesdir'] . DIRECTORY_SEPARATOR . "ultimate.zip", $this->getRawReply());
+            //if ($status === false)
+            //    return $this->setError(299, "Error : FetchArchive failed. Could not write ". $this->config['filesdir'] . DIRECTORY_SEPARATOR . "ultimate.zip");
+
+            return installArchive(this.config["filesdir"] + "\\" + "ultimate.zip");
+        }
+
+
+        /// <summary>
+        /// Community Fetch Archive - Fetch the community archive version
+        /// </summary>
+        /// <returns>hd_specs data on success, false otherwise</returns>
+        public dynamic communityFetchArchive()
+        {
+            if (!this.Remote("community/fetcharchive", null, "zip", false))
+                return false;
+
+            var data = this.getRawReply();
+
+            if (string.IsNullOrEmpty(data))
+                return setError(299, "Error : FetchArchive failed. Bad Download. File is zero length");
+            else if (data.Length < 900000)
+            {
+                var serializer = new JavaScriptSerializer();
+                var trythis = serializer.Deserialize<Dictionary<string, string>>(data);
+                if (trythis.Count > 0 && trythis.ContainsKey("status") && trythis.ContainsKey("message"))
+                    return setError(Convert.ToInt32(trythis["status"]), trythis["message"]);
+                return setError(299, "Error : FetchArchive failed. Bad Download. File too short at '.strlen($data).' bytes.");
+            }
+
+            //var status = file_put_contents($this->config['filesdir'] . DIRECTORY_SEPARATOR . "ultimate.zip", $this->getRawReply());
+            //if ($status === false)
+            //    return $this->setError(299, "Error : FetchArchive failed. Could not write ". $this->config['filesdir'] . DIRECTORY_SEPARATOR . "ultimate.zip");
+
+            return installArchive(this.config["filesdir"] + "\\" + "ultimate.zip");
+        }
+
+        /// <summary>
+        /// Install an ultimate archive file
+        /// </summary>
+        /// <param name="file">string file Fully qualified path to file</param>
+        /// <returns>boolean true on success, false otherwise</returns>
+        public bool installArchive(string file)
+        {
+            //TODO:
+            return true;
+        }
+
+        /// <summary>
+        /// This method can indicate if using the js Helper would yeild more accurate results.
+        /// </summary>
+        /// <param name="headers">headers</param>
+        /// <returns>true if helpful, false otherwise.</returns>
+        public bool isHelperUseful(Dictionary<string, dynamic> headers)
+        {
+            return device.isHelperUseful(headers);
+        }
     }
 }
