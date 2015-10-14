@@ -1,0 +1,19 @@
+﻿{  
+   "username":"your_api_username",
+   "secret":"your_api_secret",
+   "site_id":"your_api_siteId",
+   "use_local":false,
+   "filesdir":"",
+   "debug":false,
+   "api_server":"api.handsetdetection.com",
+   "cache_requests":false,
+   "geoip":true,
+   "timeout":10,
+   "use_proxy":false,
+   "proxy_server":"",
+   "proxy_port":"",
+   "proxy_user":"",
+   "proxy_pass":"",
+   "retries":3,
+   "log_unknown":true
+}

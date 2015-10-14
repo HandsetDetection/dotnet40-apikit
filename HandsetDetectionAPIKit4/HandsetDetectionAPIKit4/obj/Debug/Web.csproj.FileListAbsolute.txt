@@ -1,0 +1,8 @@
+E:\Official\Projects\HandsetDetectionAPIKit4\HandsetDetectionAPIKit4\obj\Debug\Web.csprojResolveAssemblyReference.cache
+E:\Official\Projects\HandsetDetectionAPIKit4\HandsetDetectionAPIKit4\bin\HandsetDetectionAPI.dll
+E:\Official\Projects\HandsetDetectionAPIKit4\HandsetDetectionAPIKit4\bin\HandsetDetectionAPI.pdb
+E:\Official\Projects\HandsetDetectionAPIKit4\HandsetDetectionAPIKit4\bin\Web.dll.config
+E:\Official\Projects\HandsetDetectionAPIKit4\HandsetDetectionAPIKit4\bin\Web.dll
+E:\Official\Projects\HandsetDetectionAPIKit4\HandsetDetectionAPIKit4\bin\Web.pdb
+E:\Official\Projects\HandsetDetectionAPIKit4\HandsetDetectionAPIKit4\obj\Debug\Web.dll
+E:\Official\Projects\HandsetDetectionAPIKit4\HandsetDetectionAPIKit4\obj\Debug\Web.pdb
