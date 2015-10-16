@@ -1,5 +1,0 @@
-E:\Official\Projects\HandsetDetectionAPIKit4\HandsetDetectionAPI\bin\Debug\HandsetDetectionAPI.dll
-E:\Official\Projects\HandsetDetectionAPIKit4\HandsetDetectionAPI\bin\Debug\HandsetDetectionAPI.pdb
-E:\Official\Projects\HandsetDetectionAPIKit4\HandsetDetectionAPI\obj\Debug\HandsetDetectionAPI.dll
-E:\Official\Projects\HandsetDetectionAPIKit4\HandsetDetectionAPI\obj\Debug\HandsetDetectionAPI.pdb
-E:\Official\Projects\HandsetDetectionAPIKit4\HandsetDetectionAPI\obj\Debug\HandsetDetectionAPI.csprojResolveAssemblyReference.cache
