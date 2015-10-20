@@ -13,7 +13,8 @@ namespace HandsetDetectionAPI
     {
         public string dirname = "hd40store";
         string path = "";
-        string directory = "";
+        public static string directory = "";
+        public string StoreDirectory { get { return directory; } }
         private HDCache _Cache = null;
 
         /***        
@@ -31,8 +32,8 @@ namespace HandsetDetectionAPI
 
         private HDStore()
         {
-            this.path = AppDomain.CurrentDomain.BaseDirectory;
-            this.directory = this.path + "\\" + this.dirname;
+            this.path = ApplicationRootDirectory;
+            directory = this.path + "\\" + this.dirname;
             this._Cache = new HDCache();
         }
 
@@ -48,20 +49,20 @@ namespace HandsetDetectionAPI
         public void setPath(string path = null, bool IsCreateDirectory = false)
         {
             this.path = string.IsNullOrEmpty(path) ? AppDomain.CurrentDomain.BaseDirectory : path;//dirname(__FILE__)
-            this.directory = this.path + "\\" + this.dirname;
-
+            directory = this.path + "\\" + this.dirname;
+            config["filesdir"] = path;
             if (IsCreateDirectory)
             {
 
-                if (!Directory.Exists(this.directory))
+                if (!Directory.Exists(this.StoreDirectory))
                 {
                     try
                     {
-                        Directory.CreateDirectory(this.directory);
+                        Directory.CreateDirectory(this.StoreDirectory);
                     }
                     catch (Exception)
                     {
-                        throw new Exception("Error : Failed to create storage directory at (" + this.directory + "). Check permissions.");
+                        throw new Exception("Error : Failed to create storage directory at (" + this.StoreDirectory + "). Check permissions.");
 
 
                     }
@@ -99,7 +100,7 @@ namespace HandsetDetectionAPI
             string jsonstr = jss.Serialize(data);
             try
             {
-                System.IO.File.WriteAllText(this.directory + "//" + key + ".json", jsonstr);
+                System.IO.File.WriteAllText(this.StoreDirectory + "//" + key + ".json", jsonstr);
 
             }
             catch (Exception)
@@ -112,11 +113,11 @@ namespace HandsetDetectionAPI
         public Dictionary<string, dynamic> read(string key)
         {
             Dictionary<string, dynamic> reply = this._Cache.read(key);
-            if (reply.Any())
+            if (reply != null && reply.Any())
                 return reply;
 
             reply = this.fetch(key);
-            if (reply.Any())
+            if (reply != null && reply.Any())
             {
                 this._Cache.write(key, reply);
                 return reply;
@@ -138,7 +139,7 @@ namespace HandsetDetectionAPI
             var jss = new JavaScriptSerializer();
             jss.MaxJsonLength = this.maxJsonLength;
 
-            string jsonText = System.IO.File.ReadAllText(this.directory + "//" + key + ".json");
+            string jsonText = System.IO.File.ReadAllText(this.StoreDirectory + "//" + key + ".json");
             if (string.IsNullOrEmpty(jsonText))
             {
                 return null;
@@ -148,14 +149,13 @@ namespace HandsetDetectionAPI
 
         public Dictionary<string, dynamic> fetchDevices()
         {
-
             var jss = new JavaScriptSerializer();
             jss.MaxJsonLength = this.maxJsonLength;
             Dictionary<string, dynamic> data = new Dictionary<string, dynamic>();
             List<Dictionary<string, dynamic>> dicList = new List<Dictionary<string, dynamic>>();
             try
             {
-                string[] filePaths = Directory.GetFiles(this.directory, "Device*.json");
+                string[] filePaths = Directory.GetFiles(this.StoreDirectory, "Device*.json");
                 foreach (var item in filePaths)
                 {
                     string jsonText = System.IO.File.ReadAllText(item);
@@ -170,6 +170,7 @@ namespace HandsetDetectionAPI
             }
             catch (Exception ex)
             {
+                reply = new Dictionary<string, dynamic>();
                 this.setError(1, "Exception : " + ex.Message + " " + ex.StackTrace);
             }
             return null;
@@ -200,7 +201,7 @@ namespace HandsetDetectionAPI
 
         public bool purge()
         {
-            string[] filePaths = Directory.GetFiles(this.directory, "*.json");
+            string[] filePaths = Directory.GetFiles(this.StoreDirectory, "*.json");
             foreach (var item in filePaths)
             {
                 File.Delete(item);

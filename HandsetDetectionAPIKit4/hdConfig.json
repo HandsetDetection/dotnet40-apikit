@@ -1,9 +1,9 @@
 ﻿{  
    "username":"65ca2fe072",
    "secret":"RK4LzTcJHdq2C4cX",
-   "site_id":"your_api_siteId",
-   "use_local":false,
-   "filesdir":"",
+   "site_id":"56163",
+   "use_local":true,
+   "filesdir":"d://APIData",
    "debug":false,
    "api_server":"api.handsetdetection.com",
    "cache_requests":false,

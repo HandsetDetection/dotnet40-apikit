@@ -30,6 +30,12 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Ionic.Zip">
+      <HintPath>..\packages\DotNetZip.1.9.6\lib\net20\Ionic.Zip.dll</HintPath>
+    </Reference>
+    <Reference Include="nunit.framework">
+      <HintPath>..\packages\NUnit.2.6.4\lib\nunit.framework.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Runtime.Caching" />
@@ -50,10 +56,19 @@
     <Compile Include="HDExtra.cs" />
     <Compile Include="HDStore.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="testHD4.cs" />
+    <Compile Include="testHDCache.cs" />
+    <Compile Include="testHDDevice.cs" />
+    <Compile Include="testHDStore.cs" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="hdCloudConfig.json" />
     <None Include="hdConfig.json" />
     <None Include="Languages.json" />
+    <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <Service Include="{82A7F48D-3B50-4B1E-B82E-3ADA8210C358}" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

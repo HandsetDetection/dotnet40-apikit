@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Ionic.Zip;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Collections.Specialized;
@@ -32,18 +33,29 @@ namespace HandsetDetectionAPI
 
         string logger = null;
         bool debug = true;
-        string configFile = "hdconfig.json";
+        string configFile = "/hdconfig.json";
 
         HDStore Store;
         HDCache cache = null;
         HDDevice device = null;
         private HttpRequest Request;
-        public void cleanUp() { rawreply = ""; this.reply = new Dictionary<string, dynamic>(); }
+        public void cleanUp() { rawreply = ""; reply = new Dictionary<string, dynamic>(); }
         public string getLog() { return this.log; }
         public string getError() { return this.error; }
 
 
         Dictionary<string, dynamic> tree = new Dictionary<string, dynamic>();
+
+        private void AddKey(string key, string value)
+        {
+            key = key.ToLower();
+            if (detectRequest.ContainsKey(key))
+            {
+                this.detectRequest.Remove(key);
+            }
+            this.detectRequest.Add(key, value);
+        }
+
 
         public HD4(HttpRequest request, dynamic configuration = null)
         {
@@ -52,13 +64,13 @@ namespace HandsetDetectionAPI
             {
                 foreach (var item in (Dictionary<string, dynamic>)configuration)
                 {
-                    if (this.config.ContainsKey(item.Key))
+                    if (config.ContainsKey(item.Key))
                     {
-                        this.config[item.Key] = item.Value;
+                        config[item.Key] = item.Value;
                     }
                     else
                     {
-                        this.config.Add(item.Key, item.Value);
+                        config.Add(item.Key, item.Value);
                     }
                 }
             }
@@ -66,19 +78,19 @@ namespace HandsetDetectionAPI
             {
                 AddConfigSettingFromFile(configuration);
             }
-            else if (!File.Exists(AppDomain.CurrentDomain.BaseDirectory + configFile))
+            else if (!File.Exists(ApplicationRootDirectory + configFile))
             {
                 throw new Exception("Error : Invalid config file and no config passed to constructor");
             }
             else
             {
-                AddConfigSettingFromFile(AppDomain.CurrentDomain.BaseDirectory + configFile);
+                AddConfigSettingFromFile(ApplicationRootDirectory + configFile);
             }
 
-            this.debug = this.config["debug"];
+            this.debug = config["debug"];
 
             this.Store = HDStore.Instance;
-            this.Store.setPath(this.config["filesdir"], true);
+            this.Store.setPath(config["filesdir"], true);
 
             this.cache = new HDCache();
             this.device = new HDDevice();
@@ -91,23 +103,23 @@ namespace HandsetDetectionAPI
             //}
         }
 
-        private void AddConfigSettingFromFile(string config)
+        private void AddConfigSettingFromFile(string configFile)
         {
             Dictionary<string, dynamic> hdConfig = new Dictionary<string, dynamic>();
 
             var serializer = new JavaScriptSerializer();
-            string jsonText = System.IO.File.ReadAllText(config);
+            string jsonText = System.IO.File.ReadAllText(configFile);
             hdConfig = serializer.Deserialize<Dictionary<string, dynamic>>(jsonText);
 
             foreach (var item in hdConfig)
             {
-                if (this.config.ContainsKey(item.Key))
+                if (config.ContainsKey(item.Key))
                 {
-                    this.config[item.Key] = item.Value;
+                    config[item.Key] = item.Value;
                 }
                 else
                 {
-                    this.config.Add(item.Key, item.Value);
+                    config.Add(item.Key, item.Value);
                 }
             }
         }
@@ -118,29 +130,19 @@ namespace HandsetDetectionAPI
             rawReply = new Dictionary<string, dynamic>();
             detectRequest = new Dictionary<string, dynamic>();
 
-            //if (function_exists('apache_request_headers')) {
-            //            $this->detectRequest = apache_request_headers();
-            //        } else {
-            //            // From http://php.net/manual/en/function.apache-request-headers.php
-            //            $rx_http = '/\AHTTP_/';
-            //            foreach($_SERVER as $key => $val) {
-            //                if (preg_match($rx_http, $key) ) {
-            //                    $arh_key = preg_replace($rx_http, '', $key);
-            //                    $rx_matches = array();
-            //                    // do some nasty string manipulations to restore the original letter case
-            //                    // this should work in most cases
-            //                    $rx_matches = explode('_', $arh_key);
-            //                    if (count($rx_matches) > 0 and strlen($arh_key) > 2 ) {
-            //                        foreach($rx_matches as $ak_key => $ak_val) $rx_matches[$ak_key] = ucfirst($ak_val);
-            //                        $arh_key = implode('-', $rx_matches);
-            //                    }
-            //                    $this->detectRequest[$arh_key] = $val;
-            //                }
-            //            }
-            //        }
+            Regex reg = new Regex("^x|^http", RegexOptions.IgnoreCase);
+            foreach (string header in Request.Headers)
+            {
+                if (reg.IsMatch(header))
+                {
+                    AddKey(header.ToLower(), Request[header]);
+                }
+            }
+            AddKey("user-agent", Request.UserAgent);
+            AddKey("ipaddress", Request.UserHostAddress);
+            AddKey("request_uri", Request.Url.ToString());
 
-
-            if (!this.UseLocal && this.config["geoip"])
+            if (!this.UseLocal && config["geoip"])
             {
                 // Ip address only used in cloud mode
                 this.detectRequest["ipaddress"] = this.Request.ServerVariables["REMOTE_ADDR"] != null ? this.Request.ServerVariables["REMOTE_ADDR"] : null;
@@ -258,7 +260,7 @@ namespace HandsetDetectionAPI
         public bool deviceDetect(Dictionary<string, dynamic> data = null)
         {
             int id = 0;
-            if (data == null || data.Count() == 0)
+            if (data == null || data.Count() == 0 || !data.ContainsKey("id"))
             {
                 id = Convert.ToInt32(config["site_id"]);
             }
@@ -267,11 +269,20 @@ namespace HandsetDetectionAPI
                 id = Convert.ToInt32(data["id"]);
             }
 
-            Dictionary<string, dynamic> requestBody = detectRequest;
+            Dictionary<string, dynamic> requestBody = new Dictionary<string,dynamic>();
             foreach (var item in data)
             {
-                requestBody.Add(item.Key, item.Value);
+                if (requestBody.ContainsKey(item.Key.ToLower()))
+                {
+                    requestBody[item.Key.ToLower()] = item.Value;
+                }
+                else
+                {
+                    requestBody.Add(item.Key.ToLower(), item.Value);
+                }
             }
+
+           
 
             string fastKey = "";
             // If caching enabled then check cache
@@ -300,7 +311,7 @@ namespace HandsetDetectionAPI
                 }
                 else
                 {
-                    return Remote(string.Format("/device/detect/{0}}", id), null);
+                    return Remote(string.Format("/device/detect/{0}", id.ToString()), requestBody);
                 }
             }
             catch (Exception ex)
@@ -316,6 +327,7 @@ namespace HandsetDetectionAPI
         /// <returns>hd_specs data on success, false otherwise</returns>
         public dynamic deviceFetchArchive()
         {
+            this.isDownloadableFiles = true;
             if (!this.Remote("device/fetcharchive", null, "zip"))
                 return false;
 
@@ -329,14 +341,9 @@ namespace HandsetDetectionAPI
                 var trythis = serializer.Deserialize<Dictionary<string, string>>(data);
                 if (trythis.Count > 0 && trythis.ContainsKey("status") && trythis.ContainsKey("message"))
                     return setError(Convert.ToInt32(trythis["status"]), trythis["message"]);
-                return setError(299, "Error : FetchArchive failed. Bad Download. File too short at '.strlen($data).' bytes.");
             }
 
-            //$status = file_put_contents($this->config['filesdir'] . DIRECTORY_SEPARATOR . "ultimate.zip", $this->getRawReply());
-            //if ($status === false)
-            //    return $this->setError(299, "Error : FetchArchive failed. Could not write ". $this->config['filesdir'] . DIRECTORY_SEPARATOR . "ultimate.zip");
-
-            return installArchive(this.config["filesdir"] + "\\" + "ultimate.zip");
+            return installArchive(config["filesdir"], "ultimate.zip");
         }
 
 
@@ -346,6 +353,7 @@ namespace HandsetDetectionAPI
         /// <returns>hd_specs data on success, false otherwise</returns>
         public dynamic communityFetchArchive()
         {
+            this.isDownloadableFiles = true;
             if (!this.Remote("community/fetcharchive", null, "zip", false))
                 return false;
 
@@ -359,14 +367,10 @@ namespace HandsetDetectionAPI
                 var trythis = serializer.Deserialize<Dictionary<string, string>>(data);
                 if (trythis.Count > 0 && trythis.ContainsKey("status") && trythis.ContainsKey("message"))
                     return setError(Convert.ToInt32(trythis["status"]), trythis["message"]);
-                return setError(299, "Error : FetchArchive failed. Bad Download. File too short at '.strlen($data).' bytes.");
             }
 
-            //var status = file_put_contents($this->config['filesdir'] . DIRECTORY_SEPARATOR . "ultimate.zip", $this->getRawReply());
-            //if ($status === false)
-            //    return $this->setError(299, "Error : FetchArchive failed. Could not write ". $this->config['filesdir'] . DIRECTORY_SEPARATOR . "ultimate.zip");
 
-            return installArchive(this.config["filesdir"] + "\\" + "ultimate.zip");
+            return installArchive(config["filesdir"], "communityTest.zip");
         }
 
         /// <summary>
@@ -374,12 +378,68 @@ namespace HandsetDetectionAPI
         /// </summary>
         /// <param name="file">string file Fully qualified path to file</param>
         /// <returns>boolean true on success, false otherwise</returns>
-        public bool installArchive(string file)
+        public bool installArchive(string directoryPath, string fileName)
         {
-            //TODO:
-            return true;
+            if (string.IsNullOrEmpty(directoryPath))
+            {
+                fileName = ApplicationRootDirectory + "\\" + fileName;
+            }
+            else
+            {
+                var directoryArray = directoryPath.Replace("/", "\\").Split(new String[] { "\\" }, StringSplitOptions.RemoveEmptyEntries).ToList();
+                var directoryString = "";
+                foreach (var item in directoryArray)
+                {
+                    directoryString += item + "\\";
+                    if (DriveInfo.GetDrives().Any(drive => drive.Name.ToLower() == directoryString))
+                    {
+                        continue;
+                    }
+                    else
+                    {
+                        if (!Directory.Exists(directoryString))
+                        {
+                            Directory.CreateDirectory(directoryString);
+                        }
+                    }
+                }
+            }
+
+            fileName = config["filesdir"] + "\\" + fileName;
+
+            // responseStream.Close();
+            return installArchive(fileName);
         }
 
+        public bool installArchive(string filePath)
+        {
+            BinaryWriter bw = new BinaryWriter(new FileStream(filePath, FileMode.Create), Encoding.UTF8);
+            byte[] buff = new byte[1024];
+            int c = 1;
+            while (c > 0)
+            {
+                c = reader.Read(buff, 0, 1024);
+                for (int i = 0; i < c; i++)
+                    bw.Write(buff[i]);
+            }
+            bw.Close();
+            var directoryPath = filePath.Substring(0, filePath.LastIndexOf("\\"));
+
+            if (!directoryPath.Contains(Store.dirname))
+            {
+                directoryPath += "\\" + Store.dirname;
+            }
+
+            using (ZipFile zip = ZipFile.Read(filePath))
+            {
+                zip.ToList().ForEach(entry =>
+                {
+                    entry.FileName = System.IO.Path.GetFileName(entry.FileName.Replace(':', '_'));
+                    entry.Extract(directoryPath, ExtractExistingFileAction.OverwriteSilently);
+                });
+            }
+            return true;
+        }
         /// <summary>
         /// This method can indicate if using the js Helper would yeild more accurate results.
         /// </summary>

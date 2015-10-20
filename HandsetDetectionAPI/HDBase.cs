@@ -15,7 +15,7 @@ namespace HandsetDetectionAPI
     //#define DEBUG = 0
     public class HDBase
     {
-        protected Dictionary<string, dynamic> config = new Dictionary<string, dynamic>() {{"username", ""},
+        protected static Dictionary<string, dynamic> config = new Dictionary<string, dynamic>() {{"username", ""},
 		{"secret", ""},
 		{"site_id", ""},
 		{"mobile_site", ""},
@@ -52,46 +52,47 @@ namespace HandsetDetectionAPI
 
                 Dictionary<string, dynamic> dicData = new Dictionary<string, dynamic>();
 
-                dicData.Add("device-ua-order", new string[] { "x-operamini-phone-ua", "x - mobile - ua", "device-stock-ua", "user-agent", "agent" });
-                dicData.Add("platform-ua-order", new string[] { "x-operamini-phone-ua", "x - mobile - ua", "device-stock-ua", "user-agent", "agent" });
-                dicData.Add("browser-ua-order", new string[] { "user-agent", "agent", "device-stock-ua" });
-                dicData.Add("app-ua-order", new string[] { "user-agent", "agent", "device-stock-ua" });
-                dicData.Add("language-ua-order", new string[] { "user-agent", "agent", "device-stock-ua" });
+                dicData.Add("device-ua-order", new List<string>() { "x-operamini-phone-ua", "x - mobile - ua", "device-stock-ua", "user-agent", "agent" });
+                dicData.Add("platform-ua-order", new List<string>() { "x-operamini-phone-ua", "x - mobile - ua", "device-stock-ua", "user-agent", "agent" });
+                dicData.Add("browser-ua-order", new List<string>() { "user-agent", "agent", "device-stock-ua" });
+                dicData.Add("app-ua-order", new List<string>() { "user-agent", "agent", "device-stock-ua" });
+                dicData.Add("language-ua-order", new List<string>() { "user-agent", "agent", "device-stock-ua" });
 
                 Dictionary<string, dynamic> dicDeviceBiOrder = new Dictionary<string, dynamic>();
 
-                Dictionary<string, string> dicAndroid = new Dictionary<string, string>();
-                dicAndroid.Add("ro.product.brand", "ro.product.model");
-                dicAndroid.Add("ro.product.manufacturer", "ro.product.model");
-                dicAndroid.Add("ro-product-brand", "ro-product-model");
-                dicAndroid.Add("ro-product-manufacturer", "ro-product-model");
+                List<List<string>> dicAndroid = new List<List<string>>();
+                dicAndroid.Add(new List<string>() { "ro.product.brand", "ro.product.model" });
+                dicAndroid.Add(new List<string>() { "ro.product.manufacturer", "ro.product.model" });
+                dicAndroid.Add(new List<string>() { "ro-product-brand", "ro-product-model" });
+                dicAndroid.Add(new List<string>() { "ro-product-manufacturer", "ro-product-model" });
+
                 dicDeviceBiOrder.Add("android", dicAndroid);
 
-                Dictionary<string, string> dicIOS = new Dictionary<string, string>();
-                dicIOS.Add("utsname.brand", "utsname.machine");
+                List<List<string>> dicIOS = new List<List<string>>();
+                dicIOS.Add(new List<string>() { "utsname.brand", "utsname.machine" });
 
                 dicDeviceBiOrder.Add("ios", dicIOS);
 
-                Dictionary<string, string> dicWindowPhone = new Dictionary<string, string>();
-                dicWindowPhone.Add("devicemanufacturer", "devicename");
+                List<List<string>> dicWindowPhone = new List<List<string>>();
+                dicWindowPhone.Add(new List<string>() { "devicemanufacturer", "devicename" });
                 dicDeviceBiOrder.Add("windows phone", dicWindowPhone);
 
                 dicData.Add("device-bi-order", dicDeviceBiOrder);
 
                 Dictionary<string, dynamic> dicPlatformBiOrder = new Dictionary<string, dynamic>();
 
-                Dictionary<string, string> dicPlatformAndroid = new Dictionary<string, string>();
+                Dictionary<string, dynamic> dicPlatformAndroid = new Dictionary<string, dynamic>();
                 dicPlatformAndroid.Add("ro.build.id", "ro.build.version.release");
                 dicPlatformAndroid.Add("ro-build-id", "ro-build-version-release");
 
                 dicPlatformBiOrder.Add("android", dicPlatformAndroid);
 
-                Dictionary<string, string> dicPlatformIOS = new Dictionary<string, string>();
+                Dictionary<string, dynamic> dicPlatformIOS = new Dictionary<string, dynamic>();
                 dicPlatformIOS.Add("uidevice.systemName", "uidevice.systemversion");
 
                 dicPlatformBiOrder.Add("ios", dicPlatformIOS);
 
-                Dictionary<string, string> dicPlatformWindowPhone = new Dictionary<string, string>();
+                Dictionary<string, dynamic> dicPlatformWindowPhone = new Dictionary<string, dynamic>();
                 dicPlatformWindowPhone.Add("osname", "osversion");
 
                 Dictionary<string, dynamic> dicBrowserBiOrder = new Dictionary<string, dynamic>();
@@ -116,7 +117,7 @@ namespace HandsetDetectionAPI
             }
         }
 
-        protected Dictionary<string, dynamic> reply = null;
+        protected static Dictionary<string, dynamic> reply = null;
 
         public HDBase()
         {
@@ -150,11 +151,11 @@ namespace HandsetDetectionAPI
 
         public Dictionary<string, dynamic> getReply()
         {
-            return this.reply;
+            return reply;
         }
         public void setReply(Dictionary<string, dynamic> objReply)
         {
-            this.reply = objReply;
+            reply = objReply;
         }
 
         /// <summary>
@@ -166,8 +167,8 @@ namespace HandsetDetectionAPI
         protected bool setError(int status, string msg)
         {
             this.error = msg;
-            this.reply["status"] = status;
-            this.reply["message"] = msg;
+            reply["status"] = status;
+            reply["message"] = msg;
             return (status > 0 ? false : true);
         }
 
@@ -178,6 +179,9 @@ namespace HandsetDetectionAPI
         /// <returns>string Cleansed string</returns>
         public string extraCleanStr(string str)
         {
+            if (string.IsNullOrEmpty(str))
+                return string.Empty;
+
             foreach (string item in extraUAFilterList)
             {
                 str = str.Replace(item, "");
@@ -194,6 +198,8 @@ namespace HandsetDetectionAPI
         /// <returns>string cleansed string</returns>
         public string cleanStr(string str)
         {
+            if (string.IsNullOrEmpty(str))
+                return string.Empty;
             foreach (string item in deviceUAFilterList)
             {
                 str = str.Replace(item, "");
@@ -209,9 +215,9 @@ namespace HandsetDetectionAPI
         /// <param name="data"></param>
         /// <param name="service">Service strings vary depending on the information needed</param>
         /// <returns>JsonData</returns>
-        protected bool Remote(string suburl, Dictionary<string, string> data, string filetype = "json", bool authRequired = true)
+        protected bool Remote(string suburl, Dictionary<string, dynamic> data, string filetype = "json", bool authRequired = true)
         {
-            this.reply = new Dictionary<string, dynamic>();
+            reply = new Dictionary<string, dynamic>();
             this.rawReply = new Dictionary<string, dynamic>();
             this.setError(0, "OK");
 
@@ -220,7 +226,7 @@ namespace HandsetDetectionAPI
 
             string request;
             string requestUrl = apiBase + suburl;
-            int attempts = this.config["retries"] + 1;
+            int attempts = config["retries"] + 1;
             int trys = 0;
             if (data == null || data.Count == 0)
                 request = "";
@@ -238,7 +244,7 @@ namespace HandsetDetectionAPI
                     status = post(config["api_server"], requestUrl, request, authRequired);
                     if (status)
                     {
-                        this.reply = jss.Deserialize<Dictionary<string, dynamic>>(rawreply);
+                        reply = jss.Deserialize<Dictionary<string, dynamic>>(rawreply);
                         if (filetype.ToLower() == "json")
                         {
                             if (reply.Count == 0)
@@ -326,7 +332,7 @@ namespace HandsetDetectionAPI
                     var httpResponse = (HttpWebResponse)req.GetResponse();
                     responseStream = new MemoryStream();
                     responseStream = httpResponse.GetResponseStream();
-                    this.reader = new BinaryReader(responseStream);
+                    reader = new BinaryReader(responseStream);
 
                     if (httpResponse.StatusCode == HttpStatusCode.OK)
                     {
@@ -374,15 +380,15 @@ namespace HandsetDetectionAPI
             int total = 0;
             foreach (KeyValuePair<string, dynamic> platform in biKeys)
             {
-                var set = (Dictionary<string, dynamic>)platform.Value;
+                List<List<string>> set = platform.Value;
                 foreach (var tuple in set)
                 {
-                    var tupleSet = (Dictionary<string, dynamic>)tuple.Value;
+                    List<string> tupleSet = tuple;
                     count = 0;
-                    total = tupleSet.Values.Count();
+                    total = tupleSet.Count();
                     foreach (var item in tupleSet)
                     {
-                        if (dataKeys.Contains(item.Key))
+                        if (dataKeys.Contains(item))
                         {
                             count++;
                         }
@@ -401,6 +407,7 @@ namespace HandsetDetectionAPI
             int f = 0;
             int r = 0;
             string treetag;
+            value = value.ToLower();
             if (className.ToLower() == "device")
             {
                 value = cleanStr(value);
@@ -417,7 +424,7 @@ namespace HandsetDetectionAPI
                 return false;
             }
             Dictionary<string, dynamic> branch = getBranch(treetag);
-            Dictionary<string, dynamic> node;
+           string node=string.Empty;
             if (branch == null)
             {
                 return false;
@@ -426,25 +433,31 @@ namespace HandsetDetectionAPI
             if (header.ToLower() == "user-agent")
             {
 
-                //// Sieve matching strategy
-                //            foreach((array) $branch as $order => $filters) {
-                //                foreach((array) $filters as $filter => $matches) {
-                //                    ++$f;
-                //                    if (strpos($value, (string) $filter) !== false) {
-                //                        foreach((array) $matches as $match => $node) {
-                //                            ++$r;
-                //                            if (strpos($value, (string) $match) !== false) {
-                //                                $this->detectedRuleKey[$class] = $this->cleanStr(@$header).':'.$this->cleanStr(@$filter).':'.$this->cleanStr(@$match);
-                //                                return $node;
-                //                            }
-                //                        }
-                //                    }
-                //                }
-                //            }
+                foreach (var order in branch)
+                {
+                    Dictionary<string, dynamic> filters = order.Value;
+                    foreach (var filter in filters)
+                    {
+                        ++f;
+                        Dictionary<string, dynamic> matches = filter.Value;
+                        if (value.ToLower().Contains(filter.Key.ToLower()))
+                        {
+                            foreach (var match in matches)
+                            {
+                                ++r;
+                                if (value.ToLower().Contains(match.Key.ToLower()))
+                                {
+                                    detectedRuleKey[className] = cleanStr(header) + ":" + cleanStr(filter.Key) + ":" + cleanStr(match.Key);
+                                    return match.Value;
+                                }
+                            }
+                        }
+                    }
+                }
             }
             else
             {
-                if (branch[value] != null)
+                if (branch.ContainsKey(value))
                 {
                     node = branch[value];
                     return node;
@@ -457,7 +470,7 @@ namespace HandsetDetectionAPI
 
         public Dictionary<string, dynamic> getBranch(string branchName)
         {
-            if (tree[branchName] != null)
+            if (tree.ContainsKey(branchName) && tree[branchName] != null)
             {
                 return tree[branchName];
             }
@@ -593,7 +606,7 @@ namespace HandsetDetectionAPI
             }
         }
         private Stream responseStream = null;
-        private BinaryReader reader { get; set; }
+        protected static BinaryReader reader { get; set; }
         public bool isDownloadableFiles = false;
 
         public List<string> deviceUAFilterList;
@@ -601,8 +614,8 @@ namespace HandsetDetectionAPI
         protected static string rawreply;
         protected string log;
         protected Dictionary<string, dynamic> rawReply = null;
-        protected Dictionary<string, dynamic> tree = null;
-        protected int maxJsonLength = 40000000;
+        protected Dictionary<string, dynamic> tree = new Dictionary<string, dynamic>();
+        public int maxJsonLength = 40000000;
 
 
         protected string error = "";
@@ -613,7 +626,12 @@ namespace HandsetDetectionAPI
         {
             get
             {
-                return AppDomain.CurrentDomain.BaseDirectory;
+                string applicationPath = AppDomain.CurrentDomain.BaseDirectory;
+                if (applicationPath.IndexOf("\\bin") >= 0)
+                {
+                    applicationPath = applicationPath.Substring(0, applicationPath.IndexOf("\\bin"));
+                }
+                return applicationPath;
             }
         }
 
