@@ -131,9 +131,9 @@ namespace HandsetDetectionAPI
             };
             var result = objHD4.deviceDetect(header);
             var reply = objHD4.getReply();
-            Assert.IsTrue(result);
-            Assert.AreEqual(0, reply["status"]);
-            Assert.AreEqual("OK", reply["message"]);
+            Assert.IsFalse(result);
+            Assert.AreEqual(301, reply["status"]);
+            Assert.AreEqual("Not Found", reply["message"]);
 
         }
         [Test]
