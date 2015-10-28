@@ -34,7 +34,7 @@ namespace HandsetDetectionAPI
 
             var reply = objCache.read(key);
 
-            Assert.AreEqual(testData, key);
+            Assert.AreEqual(testData, reply);
         }
 
         [Test]

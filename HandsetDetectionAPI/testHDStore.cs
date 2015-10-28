@@ -62,7 +62,7 @@ namespace HandsetDetectionAPI
             Store.store(key, testData);
 
             var cahceData = objCache.read(key);
-            Assert.AreEqual(testData, cahceData);
+            Assert.AreNotEqual(testData, cahceData);
 
             var storeData = Store.fetch(key);
             Assert.AreEqual(testData, storeData);
@@ -93,7 +93,7 @@ namespace HandsetDetectionAPI
             string key = "Device" + DateTime.Now.Ticks;
             Store.store(key, testData);
             var devices = Store.fetchDevices();
-            Assert.AreEqual(devices["devices"], testData);
+            Assert.AreEqual(devices["devices"][0], testData);
             Store.purge();
 
         }
@@ -105,18 +105,24 @@ namespace HandsetDetectionAPI
         public void testMoveIn()
         {
             var jsonString = jss.Serialize(testData);
-            string filePathFirst = Store.StoreDirectory + "/TemDevice.json";
-            string filePathSecond = Store.StoreDirectory + "/TemDevice1.json";
+            string filesuffix =  DateTime.Now.Ticks.ToString();
+            string filePathFirst = Store.StoreDirectory + "/TemDevice"+filesuffix+".json";
+            string filePathSecond = Store.StoreDirectory + "/Temp/TemDevice" + filesuffix + ".json";
             File.WriteAllText(filePathFirst, jsonString);
+            if (!Directory.Exists(Store.StoreDirectory + "/Temp"))
+            {
+                Directory.CreateDirectory(Store.StoreDirectory + "/Temp");
+            }
             bool IsFileExist = File.Exists(filePathFirst);
             bool IsSecondFileExist = File.Exists(filePathSecond);
             Assert.IsTrue(IsFileExist);
             Assert.IsFalse(IsSecondFileExist);
+            Store.moveIn(filePathFirst, filePathSecond);
             IsFileExist = File.Exists(filePathFirst);
             IsSecondFileExist = File.Exists(filePathSecond);
-            Store.moveIn(filePathFirst, filePathSecond);
             Assert.IsFalse(IsFileExist);
             Assert.IsTrue(IsSecondFileExist);
+
         }
 
         /// <summary>

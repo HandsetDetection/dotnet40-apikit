@@ -14,7 +14,18 @@ namespace HandsetDetectionAPI
         public string dirname = "hd40store";
         string path = "";
         public static string directory = "";
-        public string StoreDirectory { get { return directory; } }
+        public string StoreDirectory
+        {
+            get
+            {
+                if (!Directory.Exists(directory))
+                {
+                    Directory.CreateDirectory(directory);
+                }
+
+                return directory;
+            }
+        }
         private HDCache _Cache = null;
 
         /***        
@@ -144,13 +155,13 @@ namespace HandsetDetectionAPI
             }
 
         }
-   
-       /// <summary>
-       ///     Fetch data from disk
-       /// </summary>
-       /// <param name="key">key</param>
-       /// <returns></returns>
-            
+
+        /// <summary>
+        ///     Fetch data from disk
+        /// </summary>
+        /// <param name="key">key</param>
+        /// <returns></returns>
+
         public Dictionary<string, dynamic> fetch(string key)
         {
             var jss = new JavaScriptSerializer();
