@@ -45,7 +45,11 @@ namespace HandsetDetectionAPI
             }
         }
 
-
+        /// <summary>
+        /// Sets the path to the root directory for storage operations, optionally creating the storage directory in it.
+        /// </summary>
+        /// <param name="path"></param>
+        /// <param name="IsCreateDirectory"></param>
         public void setPath(string path = null, bool IsCreateDirectory = false)
         {
             this.path = string.IsNullOrEmpty(path) ? AppDomain.CurrentDomain.BaseDirectory : path;//dirname(__FILE__)
@@ -70,6 +74,12 @@ namespace HandsetDetectionAPI
             }
         }
 
+        /// <summary>
+        /// Write data to cache & disk
+        /// </summary>
+        /// <param name="key"></param>
+        /// <param name="data"></param>
+        /// <returns></returns>
         public bool write(string key, Dictionary<string, dynamic> data)
         {
             if (!data.Any())
@@ -110,6 +120,12 @@ namespace HandsetDetectionAPI
             }
             return true;
         }
+
+        /// <summary>
+        /// Read $data, try cache first
+        /// </summary>
+        /// <param name="key">Key to search for</param>
+        /// <returns> boolean true on success, false</returns>
         public Dictionary<string, dynamic> read(string key)
         {
             Dictionary<string, dynamic> reply = this._Cache.read(key);
@@ -128,12 +144,13 @@ namespace HandsetDetectionAPI
             }
 
         }
-        /**
-   * Fetch data from disk
-   *
-   * @param string $key.
-   * @reply mixed
-   **/
+   
+       /// <summary>
+       ///     Fetch data from disk
+       /// </summary>
+       /// <param name="key">key</param>
+       /// <returns></returns>
+            
         public Dictionary<string, dynamic> fetch(string key)
         {
             var jss = new JavaScriptSerializer();
@@ -147,6 +164,11 @@ namespace HandsetDetectionAPI
             return jss.Deserialize<Dictionary<string, dynamic>>(jsonText);
         }
 
+        /// <summary>
+        /// Returns all devices inside one giant array
+        /// Used by localDevice* functions to iterate over all devies
+        /// </summary>
+        /// <returns>array All devices in one giant assoc array</returns>
         public Dictionary<string, dynamic> fetchDevices()
         {
             var jss = new JavaScriptSerializer();
@@ -199,6 +221,10 @@ namespace HandsetDetectionAPI
 
         }
 
+        /// <summary>
+        /// Cleans out the store - Use with caution
+        /// </summary>
+        /// <returns>true on success, false otherwise</returns>
         public bool purge()
         {
             string[] filePaths = Directory.GetFiles(this.StoreDirectory, "*.json");

@@ -24,9 +24,9 @@ namespace HandsetDetectionAPI
         }
 
         /// <summary>
-        /// 
+        /// Find all device vendors
         /// </summary>
-        /// <returns></returns>
+        /// <returns>bool true on success, false otherwise. Use getReply to inspect results on success.</returns>
         public bool localDeviceVendors()
         {
             reply = new Dictionary<string, dynamic>();
@@ -119,7 +119,6 @@ namespace HandsetDetectionAPI
             return this.setError(301, "Nothing found");
         }
 
-
         /// <summary>
         /// Finds all devices that have a specific property
         /// </summary>
@@ -205,7 +204,7 @@ namespace HandsetDetectionAPI
         public Dictionary<string, dynamic> findRating(string deviceId, Dictionary<string, dynamic> props)
         {
             var device = findById(deviceId);
-            if (string.IsNullOrEmpty(device["Device"]["hd_specs"]))
+            if (device["Device"]["hd_specs"] is string)
                 return null;
 
             var specs = device["Device"]["hd_specs"];
@@ -215,27 +214,27 @@ namespace HandsetDetectionAPI
             var adjX = 0;
             var adjY = 0;
             // Display Resolution - Worth 40 points if correct
-            if (!string.IsNullOrEmpty(props["display_x"]) && !string.IsNullOrEmpty(props["display_y"]))
+            if (props["display_x"].ToString() != "" && props["display_y"].ToString() != "")
             {
                 total += 40;
-                if (specs["display_x"] == props["display_x"] && specs["display_y"] == props["display_y"])
+                if (Convert.ToInt32(specs["display_x"]) == props["display_x"] && Convert.ToInt32(specs["display_y"]) == props["display_y"])
                 {
                     result["resolution"] = 40;
                 }
-                else if (specs["display_x"] == props["display_y"] && specs["display_y"] == props["display_x"])
+                else if (Convert.ToInt32(specs["display_x"]) == props["display_y"] && Convert.ToInt32(specs["display_y"]) == props["display_x"])
                 {
                     result["resolution"] = 40;
                 }
-                else if (specs["display_pixel_ratio"] > 1.0)
+                else if (Convert.ToDouble(specs["display_pixel_ratio"]) > 1.0)
                 {
                     // The resolution is often scaled by the pixel ratio for apple devices.
-                    adjX = (int)props["display_x"] * specs["display_pixel_ratio"];
-                    adjY = (int)props["display_y"] * specs["display_pixel_ratio"];
-                    if (specs["display_x"] == adjX && specs["display_y"] == adjY)
+                    adjX = Convert.ToInt32(props["display_x"] * Convert.ToDouble(specs["display_pixel_ratio"]));
+                    adjY = Convert.ToInt32(props["display_y"] * Convert.ToDouble(specs["display_pixel_ratio"]));
+                    if (Convert.ToInt32(specs["display_x"]) == adjX && Convert.ToInt32(specs["display_y"]) == adjY)
                     {
                         result["resolution"] = 40;
                     }
-                    else if (specs["display_x"] == adjY && specs["display_y"] == adjX)
+                    else if (Convert.ToInt32(specs["display_x"]) == adjY && Convert.ToInt32(specs["display_y"]) == adjX)
                     {
                         result["resolution"] = 40;
                     }
@@ -243,11 +242,11 @@ namespace HandsetDetectionAPI
             }
 
             // Display pixel ratio - also worth 40 points
-            if (!string.IsNullOrEmpty(props["display_pixel_ratio"]))
+            if (props["display_pixel_ratio"].ToString() != "")
             {
                 total += 40;
                 // Note : display_pixel_ratio will be a string stored as 1.33 or 1.5 or 2, perhaps 2.0 ..
-                if (specs["display_pixel_ratio"] == (string)Math.Round(props["display_pixel_ratio"] / 100, 2))
+                if (Convert.ToDouble(specs["display_pixel_ratio"]) == Math.Round(Convert.ToDouble(props["display_pixel_ratio"] / 100.0), 2))
                 {
                     result["display_pixel_ratio"] = 40;
                 }
@@ -256,12 +255,12 @@ namespace HandsetDetectionAPI
             var steps = 0;
             var tmp = 0;
             // Benchmark - 20 points - Enough to tie break but not enough to overrule display or pixel ratio.
-            if (!string.IsNullOrEmpty(props["benchmark"]))
+            if (!string.IsNullOrEmpty(props["benchmark"].ToString()))
             {
                 total += 20;
-                if (!string.IsNullOrEmpty(specs["benchmark_min"]) && !string.IsNullOrEmpty(specs["benchmark_max"]))
+                if (specs["benchmark_min"].ToString() != "" && specs["benchmark_max"].ToString() != "")
                 {
-                    if ((int)props["benchmark"] >= (int)specs["benchmark_min"] && (int)props["benchmark"] <= (int)specs["benchmark_max"])
+                    if ((int)props["benchmark"] >= Convert.ToInt32(specs["benchmark_min"]) && (int)props["benchmark"] <= Convert.ToInt32(specs["benchmark_max"]))
                     {
                         // Inside range
                         result["benchmark"] = 10;
@@ -271,19 +270,22 @@ namespace HandsetDetectionAPI
                     {
                         // Calculate benchmark chunk spans .. as a tie breaker for close calls.
                         result["benchmark"] = 0;
-                        steps = (int)(specs["benchmark_max"] - specs["benchmark_min"]) / 10;
+                        steps = Convert.ToInt32((Convert.ToInt32(specs["benchmark_max"]) - Convert.ToInt32(specs["benchmark_min"])) / 10);
                         // Outside range
-                        if ((int)props["benchmark"] >= (int)specs["benchmark_max"])
+                        if (steps > 0)
                         {
-                            // Above range : Calculate how many steps above range
-                            tmp = (int)Math.Round((props["benchmark"] - specs["benchmark_max"]) / steps);
-                            result["benchmark_span"] = (int)10 - (Math.Min(10, Math.Max(0, tmp)));
-                        }
-                        else if ((int)props["benchmark"] <= (int)specs["benchmark_min"])
-                        {
-                            // Below range : Calculate how many steps above range
-                            tmp = (int)Math.Round((specs["benchmark_min"] - props["benchmark"]) / steps);
-                            result["benchmark_span"] = (int)10 - (Math.Min(10, Math.Max(0, tmp)));
+                            if ((int)props["benchmark"] >= Convert.ToInt32(specs["benchmark_max"]))
+                            {
+                                // Above range : Calculate how many steps above range
+                                tmp = (int)Math.Round(Convert.ToDouble((props["benchmark"] - Convert.ToInt32(specs["benchmark_max"])) / steps));
+                                result["benchmark_span"] = (int)10 - (Math.Min(10, Math.Max(0, tmp)));
+                            }
+                            else if ((int)props["benchmark"] <= Convert.ToInt32(specs["benchmark_min"]))
+                            {
+                                // Below range : Calculate how many steps above range
+                                tmp = (int)Math.Round(Convert.ToDouble((Convert.ToInt32(specs["benchmark_min"]) - props["benchmark"]) / steps));
+                                result["benchmark_span"] = (int)10 - (Math.Min(10, Math.Max(0, tmp)));
+                            }
                         }
                     }
                 }
@@ -294,9 +296,9 @@ namespace HandsetDetectionAPI
 
             // Distance from mean used in tie breaking situations if two devices have the same score.
             result["distance"] = 100000;
-            if (!string.IsNullOrEmpty(specs["benchmark_min"]) && !string.IsNullOrEmpty(specs["benchmark_max"]) && !string.IsNullOrEmpty(props["benchmark"]))
+            if (specs["benchmark_min"].ToString() != "" && specs["benchmark_max"].ToString() != "" && props["benchmark"].ToString() != "")
             {
-                result["distance"] = (int)Math.Abs(((specs["benchmark_min"] + specs["benchmark_max"]) / 2) - props["benchmark"]);
+                result["distance"] = (int)Math.Abs(((Convert.ToInt32(specs["benchmark_min"]) + Convert.ToInt32(specs["benchmark_max"])) / 2) - props["benchmark"]);
             }
             return result;
         }
@@ -304,10 +306,10 @@ namespace HandsetDetectionAPI
         /// <summary>
         /// Overlays specs onto a device
         /// </summary>
-        /// <param name="specsField">string specsField : Either 'platform', 'browser', 'language'</param>
+        /// <param name="specsField">string specsField : Either "platform', 'browser', 'language'</param>
         /// <param name="device"></param>
         /// <param name="specs"></param>
-        public void specsOverlay(string specsField, ref Dictionary<string, dynamic> device, Dictionary<string, dynamic> specs)
+        public void specsOverlay(string specsField, ref  dynamic device, Dictionary<string, dynamic> specs)
         {
             switch (specsField)
             {
@@ -351,7 +353,6 @@ namespace HandsetDetectionAPI
                     } break;
             }
         }
-
 
         /// <summary>
         /// Takes a string of onDeviceInformation and turns it into something that can be used for high accuracy checking.
@@ -502,7 +503,6 @@ namespace HandsetDetectionAPI
             return false;
         }
 
-
         /// <summary>
         /// Find a device by its id
         /// </summary>
@@ -536,7 +536,12 @@ namespace HandsetDetectionAPI
             return null;
         }
 
-
+        /// <summary>
+        /// BuildInfo Matching
+        /// Takes a set of buildInfo key/value pairs & works out what the device is
+        /// </summary>
+        /// <param name="buildInfo">Buildinfo key/value array</param>
+        /// <returns>mixed device array on success, false otherwise</returns>
         public dynamic v4MatchBuildInfo(Dictionary<string, dynamic> buildInfo)
         {
             dynamic device = null;
@@ -545,7 +550,7 @@ namespace HandsetDetectionAPI
             dynamic app = null;
             this.detectedRuleKey = null;
             dynamic ratingResult = null;
-            reply = new Dictionary<string,dynamic>();
+            reply = new Dictionary<string, dynamic>();
 
             // Nothing to check		
             if (buildInfo.Count == 0)
@@ -562,12 +567,18 @@ namespace HandsetDetectionAPI
             // Platform Detection
             platform = v4MatchBIHelper(buildInfo, "platform");
             if (platform != null && !platform.Count == 0)
-                this.specsOverlay("platform", device, platform);
+                this.specsOverlay("platform", ref device, platform);
 
             reply["hd_specs"] = device["Device"]["hd_specs"];
             return this.setError(0, "OK");
         }
 
+        /// <summary>
+        /// buildInfo Match helper - Does the build info match heavy lifting
+        /// </summary>
+        /// <param name="buildInfo">A buildInfo key/value array</param>
+        /// <param name="category"></param>
+        /// <returns></returns>
         private Dictionary<string, dynamic> v4MatchBIHelper(Dictionary<string, dynamic> buildInfo, string category = "device")
         {
             // ***** Device Detection *****
@@ -599,13 +610,10 @@ namespace HandsetDetectionAPI
                             value += "|" + buildInfo[item];
                         }
                     }
-                    if (value.StartsWith("|"))
-                    {
-                        value = value.Substring(1);
-                    }
+
                     if (checking)
                     {
-                        //	value = trim(value, "| \t\n\r\0\x0B");
+                        value = value.Trim(("| \t\n\r\0\x0B").ToArray());
                         hints[value] = value;
                         var subtree = (category == "device") ? DETECTIONV4_STANDARD : category;
                         var _id = this.getMatch("buildinfo", value, subtree, "buildinfo", category);
@@ -730,7 +738,7 @@ namespace HandsetDetectionAPI
             }
 
             // Stop on detect set - Tidy up and return
-            if (!string.IsNullOrEmpty(device["Device"]["hd_ops"]["stop_on_detect"]))
+            if (!string.IsNullOrEmpty(device["Device"]["hd_ops"]["stop_on_detect"]) && device["Device"]["hd_ops"]["stop_on_detect"] == "1")
             {
                 // Check for hardwareInfo overlay
                 if (!string.IsNullOrEmpty(device["Device"]["hd_ops"]["overlay_result_specs"]))
@@ -757,21 +765,78 @@ namespace HandsetDetectionAPI
 
             if (!(deviceList is Boolean))
             {
+                var pass1List = new List<string>();
                 // Resolve contention with OS check
-                Extra.set(platform);
-                var pass1List = new Dictionary<string, dynamic>();
-                foreach (var item in deviceList)
+                if (!(platform is Boolean))
                 {
-                    var tryDevice = this.findById(item.Key);
-                    if (Extra.verifyPlatform(tryDevice["Device"]["hd_specs"]))
+                    Extra.set(platform);
+
+
+                    foreach (var item in deviceList)
                     {
-                        pass1List.Add(item.Key, item.Key);
+                        var tryDevice = this.findById(item);
+                        if (Extra.verifyPlatform(tryDevice["Device"]["hd_specs"]))
+                        {
+                            pass1List.Add(item);
+                        }
                     }
                 }
+
+                // Contention still not resolved .. check hardware
+                if (pass1List.Count >= 2 && (hwProps is IDictionary))
+                {
+                    // Score the list based on hardware
+                    List<dynamic> result = new List<dynamic>();
+                    foreach (var id in pass1List)
+                    {
+                        var tmp = findRating(id, hwProps);
+                        if (tmp.Count > 0)
+                        {
+                            tmp["_id"] = id;
+                            result.Add(tmp);
+                        }
+                    }
+
+                    // Sort the results
+                    //usort($result, array($this, 'hd_sortByScore'));
+                    ratingResult = result;
+
+                    // Take the first one
+                    if (ratingResult[0]["score"] != 0)
+                    {
+                        var objDevice = findById(result[0]["_id"]);
+                        if (objDevice.Count > 0)
+                        {
+                            device = objDevice;
+                        }
+                    }
+                }
+
             }
 
+            // Overlay specs
+            if (!(platform is Boolean))
+            {
+                specsOverlay("platform", ref device, platform["Extra"]);
+            }
+            if (!(browser is Boolean))
+            {
+                specsOverlay("browser", ref device, browser["Extra"]);
+            }
+            if (!(app is Boolean))
+            {
+                specsOverlay("app", ref device, app["Extra"]);
+            }
+            if (!(language is Boolean))
+            {
+                specsOverlay("language", ref device, language["Extra"]);
+            }
+            // Overlay hardware info result if required
+            if (device["Device"]["hd_ops"]["overlay_result_specs"] == "1" && !string.IsNullOrEmpty(hardwareInfo))
+                hardwareInfoOverlay(ref device, hwProps);
 
-            return null;//for meantime
+            reply["hd_specs"] = device["Device"]["hd_specs"];
+            return setError(0, "OK");//for meantime
         }
 
         /// <summary>
@@ -783,13 +848,12 @@ namespace HandsetDetectionAPI
         {
             var branch = this.getBranch("hachecks");
             var ruleKey = detectedRuleKey["device"];
-            if (branch[ruleKey].Count > 0)
+            if (branch.ContainsKey(ruleKey))
             {
                 return branch[ruleKey];
             }
             return false;
         }
-
 
         /// <summary>
         /// Determines if hd4Helper would provide mor accurate results.
@@ -813,7 +877,6 @@ namespace HandsetDetectionAPI
             return true;
         }
 
-
         /// <summary>
         ///  Custom sort function for sorting results.
         ///  
@@ -828,8 +891,5 @@ namespace HandsetDetectionAPI
                 return (Convert.ToInt32(d2["score"]) - Convert.ToInt32(d1["score"]));
             return Convert.ToInt32(d1["distance"]) - Convert.ToInt32(d2["distance"]);
         }
-
-
-
     }
 }

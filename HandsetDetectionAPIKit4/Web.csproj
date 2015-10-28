@@ -58,7 +58,7 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="HandsetWithNetwork.aspx" />
-    <Content Include="hdConfig.json" />
+    <Content Include="hdUltimateConfig.json" />
     <Content Include="Languages.json" />
     <Content Include="hdCloudConfig.json" />
     <None Include="Web.Debug.config">

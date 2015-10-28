@@ -12,7 +12,7 @@ namespace Web
 {
     public partial class HandsetWithNetwork : System.Web.UI.Page
     {
-        public string configFile = "//hdconfig.json";
+        public string configFile = "//hdUltimateConfig.json";
         public Dictionary<string, dynamic> config = new Dictionary<string, dynamic>();
         public HD4 objHD4;
         protected void Page_Load(object sender, EventArgs e)

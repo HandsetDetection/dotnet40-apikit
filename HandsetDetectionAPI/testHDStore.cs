@@ -30,7 +30,9 @@ namespace HandsetDetectionAPI
             }
         }
 
-        // Writes to store & cache
+        /// <summary>
+        /// Writes to store & cache
+        /// </summary>
         [Test]
         public void testReadWrite()
         {
@@ -50,7 +52,9 @@ namespace HandsetDetectionAPI
 
         }
 
-        // Writes to store & not cache
+        /// <summary>
+        ///  Writes to store & not cache
+        /// </summary>
         [Test]
         public void testStoreFetch()
         {
@@ -67,65 +71,63 @@ namespace HandsetDetectionAPI
             Assert.IsTrue(IsExists);
         }
 
-        // Test purge
+        /// <summary>
+        ///  Test purge
+        /// </summary>
         [Test]
         public void testPurge()
         {
             var lstFiles = Directory.GetFiles(Store.StoreDirectory, "*.json");
             Assert.IsNotEmpty(lstFiles);
-
             Store.purge();
-
             var lstFiles1 = Directory.GetFiles(Store.StoreDirectory, "*.json");
             Assert.IsEmpty(lstFiles1);
         }
 
-
+        /// <summary>
+        /// Reads all devices from Disk (Keys need to be in Device*json format)
+        /// </summary>
         [Test]
-        // Reads all devices from Disk (Keys need to be in Device*json format)
         public void testFetchDevices()
         {
             string key = "Device" + DateTime.Now.Ticks;
             Store.store(key, testData);
-
             var devices = Store.fetchDevices();
             Assert.AreEqual(devices["devices"], testData);
             Store.purge();
 
         }
 
-        // Moves a file from disk into store (vanishes from previous location).
+        /// <summary>
+        /// Moves a file from disk into store (vanishes from previous location).
+        /// </summary>
         [Test]
         public void testMoveIn()
         {
             var jsonString = jss.Serialize(testData);
             string filePathFirst = Store.StoreDirectory + "/TemDevice.json";
             string filePathSecond = Store.StoreDirectory + "/TemDevice1.json";
-
             File.WriteAllText(filePathFirst, jsonString);
             bool IsFileExist = File.Exists(filePathFirst);
             bool IsSecondFileExist = File.Exists(filePathSecond);
-
             Assert.IsTrue(IsFileExist);
             Assert.IsFalse(IsSecondFileExist);
-
             IsFileExist = File.Exists(filePathFirst);
             IsSecondFileExist = File.Exists(filePathSecond);
-
             Store.moveIn(filePathFirst, filePathSecond);
             Assert.IsFalse(IsFileExist);
             Assert.IsTrue(IsSecondFileExist);
-
         }
 
-        // Test singleton'ship
+        /// <summary>
+        /// Test singleton'ship
+        /// </summary>
         [Test]
         public void testSingleton()
         {
             var store1 = HDStore.Instance;
             var store2 = HDStore.Instance;
             store1.setPath("tmp", true);
-
             Assert.AreEqual(store2.StoreDirectory, store1.StoreDirectory);
         }
 

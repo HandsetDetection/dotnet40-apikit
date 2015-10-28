@@ -16,7 +16,7 @@ namespace HandsetDetectionAPI
     {
         private HD4 objHD4;
         string cloudConfig = "/hdCloudConfig.json"; //Cloud Config Name
-        string ultimateConfig = "/hdConfig.json"; // Ultimate Config Name
+        string ultimateConfig = "/hdUltimateConfig.json"; // Ultimate Config Name
         JavaScriptSerializer jss = new JavaScriptSerializer();
 
         Dictionary<string, dynamic> devices = new Dictionary<string, dynamic>();
@@ -38,7 +38,7 @@ namespace HandsetDetectionAPI
 
 
         /// <summary>
-        /// To check Cloud Config Exist
+        /// test for config file .. required for all cloud tests
         /// </summary>
         [Test]
         public void test_cloudConfigExists()
@@ -52,6 +52,9 @@ namespace HandsetDetectionAPI
             Assert.AreEqual(IsFileExist, true);
         }
 
+        /// <summary>
+        /// device vendors test
+        /// </summary>
         [Test]
         public void test_deviceVendors()
         {
@@ -65,6 +68,9 @@ namespace HandsetDetectionAPI
             Assert.Contains("Samsung", reply["vendor"]);
         }
 
+        /// <summary>
+        /// device Models test
+        /// </summary>
         [Test]
         public void test_deviceModels()
         {
@@ -74,9 +80,12 @@ namespace HandsetDetectionAPI
             Assert.AreEqual(0, reply["status"]);
             Assert.AreEqual("OK", reply["message"]);
             Assert.IsNotEmpty(reply["message"]);
-            Assert.Greater(((List<string>)(reply["model"])).Count(), 700);
+            Assert.Greater(reply["model"].Count, 700);
         }
 
+        /// <summary>
+        /// device view test
+        /// </summary>
         [Test]
         public void test_deviceView()
         {
@@ -88,6 +97,9 @@ namespace HandsetDetectionAPI
             Assert.AreEqual(jss.Serialize(devices["NokiaN95"]), jss.Serialize(reply["device"]));
         }
 
+        /// <summary>
+        /// device whatHas test
+        /// </summary>
         [Test]
         public void test_deviceDeviceWhatHas()
         {
@@ -108,7 +120,9 @@ namespace HandsetDetectionAPI
             Assert.AreEqual(true, Regex.IsMatch(jsonString, "RX800"));
         }
 
-
+        /// <summary>
+        /// Detection test Windows PC running Chrome
+        /// </summary>
         [Test]
         public void test_deviceDetectHTTPDesktop()
         {
@@ -122,6 +136,10 @@ namespace HandsetDetectionAPI
             Assert.AreEqual("OK", reply["message"]);
             Assert.AreEqual("Computer", reply["hd_specs"]["general_type"]);
         }
+
+        /// <summary>
+        /// Detection test Junk user-agent
+        /// </summary>
         [Test]
         public void test_deviceDetectHTTPDesktopJunk()
         {
@@ -136,6 +154,10 @@ namespace HandsetDetectionAPI
             Assert.AreEqual("Not Found", reply["message"]);
 
         }
+
+        /// <summary>
+        ///  Detection test Wii
+        /// </summary>
         [Test]
         public void test_deviceDetectHTTPWii()
         {
@@ -151,6 +173,9 @@ namespace HandsetDetectionAPI
             Assert.AreEqual("Mobile", reply["hd_specs"]["general_type"]);//Console
         }
 
+        /// <summary>
+        /// Detection test iPhone
+        /// </summary>
         [Test]
         public void test_deviceDetectHTTP()
         {
@@ -168,8 +193,8 @@ namespace HandsetDetectionAPI
             Assert.AreEqual("Apple", reply["hd_specs"]["general_vendor"]);
             Assert.AreEqual("iPhone", reply["hd_specs"]["general_model"]);
             Assert.AreEqual("iOS", reply["hd_specs"]["general_platform"]);
-            Assert.AreEqual("1.0", reply["hd_specs"]["general_platform_version"]);
-            Assert.AreEqual("", reply["hd_specs"]["general_language"]);
+            Assert.AreEqual("4.3", reply["hd_specs"]["general_platform_version"]);
+            Assert.AreEqual("en-gb", reply["hd_specs"]["general_language"]);
 
             Dictionary<string, dynamic> handsetSpecs = reply["hd_specs"];
             Assert.AreEqual(true, handsetSpecs.ContainsKey("display_pixel_ratio"));
@@ -179,7 +204,9 @@ namespace HandsetDetectionAPI
 
         }
 
-
+        /// <summary>
+        /// Detection test iPhone in weird headers
+        /// </summary>
         [Test]
         public void test_deviceDetectHTTPOtherHeader()
         {
@@ -199,8 +226,8 @@ namespace HandsetDetectionAPI
             Assert.AreEqual("Apple", reply["hd_specs"]["general_vendor"]);
             Assert.AreEqual("iPhone", reply["hd_specs"]["general_model"]);
             Assert.AreEqual("iOS", reply["hd_specs"]["general_platform"]);
-            Assert.AreEqual("1.0", reply["hd_specs"]["general_platform_version"]);
-            Assert.AreEqual("", reply["hd_specs"]["general_language"]);
+            Assert.AreEqual("4.3", reply["hd_specs"]["general_platform_version"]);
+            Assert.AreEqual("en-gb", reply["hd_specs"]["general_language"]);
 
             Dictionary<string, dynamic> handsetSpecs = reply["hd_specs"];
             Assert.AreEqual(true, handsetSpecs.ContainsKey("display_pixel_ratio"));
@@ -210,6 +237,9 @@ namespace HandsetDetectionAPI
 
         }
 
+        /// <summary>
+        /// Detection test iPhone 3GS (same UA as iPhone 3G, different x-local-hardwareinfo header)
+        /// </summary>
         [Test]
         public void test_deviceDetectHTTPHardwareInfo()
         {
@@ -229,10 +259,10 @@ namespace HandsetDetectionAPI
 
             Assert.AreEqual("Mobile", reply["hd_specs"]["general_type"]);
             Assert.AreEqual("Apple", reply["hd_specs"]["general_vendor"]);
-            Assert.AreEqual("iPhone", reply["hd_specs"]["general_model"]);
+            Assert.AreEqual("iPhone 3GS", reply["hd_specs"]["general_model"]);
             Assert.AreEqual("iOS", reply["hd_specs"]["general_platform"]);
-            Assert.AreEqual("1.0", reply["hd_specs"]["general_platform_version"]);
-            Assert.AreEqual("", reply["hd_specs"]["general_language"]);
+            Assert.AreEqual("4.2.1", reply["hd_specs"]["general_platform_version"]);
+            Assert.AreEqual("en-gb", reply["hd_specs"]["general_language"]);
 
             Dictionary<string, dynamic> handsetSpecs = reply["hd_specs"];
             Assert.AreEqual(true, handsetSpecs.ContainsKey("display_pixel_ratio"));
@@ -242,7 +272,9 @@ namespace HandsetDetectionAPI
 
         }
 
-
+        /// <summary>
+        /// Detection test iPhone 3G (same UA as iPhone 3GS, different x-local-hardwareinfo header)
+        /// </summary>
         [Test]
         public void test_deviceDetectHTTPHardwareInfoB()
         {
@@ -262,10 +294,10 @@ namespace HandsetDetectionAPI
 
             Assert.AreEqual("Mobile", reply["hd_specs"]["general_type"]);
             Assert.AreEqual("Apple", reply["hd_specs"]["general_vendor"]);
-            Assert.AreEqual("iPhone", reply["hd_specs"]["general_model"]);
+            Assert.AreEqual("iPhone 3G", reply["hd_specs"]["general_model"]);
             Assert.AreEqual("iOS", reply["hd_specs"]["general_platform"]);
-            Assert.AreEqual("1.0", reply["hd_specs"]["general_platform_version"]);
-            Assert.AreEqual("", reply["hd_specs"]["general_language"]);
+            Assert.AreEqual("4.2.1", reply["hd_specs"]["general_platform_version"]);
+            Assert.AreEqual("en-gb", reply["hd_specs"]["general_language"]);
 
             Dictionary<string, dynamic> handsetSpecs = reply["hd_specs"];
             Assert.AreEqual(true, handsetSpecs.ContainsKey("display_pixel_ratio"));
@@ -274,6 +306,9 @@ namespace HandsetDetectionAPI
             Assert.AreEqual(true, handsetSpecs.ContainsKey("benchmark_max"));
         }
 
+        /// <summary>
+        /// Detection test iPhone - Crazy benchmark (eg from emulated desktop) with outdated OS
+        /// </summary>
         [Test]
         public void test_deviceDetectHTTPHardwareInfoC()
         {
@@ -293,10 +328,10 @@ namespace HandsetDetectionAPI
 
             Assert.AreEqual("Mobile", reply["hd_specs"]["general_type"]);
             Assert.AreEqual("Apple", reply["hd_specs"]["general_vendor"]);
-            Assert.AreEqual("iPhone", reply["hd_specs"]["general_model"]);
+            Assert.AreEqual("iPhone 3G", reply["hd_specs"]["general_model"]);
             Assert.AreEqual("iOS", reply["hd_specs"]["general_platform"]);
-            Assert.AreEqual("1.0", reply["hd_specs"]["general_platform_version"]);
-            Assert.AreEqual("", reply["hd_specs"]["general_language"]);
+            Assert.AreEqual("2.0", reply["hd_specs"]["general_platform_version"]);
+            Assert.AreEqual("en-gb", reply["hd_specs"]["general_language"]);
 
             Dictionary<string, dynamic> handsetSpecs = reply["hd_specs"];
             Assert.AreEqual(true, handsetSpecs.ContainsKey("display_pixel_ratio"));
@@ -305,7 +340,9 @@ namespace HandsetDetectionAPI
             Assert.AreEqual(true, handsetSpecs.ContainsKey("benchmark_max"));
         }
 
-
+        /// <summary>
+        /// Detection test iPhone 5s running Facebook 9.0 app (hence no general_browser set).
+        /// </summary>
         [Test]
         public void test_deviceDetectHTTPFBiOS()
         {
@@ -343,7 +380,9 @@ namespace HandsetDetectionAPI
             Assert.AreEqual(true, handsetSpecs.ContainsKey("benchmark_max"));
         }
 
-
+        /// <summary>
+        /// Detection test Samsung GT-I9500 Native - Note : Device shipped with Android 4.2.2, so this device has been updated.
+        /// </summary>
         [Test]
         public void test_deviceDetectBIAndroid()
         {
@@ -396,6 +435,9 @@ namespace HandsetDetectionAPI
             Assert.AreEqual("Samsung Galaxy S4", reply["hd_specs"]["general_aliases"][0]);
         }
 
+        /// <summary>
+        /// Detection test iPhone 4S Native
+        /// </summary>
         [Test]
         public void test_deviceDetectBIiOS()
         {
@@ -415,11 +457,15 @@ namespace HandsetDetectionAPI
             Assert.AreEqual("Apple", reply["hd_specs"]["general_vendor"]);
             Assert.AreEqual("iPhone 4S", reply["hd_specs"]["general_model"]);
             Assert.AreEqual("iOS", reply["hd_specs"]["general_platform"]);
+            // Note : Default shipped version in the absence of any version information
             Assert.AreEqual("5.0", reply["hd_specs"]["general_platform_version"]);
 
 
         }
 
+        /// <summary>
+        ///  Detection test Windows Phone Native Nokia Lumia 1020
+        /// </summary>
         [Test]
         public void test_deviceDetectWindowsPhone()
         {
@@ -439,7 +485,7 @@ namespace HandsetDetectionAPI
             Assert.AreEqual("Nokia", reply["hd_specs"]["general_vendor"]);
             Assert.AreEqual("Lumia 1020", reply["hd_specs"]["general_model"]);
             Assert.AreEqual("Windows Phone", reply["hd_specs"]["general_platform"]);
-            Assert.AreEqual("332", reply["hd_specs"]["display_ppi"]);
+            Assert.AreEqual(332, reply["hd_specs"]["display_ppi"]);
 
 
 
@@ -450,9 +496,14 @@ namespace HandsetDetectionAPI
         // ***************************************** Ultimate Tests ******************************************
         // ***************************************************************************************************
 
+        /// <summary>
+        /// Fetch Archive Test
+        /// </summary>
         [Test]
         public void test_fetchArchive()
         {
+            // Note : request storage dir to be created if it does not exist. (with TRUE as 2nd param)
+
             HttpRequest request = new HttpRequest(null, "http://localhost", null);
             objHD4 = new HD4(request, ultimateConfig);
 
@@ -460,10 +511,12 @@ namespace HandsetDetectionAPI
             var reply = objHD4.getReply();
 
             Assert.IsTrue(result);
-
             //TODO: to get no. bytes
         }
 
+        /// <summary>
+        /// device vendors test
+        /// </summary>
         [Test]
         public void test_ultimate_deviceVendors()
         {
@@ -480,6 +533,9 @@ namespace HandsetDetectionAPI
             Assert.Contains("Samsung", reply["vendor"]);
         }
 
+        /// <summary>
+        /// device models test
+        /// </summary>
         [Test]
         public void test_ultimate_deviceModels()
         {
@@ -493,9 +549,12 @@ namespace HandsetDetectionAPI
             Assert.AreEqual(0, reply["status"]);
             Assert.AreEqual("OK", reply["message"]);
             Assert.IsNotEmpty(reply["message"]);
-            Assert.Greater(700, ((List<string>)(reply["model"])).Count());
+            Assert.Greater(reply["model"].Count, 700);
         }
 
+        /// <summary>
+        /// device view test
+        /// </summary>
         [Test]
         public void test_ultimate_deviceView()
         {
@@ -512,6 +571,9 @@ namespace HandsetDetectionAPI
 
         }
 
+        /// <summary>
+        /// device whatHas test
+        /// </summary>
         [Test]
         public void test_ultimate_deviceDeviceWhatHas()
         {
@@ -535,6 +597,9 @@ namespace HandsetDetectionAPI
             Assert.AreEqual(true, Regex.IsMatch(jsonString, "RX800"));
         }
 
+        /// <summary>
+        /// Windows PC running Chrome
+        /// </summary>
         [Test]
         public void test_ultimate_deviceDetectHTTPDesktop()
         {
@@ -552,7 +617,9 @@ namespace HandsetDetectionAPI
             Assert.AreEqual("Computer", reply["hd_specs"]["general_type"]);
         }
 
-
+        /// <summary>
+        /// Junk user-agent
+        /// </summary>
         [Test]
         public void test_ultimate_deviceDetectHTTPDesktopJunk()
         {
@@ -565,12 +632,14 @@ namespace HandsetDetectionAPI
             };
             var result = objHD4.deviceDetect(header);
             var reply = objHD4.getReply();
-            Assert.IsTrue(result);
-            Assert.AreEqual(0, reply["status"]);
-            Assert.AreEqual("OK", reply["message"]);
-
+            Assert.IsFalse(result);
+            Assert.AreEqual(301, reply["status"]);
+            Assert.AreEqual("Not Found", reply["message"]);
         }
 
+        /// <summary>
+        /// Wii
+        /// </summary>
         [Test]
         public void test_ultimate_deviceDetectHTTPWii()
         {
@@ -579,7 +648,6 @@ namespace HandsetDetectionAPI
 
             var header = new Dictionary<string, dynamic>(){
             {"User-Agent","Opera/9.30 (Nintendo Wii; U; ; 2047-7; es-Es)"}
-            
             };
 
             var result = objHD4.deviceDetect(header);
@@ -591,6 +659,9 @@ namespace HandsetDetectionAPI
             Assert.AreEqual("Mobile", reply["hd_specs"]["general_type"]);
         }
 
+        /// <summary>
+        /// iPhone
+        /// </summary>
         [Test]
         public void test_ultimate_deviceDetectHTTP()
         {
@@ -622,7 +693,9 @@ namespace HandsetDetectionAPI
 
         }
 
-
+        /// <summary>
+        /// iPhone - user-agent in random other header
+        /// </summary>
         [Test]
         public void test_ultimate_deviceDetectHTTPOtherHeader()
         {
@@ -656,6 +729,9 @@ namespace HandsetDetectionAPI
 
         }
 
+        /// <summary>
+        /// iPhone 3GS (same UA as iPhone 3G, different x-local-hardwareinfo header)
+        /// </summary>
         [Test]
         public void test_ultimate_deviceDetectHTTPHardwareInfo()
         {
@@ -691,7 +767,9 @@ namespace HandsetDetectionAPI
 
         }
 
-
+        /// <summary>
+        /// iPhone 3G (same UA as iPhone 3GS, different x-local-hardwareinfo header)
+        /// </summary>
         [Test]
         public void test_ultimate_deviceDetectHTTPHardwareInfoB()
         {
@@ -726,6 +804,9 @@ namespace HandsetDetectionAPI
             Assert.AreEqual(true, handsetSpecs.ContainsKey("benchmark_max"));
         }
 
+        /// <summary>
+        /// iPhone - Crazy benchmark (eg from emulated desktop) with outdated OS
+        /// </summary>
         [Test]
         public void test_ultimate_deviceDetectHTTPHardwareInfoC()
         {
@@ -760,7 +841,9 @@ namespace HandsetDetectionAPI
             Assert.AreEqual(true, handsetSpecs.ContainsKey("benchmark_max"));
         }
 
-
+        /// <summary>
+        /// iPhone 5s running Facebook 9.0 app (hence no general_browser set).
+        /// </summary>
         [Test]
         public void test_ultimate_deviceDetectHTTPFBiOS()
         {
@@ -801,7 +884,9 @@ namespace HandsetDetectionAPI
             Assert.AreEqual(true, handsetSpecs.ContainsKey("benchmark_max"));
         }
 
-
+        /// <summary>
+        /// Samsung GT-I9500 Native - Note : Device shipped with Android 4.2.2, so this device has been updated.
+        /// </summary>
         [Test]
         public void test_ultimate_deviceDetectBIAndroid()
         {
@@ -857,6 +942,9 @@ namespace HandsetDetectionAPI
             Assert.AreEqual("Samsung Galaxy S4", reply["hd_specs"]["general_aliases"][0]);
         }
 
+        /// <summary>
+        /// iPhone 4S Native
+        /// </summary>
         [Test]
         public void test_ultimate_deviceDetectBIiOS()
         {
@@ -884,6 +972,9 @@ namespace HandsetDetectionAPI
 
         }
 
+        /// <summary>
+        /// Windows Phone Native Nokia Lumia 1020
+        /// </summary>
         [Test]
         public void test_ultimate_deviceDetectWindowsPhone()
         {
@@ -906,7 +997,7 @@ namespace HandsetDetectionAPI
             Assert.AreEqual("Nokia", reply["hd_specs"]["general_vendor"]);
             Assert.AreEqual("Lumia 1020", reply["hd_specs"]["general_model"]);
             Assert.AreEqual("Windows Phone", reply["hd_specs"]["general_platform"]);
-            Assert.AreEqual("332", reply["hd_specs"]["display_ppi"]);
+            Assert.AreEqual(332, reply["hd_specs"]["display_ppi"]);
         }
 
         // ***************************************************************************************************
@@ -923,6 +1014,7 @@ namespace HandsetDetectionAPI
          *
          * @group community
          **/
+
 
         [Test]
         public void test_ultimate_community_fetchArchive()
@@ -942,6 +1034,9 @@ namespace HandsetDetectionAPI
 
         }
 
+        /// <summary>
+        /// Windows PC running Chrome
+        /// </summary>
         [Test]
         public void test_ultimate_community_deviceDetectHTTPDesktop()
         {
@@ -962,6 +1057,9 @@ namespace HandsetDetectionAPI
             Assert.AreEqual("", data["hd_specs"]["general_type"]);
         }
 
+        /// <summary>
+        /// Junk user-agent
+        /// </summary>
         [Test]
         public void test_ultimate_community_deviceDetectHTTPDesktopJunk()
         {
@@ -981,6 +1079,9 @@ namespace HandsetDetectionAPI
 
         }
 
+        /// <summary>
+        ///  Wii
+        /// </summary>
         [Test]
         public void test_ultimate_community_deviceDetectHTTPWii()
         {
@@ -1001,6 +1102,9 @@ namespace HandsetDetectionAPI
 
         }
 
+        /// <summary>
+        /// iPhone
+        /// </summary>
         [Test]
         public void test_ultimate_community_deviceDetectHTTP()
         {
@@ -1019,7 +1123,7 @@ namespace HandsetDetectionAPI
             Assert.AreEqual("OK", data["message"]);
             Assert.AreEqual("", data["hd_specs"]["general_type"]);
 
-            Assert.AreEqual("Mobile", data["hd_specs"]["general_type"]);
+            Assert.AreEqual("", data["hd_specs"]["general_type"]);
             Assert.AreEqual("Apple", data["hd_specs"]["general_vendor"]);
             Assert.AreEqual("iPhone", data["hd_specs"]["general_model"]);
             Assert.AreEqual("iOS", data["hd_specs"]["general_platform"]);
@@ -1034,6 +1138,9 @@ namespace HandsetDetectionAPI
 
         }
 
+        /// <summary>
+        /// iPhone - user-agent in random other header
+        /// </summary>
         [Test]
         public void test_ultimate_community_deviceDetectHTTPOtherHeader()
         {
@@ -1053,7 +1160,7 @@ namespace HandsetDetectionAPI
             Assert.AreEqual("OK", data["message"]);
             Assert.AreEqual("", data["hd_specs"]["general_type"]);
 
-            Assert.AreEqual("Mobile", data["hd_specs"]["general_type"]);
+            Assert.AreEqual("", data["hd_specs"]["general_type"]);
             Assert.AreEqual("Apple", data["hd_specs"]["general_vendor"]);
             Assert.AreEqual("iPhone", data["hd_specs"]["general_model"]);
             Assert.AreEqual("iOS", data["hd_specs"]["general_platform"]);
@@ -1069,6 +1176,9 @@ namespace HandsetDetectionAPI
 
         }
 
+        /// <summary>
+        /// iPhone 3GS (same UA as iPhone 3G, different x-local-hardwareinfo header)
+        /// </summary>
         [Test]
         public void test_ultimate_community_deviceDetectHTTPHardwareInfo()
         {
@@ -1088,7 +1198,7 @@ namespace HandsetDetectionAPI
             Assert.AreEqual("OK", data["message"]);
             Assert.AreEqual("", data["hd_specs"]["general_type"]);
 
-            Assert.AreEqual("Mobile", data["hd_specs"]["general_type"]);
+            Assert.AreEqual("", data["hd_specs"]["general_type"]);
             Assert.AreEqual("Apple", data["hd_specs"]["general_vendor"]);
             Assert.AreEqual("iPhone 3GS", data["hd_specs"]["general_model"]);
             Assert.AreEqual("iOS", data["hd_specs"]["general_platform"]);
@@ -1104,6 +1214,9 @@ namespace HandsetDetectionAPI
 
         }
 
+        /// <summary>
+        /// iPhone 3G (same UA as iPhone 3GS, different x-local-hardwareinfo header)
+        /// </summary>
         [Test]
         public void test_ultimate_community_deviceDetectHTTPHardwareInfoB()
         {
@@ -1123,13 +1236,11 @@ namespace HandsetDetectionAPI
             Assert.AreEqual("OK", data["message"]);
             Assert.AreEqual("", data["hd_specs"]["general_type"]);
 
-            Assert.AreEqual("Mobile", data["hd_specs"]["general_type"]);
             Assert.AreEqual("Apple", data["hd_specs"]["general_vendor"]);
             Assert.AreEqual("iPhone 3G", data["hd_specs"]["general_model"]);
             Assert.AreEqual("iOS", data["hd_specs"]["general_platform"]);
             Assert.AreEqual("4.2.1", data["hd_specs"]["general_platform_version"]);
             Assert.AreEqual("en-gb", data["hd_specs"]["general_language"]);
-            Assert.AreEqual("", data["hd_specs"]["general_type"]);
 
             Dictionary<string, dynamic> handsetSpecs = data["hd_specs"];
             Assert.AreEqual(true, handsetSpecs.ContainsKey("display_pixel_ratio"));
@@ -1139,6 +1250,9 @@ namespace HandsetDetectionAPI
 
         }
 
+        /// <summary>
+        /// iPhone - Crazy benchmark (eg from emulated desktop) with outdated OS
+        /// </summary>
         [Test]
         public void test_ultimate_community_deviceDetectHTTPHardwareInfoC()
         {
@@ -1158,13 +1272,11 @@ namespace HandsetDetectionAPI
             Assert.AreEqual("OK", data["message"]);
             Assert.AreEqual("", data["hd_specs"]["general_type"]);
 
-            Assert.AreEqual("Mobile", data["hd_specs"]["general_type"]);
             Assert.AreEqual("Apple", data["hd_specs"]["general_vendor"]);
             Assert.AreEqual("iPhone 3G", data["hd_specs"]["general_model"]);
             Assert.AreEqual("iOS", data["hd_specs"]["general_platform"]);
             Assert.AreEqual("2.0", data["hd_specs"]["general_platform_version"]);
             Assert.AreEqual("en-gb", data["hd_specs"]["general_language"]);
-            Assert.AreEqual("", data["hd_specs"]["general_type"]);
 
             Dictionary<string, dynamic> handsetSpecs = data["hd_specs"];
             Assert.AreEqual(true, handsetSpecs.ContainsKey("display_pixel_ratio"));
@@ -1174,6 +1286,9 @@ namespace HandsetDetectionAPI
 
         }
 
+        /// <summary>
+        /// iPhone 5s running Facebook 9.0 app (hence no general_browser set).
+        /// </summary>
         [Test]
         public void test_ultimate_community_deviceDetectHTTPFBiOS()
         {
@@ -1193,15 +1308,15 @@ namespace HandsetDetectionAPI
             Assert.AreEqual("OK", data["message"]);
             Assert.AreEqual("", data["hd_specs"]["general_type"]);
 
-            Assert.AreEqual("Mobile", data["hd_specs"]["general_type"]);
             Assert.AreEqual("Apple", data["hd_specs"]["general_vendor"]);
             Assert.AreEqual("iPhone 5s", data["hd_specs"]["general_model"]);
             Assert.AreEqual("iOS", data["hd_specs"]["general_platform"]);
-            Assert.AreEqual("2.0", data["hd_specs"]["general_platform_version"]);
+            Assert.AreEqual("7.1.1", data["hd_specs"]["general_platform_version"]);
             Assert.AreEqual("da", data["hd_specs"]["general_language"]);
             Assert.AreEqual("Danish", data["hd_specs"]["general_language_full"]);
             Assert.AreEqual("", data["hd_specs"]["general_type"]);
-            Assert.AreEqual("Facebook", data["hd_specs"]["general_app"]);
+
+
             Assert.AreEqual("9.0", data["hd_specs"]["general_app_version"]);
             Assert.AreEqual("", data["hd_specs"]["general_browser"]);
             Assert.AreEqual("", data["hd_specs"]["general_browser_version"]);
@@ -1214,7 +1329,9 @@ namespace HandsetDetectionAPI
 
         }
 
-
+        /// <summary>
+        /// Samsung GT-I9500 Native - Note : Device shipped with Android 4.2.2, so this device has been updated.
+        /// </summary>
         [Test]
         public void test_ultimate_community_deviceDetectBIAndroid()
         {
@@ -1259,16 +1376,17 @@ namespace HandsetDetectionAPI
             Assert.AreEqual("OK", reply["message"]);
 
 
-            Assert.AreEqual("Mobile", reply["hd_specs"]["general_type"]);
+            Assert.AreEqual("", reply["hd_specs"]["general_type"]);
             Assert.AreEqual("Samsung", reply["hd_specs"]["general_vendor"]);
             Assert.AreEqual("GT-I9500", reply["hd_specs"]["general_model"]);
             Assert.AreEqual("Android", reply["hd_specs"]["general_platform"]);
-            Assert.AreEqual("", reply["hd_specs"]["general_platform_version"]);
-            Assert.AreEqual("Samsung Galaxy S4", reply["hd_specs"]["general_aliases"][0]);
+            Assert.AreEqual("4.4.2", reply["hd_specs"]["general_platform_version"]);
+            Assert.AreEqual("", reply["hd_specs"]["general_aliases"][0]);
         }
 
-
-
+        /// <summary>
+        ///  iPhone 4S Native
+        /// </summary>
         [Test]
         public void test_ultimate_community_deviceDetectBIiOS()
         {
@@ -1297,7 +1415,9 @@ namespace HandsetDetectionAPI
 
         }
 
-
+        /// <summary>
+        /// Windows Phone Native Nokia Lumia 1020
+        /// </summary>
         [Test]
         public void test_ultimate_community_deviceDetectWindowsPhone()
         {
@@ -1316,11 +1436,11 @@ namespace HandsetDetectionAPI
             Assert.AreEqual(0, reply["status"]);
             Assert.AreEqual("OK", reply["message"]);
 
-            Assert.AreEqual("Mobile", reply["hd_specs"]["general_type"]);
+            Assert.AreEqual("", reply["hd_specs"]["general_type"]);
             Assert.AreEqual("Nokia", reply["hd_specs"]["general_vendor"]);
             Assert.AreEqual("Lumia 1020", reply["hd_specs"]["general_model"]);
             Assert.AreEqual("Windows Phone", reply["hd_specs"]["general_platform"]);
-            Assert.AreEqual("332", reply["hd_specs"]["display_ppi"]);
+            Assert.AreEqual(0, reply["hd_specs"]["display_ppi"]);
         }
     }
 }

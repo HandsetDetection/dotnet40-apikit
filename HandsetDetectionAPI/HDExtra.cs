@@ -28,10 +28,10 @@ namespace HandsetDetectionAPI
         /// <param name="className">className Is 'platform','browser' or 'app'</param>
         /// <param name="headers"></param>
         /// <returns>an Extra on success, false otherwise</returns>
-        public bool matchExtra(string className, Dictionary<string, dynamic> headers)
+        public dynamic matchExtra(string className, Dictionary<string, dynamic> headers)
         {
             headers.Remove("profile");
-            Dictionary<string, dynamic> orders = detectionConfig[string.Format("{0}-ua-order", className)];
+            List<string> orders = detectionConfig[string.Format("{0}-ua-order", className)];
             var keys = detectionConfig.Keys;
 
             Regex reg = new Regex("^x-", RegexOptions.IgnoreCase);
@@ -40,23 +40,19 @@ namespace HandsetDetectionAPI
             {
                 if (reg.IsMatch(key))
                 {
-                    if (orders.ContainsKey(key))
+                    if (!orders.Contains(key))
                     {
-                        orders[key] = key;
-                    }
-                    else
-                    {
-                        orders.Add(key, key);
+                        orders.Add(key);
                     }
                 }
             }
 
             foreach (var item in orders)
             {
-                if (orders[item.Key].Count() > 0)
+                if (headers.ContainsKey(item))
                 {
-                    dynamic id = getMatch("user-agent", headers[item.Key], className, item.Key, className);
-                    if (id)
+                    dynamic id = getMatch("user-agent", headers[item], className, item, className);
+                    if (!(id is Boolean))
                     {
                         var extra = findById(id);
                         if (extra != null)
@@ -77,7 +73,7 @@ namespace HandsetDetectionAPI
         /// <returns>array device on success, false otherwise</returns>
         public dynamic findById(string id)
         {
-            return Store.read(id);
+            return Store.read(string.Format("Extra_{0}", id));
         }
 
 
@@ -91,11 +87,12 @@ namespace HandsetDetectionAPI
             var extra = new Dictionary<string, dynamic>();
             // Mock up a fake Extra for merge into detection reply.
             extra["_id"] = 0;
+            extra.Add("Extra", new Dictionary<string, dynamic>());
+            extra["Extra"].Add("hd_specs", new Dictionary<string, dynamic>());
             extra["Extra"]["hd_specs"]["general_language"] = "";
             extra["Extra"]["hd_specs"]["general_language_full"] = "";
-
             // Try directly from http header first
-            if (headers["language"].Count > 0)
+            if (headers.ContainsKey("language"))
             {
                 var candidate = headers["language"];
                 if (detectionLanguages[candidate])
@@ -106,26 +103,28 @@ namespace HandsetDetectionAPI
                 }
             }
 
-            Dictionary<string, dynamic> checkOrder = detectionConfig["language-ua-order"];
+            List<string> checkOrder = detectionConfig["language-ua-order"];
             foreach (var item in headers)
             {
-                checkOrder.Add(item.Key, item.Value);
+                checkOrder.Add(item.Key);
             }
 
             var languageList = detectionLanguages;
-
             foreach (var item in checkOrder)
             {
-                var agent = headers[item.Key];
-                if (agent.Count > 0)
+                if (headers.ContainsKey(item))
                 {
-                    foreach (var languageItem in languageList)
+                    var agent = headers[item];
+                    if (!string.IsNullOrEmpty(agent))
                     {
-                        if (Regex.IsMatch(agent, "[; \\(]${code}[; \\)]"))
+                        foreach (var languageItem in languageList)
                         {
-                            extra["Extra"]["hd_specs"]["general_language"] = languageItem.Key;
-                            extra["Extra"]["hd_specs"]["general_language_full"] = languageItem.Value;
-                            return extra;
+                            if (Regex.IsMatch(agent, string.Format("[; \\(]{0}[; \\)]", languageItem.Key)))
+                            {
+                                extra["Extra"]["hd_specs"]["general_language"] = languageItem.Key;
+                                extra["Extra"]["hd_specs"]["general_language_full"] = languageItem.Value;
+                                return extra;
+                            }
                         }
                     }
                 }
@@ -145,15 +144,16 @@ namespace HandsetDetectionAPI
         /// </summary>
         /// <param name="specs">string specs The specs we want to check.</param>
         /// <returns>boolean false if these specs can not run the detected OS, true otherwise.</returns>
-        public bool verifyPlatform(string specs = null)
+        public bool verifyPlatform(dynamic specs = null)
         {
             var platform = data;
 
             var platformName = platform["Extra"]["hd_specs"]["general_platform"].Trim().ToLower();
             var platformVersion = platform["Extra"]["hd_specs"]["general_platform_version"].Trim().ToLower();
-            var devicePlatformName = platform["Extra"]["hd_specs"]["general_platform"].Trim().ToLower();
-            var devicePlatformVersionMin = platform["Extra"]["hd_specs"]["general_platform_version"].Trim().ToLower();
-            var devicePlatformVersionMax = platform["Extra"]["hd_specs"]["general_platform_version_max"].Trim().ToLower();
+
+            var devicePlatformName = specs["general_platform"].Trim().ToLower();
+            var devicePlatformVersionMin = specs["general_platform_version"].Trim().ToLower();
+            var devicePlatformVersionMax = specs["general_platform_version_max"].Trim().ToLower();
 
             // Its possible that we didnt pickup the platform correctly or the device has no platform info
             // Return true in this case because we cant give a concrete false (it might run this version).
@@ -179,8 +179,6 @@ namespace HandsetDetectionAPI
 
         }
 
-
-      
         /// <summary>
         /// Breaks a version number apart into its Major, minor and point release numbers for comparison.
         /// 
@@ -242,9 +240,9 @@ namespace HandsetDetectionAPI
             var minor = compareSmartly(versionA["minor"], versionB["minor"]);
             var point = compareSmartly(versionA["point"], versionB["point"]);
 
-            if (major) return major;
-            if (minor) return minor;
-            if (point) return point;
+            if (major > 0) return major;
+            if (minor > 0) return minor;
+            if (point > 0) return point;
             return 0;
         }
 

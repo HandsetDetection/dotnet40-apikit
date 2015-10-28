@@ -33,7 +33,7 @@ namespace HandsetDetectionAPI
 
         string logger = null;
         bool debug = true;
-        string configFile = "/hdconfig.json";
+        string configFile = "/hdUltimateConfig.json";
 
         HDStore Store;
         HDCache cache = null;
@@ -56,7 +56,11 @@ namespace HandsetDetectionAPI
             this.detectRequest.Add(key, value);
         }
 
-
+        /// <summary>
+        /// This is the main constructor for the class HD4
+        /// </summary>
+        /// <param name="request">Curret Request Object</param>
+        /// <param name="configuration">config can be an array of config options or a fully qualified path to an alternate config file.</param>
         public HD4(HttpRequest request, dynamic configuration = null)
         {
             this.Request = request;
@@ -74,9 +78,9 @@ namespace HandsetDetectionAPI
                     }
                 }
             }
-            else if (configuration != null && configuration is string && File.Exists(configuration))
+            else if (configuration != null && configuration is string && File.Exists(ApplicationRootDirectory + configuration))
             {
-                AddConfigSettingFromFile(configuration);
+                AddConfigSettingFromFile(ApplicationRootDirectory + configuration);
             }
             else if (!File.Exists(ApplicationRootDirectory + configFile))
             {
@@ -96,13 +100,12 @@ namespace HandsetDetectionAPI
             this.device = new HDDevice();
 
             this.setup();
-
-
-            //    if (! empty($this->config['use_local']) && ! class_exists('ZipArchive')) {
-            //    throw new \Exception('Ultimate detection needs ZipArchive to unzip archive files. Please install this php module.');
-            //}
         }
 
+        /// <summary>
+        /// Read Setting from config file and add or updet in "config" object
+        /// </summary>
+        /// <param name="configFile"></param>
         private void AddConfigSettingFromFile(string configFile)
         {
             Dictionary<string, dynamic> hdConfig = new Dictionary<string, dynamic>();
@@ -124,6 +127,9 @@ namespace HandsetDetectionAPI
             }
         }
 
+        /// <summary>
+        /// Initialize inital properties
+        /// </summary>
         void setup()
         {
             reply = new Dictionary<string, dynamic>();
@@ -149,7 +155,6 @@ namespace HandsetDetectionAPI
             }
             detectRequest["Cookie"] = null;
         }
-
 
         /// <summary>
         /// List all known vendors
@@ -177,11 +182,6 @@ namespace HandsetDetectionAPI
             }
         }
 
-
-
-
-
-
         /// <summary>
         /// List all models for a given vendor
         /// </summary>
@@ -207,7 +207,6 @@ namespace HandsetDetectionAPI
                 return false;
             }
         }
-
 
         /// <summary>
         /// Find properties for a specific device
@@ -235,7 +234,12 @@ namespace HandsetDetectionAPI
             }
         }
 
-
+        /// <summary>
+        /// Find which devices have property 'X'.
+        /// </summary>
+        /// <param name="key">Property to inquire about eg 'network', 'connectors' etc...</param>
+        /// <param name="value">true on success, false otherwise. Use getReply to inspect results on success. </param>
+        /// <returns></returns>
         public bool deviceWhatHas(string key, string value)
         {
             try
@@ -255,8 +259,12 @@ namespace HandsetDetectionAPI
                 return false;
             }
         }
-
-
+        
+        /// <summary>
+        /// Device Detect
+        /// </summary>
+        /// <param name="data">Data for device detection : HTTP Headers usually</param>
+        /// <returns>true on success, false otherwise. Use getReply to inspect results on success.</returns>
         public bool deviceDetect(Dictionary<string, dynamic> data = null)
         {
             int id = 0;
@@ -269,7 +277,7 @@ namespace HandsetDetectionAPI
                 id = Convert.ToInt32(data["id"]);
             }
 
-            Dictionary<string, dynamic> requestBody = new Dictionary<string,dynamic>();
+            Dictionary<string, dynamic> requestBody = new Dictionary<string, dynamic>();
             foreach (var item in data)
             {
                 if (requestBody.ContainsKey(item.Key.ToLower()))
@@ -282,7 +290,7 @@ namespace HandsetDetectionAPI
                 }
             }
 
-           
+
 
             string fastKey = "";
             // If caching enabled then check cache
@@ -345,7 +353,6 @@ namespace HandsetDetectionAPI
 
             return installArchive(config["filesdir"], "ultimate.zip");
         }
-
 
         /// <summary>
         /// Community Fetch Archive - Fetch the community archive version
@@ -440,6 +447,7 @@ namespace HandsetDetectionAPI
             }
             return true;
         }
+       
         /// <summary>
         /// This method can indicate if using the js Helper would yeild more accurate results.
         /// </summary>

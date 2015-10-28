@@ -33,23 +33,17 @@ namespace HandsetDetectionAPI
 		{"cache_requests", true},
 		{"geoip", false},
 		{"log_unknown", true }};
-
         protected Dictionary<string, dynamic> detectedRuleKey = new Dictionary<string, dynamic>();
-
         string apiBase = "/apiv4/";
         string deviceUAFilter = " _\\#-,./:\"'";
         string extraUAFilter = " ";
-
         string loggerHost = "logger.handsetdetection.com";
         int loggerPort = 80;
 
-
-        //TODO: To get data from json file
         protected Dictionary<string, dynamic> detectionConfig
         {
             get
             {
-
                 Dictionary<string, dynamic> dicData = new Dictionary<string, dynamic>();
 
                 dicData.Add("device-ua-order", new List<string>() { "x-operamini-phone-ua", "x - mobile - ua", "device-stock-ua", "user-agent", "agent" });
@@ -116,7 +110,6 @@ namespace HandsetDetectionAPI
                 return serializer.Deserialize<Dictionary<string, string>>(jsonText);
             }
         }
-
         protected static Dictionary<string, dynamic> reply = null;
 
         public HDBase()
@@ -127,32 +120,43 @@ namespace HandsetDetectionAPI
             Store = HDStore.Instance;
         }
 
-        /**
-    * Get reply status
-    *
-    * @param void
-    * @return int error status, 0 is Ok, anything else is probably not Ok
-    **/
+        /// <summary>
+        /// Get reply status
+        /// </summary>
+        /// <returns>int error status, 0 is Ok, anything else is probably not Ok</returns>
         public int getStatus()
         {
-            return Convert.ToInt32(reply["status"]);
+            if (reply.ContainsKey("status"))
+                return Convert.ToInt32(reply["status"]);
+            else
+                return 301;
         }
 
-        /**
-* Get reply message
-*
-* @param void
-* @return string A message
-**/
+        /// <summary>
+        /// Get reply message
+        /// </summary>
+        /// <returns>string A message</returns>
         public string getMessage()
         {
-            return reply["message"];
+            if (reply.ContainsKey("status"))
+                return reply["message"];
+            else
+                return "Not Found";
         }
 
+        /// <summary>
+        /// Get reply payload in array assoc format
+        /// </summary>
+        /// <returns></returns>
         public Dictionary<string, dynamic> getReply()
         {
             return reply;
         }
+
+        /// <summary>
+        /// Set a reply payload
+        /// </summary>
+        /// <param name="objReply"></param>
         public void setReply(Dictionary<string, dynamic> objReply)
         {
             reply = objReply;
@@ -184,11 +188,14 @@ namespace HandsetDetectionAPI
 
             foreach (string item in extraUAFilterList)
             {
-                str = str.Replace(item, "");
+                foreach (var itemChar in item)
+                {
+                    str = str.Replace(itemChar, ' ');
+                }
             }
             Regex reg = new Regex("[^(\x20-\x7F)]*");
             str = reg.Replace(str, "");
-            return str;
+            return Regex.Replace(str, @"\s+", "");
         }
 
         /// <summary>
@@ -202,11 +209,15 @@ namespace HandsetDetectionAPI
                 return string.Empty;
             foreach (string item in deviceUAFilterList)
             {
-                str = str.Replace(item, "");
+                foreach (var itemChar in item)
+                {
+                    str = str.Replace(itemChar, ' ');
+                }
+
             }
             Regex reg = new Regex("[^(\x20-\x7F)]*");
             str = reg.Replace(str, "");
-            return str;
+            return Regex.Replace(str, @"\s+", "");
         }
 
         /// <summary>
@@ -280,6 +291,14 @@ namespace HandsetDetectionAPI
             return success;
         }
 
+        /// <summary>
+        /// Post data to remote server
+        /// </summary>
+        /// <param name="server"> Server name</param>
+        /// <param name="service"> URL name</param>
+        /// <param name="jsondata">Data in json format</param>
+        /// <param name="authRequired">Is authentication reguired </param>
+        /// <returns>false on failue (sets error), or string on success.</returns>
         private bool post(string server, string service, string jsondata, bool authRequired = true)
         {
             try
@@ -402,6 +421,15 @@ namespace HandsetDetectionAPI
             return false;
         }
 
+        /// <summary>
+        /// The heart of the detection process
+        /// </summary>
+        /// <param name="header">The type of header we're matching against - user-agent type headers use a sieve matching, all others are hash matching.</param>
+        /// <param name="value">The http header's value (could be a user-agent or some other x- header value)</param>
+        /// <param name="subtree">The branch name eg : user-agent0, user-agent1, user-agentplatform, user-agentbrowser</param>
+        /// <param name="actualHeader"></param>
+        /// <param name="className"></param>
+        /// <returns>node (which is an id) on success, false otherwise</returns>
         public dynamic getMatch(string header, string value, string subtree = "0", string actualHeader = "", string className = "device")
         {
             int f = 0;
@@ -424,7 +452,7 @@ namespace HandsetDetectionAPI
                 return false;
             }
             Dictionary<string, dynamic> branch = getBranch(treetag);
-           string node=string.Empty;
+            string node = string.Empty;
             if (branch == null)
             {
                 return false;
@@ -468,6 +496,11 @@ namespace HandsetDetectionAPI
             return false;
         }
 
+        /// <summary>
+        /// Find a branch for the matching process
+        /// </summary>
+        /// <param name="branchName">The name of the branch to find</param>
+        /// <returns>an assoc array on success, false otherwise.</returns>
         public Dictionary<string, dynamic> getBranch(string branchName)
         {
             if (tree.ContainsKey(branchName) && tree[branchName] != null)
@@ -484,7 +517,13 @@ namespace HandsetDetectionAPI
             return null;
         }
 
-        // From : http://blogs.msdn.com/b/csharpfaq/archive/2006/10/09/how-do-i-calculate-a-md5-hash-from-a-string_3f00_.aspx
+        
+        /// <summary>
+        /// TO get encrypted MD5 string
+        /// From : http://blogs.msdn.com/b/csharpfaq/archive/2006/10/09/how-do-i-calculate-a-md5-hash-from-a-string_3f00_.aspx
+        /// </summary>
+        /// <param name="input"></param>
+        /// <returns></returns>
         private string _helperMD5Hash(string input)
         {
             // step 1, calculate MD5 hash from input

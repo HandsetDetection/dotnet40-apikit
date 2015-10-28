@@ -3,7 +3,7 @@
    "secret":"RK4LzTcJHdq2C4cX",
    "site_id":"56163",
    "use_local":true,
-   "filesdir":"d://APIData",
+   "filesdir":"E://APIData",
    "debug":false,
    "api_server":"api.handsetdetection.com",
    "cache_requests":false,
