@@ -18,7 +18,7 @@ namespace HandsetDetectionAPI
         {
             get
             {
-                if (!Directory.Exists(directory))
+                if (!string.IsNullOrEmpty(directory) && !Directory.Exists(directory))
                 {
                     Directory.CreateDirectory(directory);
                 }
