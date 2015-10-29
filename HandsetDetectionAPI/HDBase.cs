@@ -46,8 +46,8 @@ namespace HandsetDetectionAPI
             {
                 Dictionary<string, dynamic> dicData = new Dictionary<string, dynamic>();
 
-                dicData.Add("device-ua-order", new List<string>() { "x-operamini-phone-ua", "x - mobile - ua", "device-stock-ua", "user-agent", "agent" });
-                dicData.Add("platform-ua-order", new List<string>() { "x-operamini-phone-ua", "x - mobile - ua", "device-stock-ua", "user-agent", "agent" });
+                dicData.Add("device-ua-order", new List<string>() { "x-operamini-phone-ua", "x-mobile-ua", "device-stock-ua", "user-agent", "agent" });
+                dicData.Add("platform-ua-order", new List<string>() { "x-operamini-phone-ua", "x-mobile-ua", "device-stock-ua", "user-agent", "agent" });
                 dicData.Add("browser-ua-order", new List<string>() { "user-agent", "agent", "device-stock-ua" });
                 dicData.Add("app-ua-order", new List<string>() { "user-agent", "agent", "device-stock-ua" });
                 dicData.Add("language-ua-order", new List<string>() { "user-agent", "agent", "device-stock-ua" });
@@ -75,19 +75,24 @@ namespace HandsetDetectionAPI
 
                 Dictionary<string, dynamic> dicPlatformBiOrder = new Dictionary<string, dynamic>();
 
-                Dictionary<string, dynamic> dicPlatformAndroid = new Dictionary<string, dynamic>();
-                dicPlatformAndroid.Add("ro.build.id", "ro.build.version.release");
-                dicPlatformAndroid.Add("ro-build-id", "ro-build-version-release");
+                List<List<string>> dicPlatformAndroid = new List<List<string>>();
+                dicPlatformAndroid.Add(new List<string>() { "ro.build.id", "ro.build.version.release" });
+                dicPlatformAndroid.Add(new List<string>() { "ro-build-id", "ro-build-version-release" });
 
                 dicPlatformBiOrder.Add("android", dicPlatformAndroid);
 
-                Dictionary<string, dynamic> dicPlatformIOS = new Dictionary<string, dynamic>();
-                dicPlatformIOS.Add("uidevice.systemName", "uidevice.systemversion");
+                List<List<string>> dicPlatformIOS = new List<List<string>>();
+                dicPlatformIOS.Add(new List<string>() { "uidevice.systemName", "uidevice.systemversion" });
 
                 dicPlatformBiOrder.Add("ios", dicPlatformIOS);
 
-                Dictionary<string, dynamic> dicPlatformWindowPhone = new Dictionary<string, dynamic>();
-                dicPlatformWindowPhone.Add("osname", "osversion");
+
+                List<List<string>> dicPlatformWindowPhone = new List<List<string>>();
+                dicPlatformWindowPhone.Add(new List<string>() { "osname", "osversion" });
+
+                dicPlatformBiOrder.Add("windows phone", dicPlatformWindowPhone);
+
+                dicData.Add("platform-bi-order", dicPlatformBiOrder);
 
                 Dictionary<string, dynamic> dicBrowserBiOrder = new Dictionary<string, dynamic>();
                 dicData.Add("browser-bi-order", dicBrowserBiOrder);
@@ -468,12 +473,12 @@ namespace HandsetDetectionAPI
                     {
                         ++f;
                         Dictionary<string, dynamic> matches = filter.Value;
-                        if (value.ToLower().Contains(filter.Key.ToLower()))
+                        if (value.Contains(filter.Key))
                         {
                             foreach (var match in matches)
                             {
                                 ++r;
-                                if (value.ToLower().Contains(match.Key.ToLower()))
+                                if (value.Contains(match.Key))
                                 {
                                     detectedRuleKey[className] = cleanStr(header) + ":" + cleanStr(filter.Key) + ":" + cleanStr(match.Key);
                                     return match.Value;
@@ -517,7 +522,7 @@ namespace HandsetDetectionAPI
             return null;
         }
 
-        
+
         /// <summary>
         /// TO get encrypted MD5 string
         /// From : http://blogs.msdn.com/b/csharpfaq/archive/2006/10/09/how-do-i-calculate-a-md5-hash-from-a-string_3f00_.aspx

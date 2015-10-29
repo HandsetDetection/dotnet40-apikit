@@ -32,7 +32,7 @@ namespace HandsetDetectionAPI
         {
             headers.Remove("profile");
             List<string> orders = detectionConfig[string.Format("{0}-ua-order", className)];
-            var keys = detectionConfig.Keys;
+            var keys = headers.Keys;
 
             Regex reg = new Regex("^x-", RegexOptions.IgnoreCase);
 
@@ -95,7 +95,7 @@ namespace HandsetDetectionAPI
             if (headers.ContainsKey("language"))
             {
                 var candidate = headers["language"];
-                if (detectionLanguages[candidate])
+                if (detectionLanguages.ContainsKey(candidate))
                 {
                     extra["Extra"]["hd_specs"]["general_language"] = candidate;
                     extra["Extra"]["hd_specs"]["general_language_full"] = detectionLanguages[candidate];
@@ -240,9 +240,9 @@ namespace HandsetDetectionAPI
             var minor = compareSmartly(versionA["minor"], versionB["minor"]);
             var point = compareSmartly(versionA["point"], versionB["point"]);
 
-            if (major > 0) return major;
-            if (minor > 0) return minor;
-            if (point > 0) return point;
+            if (major != 0) return major;
+            if (minor != 0) return minor;
+            if (point != 0) return point;
             return 0;
         }
 

@@ -209,7 +209,7 @@ namespace HandsetDetectionAPI
 
             var specs = device["Device"]["hd_specs"];
 
-            var total = 0;
+            Double total = 0;
             var result = new Dictionary<string, dynamic>();
             var adjX = 0;
             var adjY = 0;
@@ -270,7 +270,7 @@ namespace HandsetDetectionAPI
                     {
                         // Calculate benchmark chunk spans .. as a tie breaker for close calls.
                         result["benchmark"] = 0;
-                        steps = Convert.ToInt32((Convert.ToInt32(specs["benchmark_max"]) - Convert.ToInt32(specs["benchmark_min"])) / 10);
+                        steps = (int)Math.Round(Convert.ToDouble((Convert.ToDouble(specs["benchmark_max"]) - Convert.ToDouble(specs["benchmark_min"])) / 10.0));
                         // Outside range
                         if (steps > 0)
                         {
@@ -290,8 +290,8 @@ namespace HandsetDetectionAPI
                     }
                 }
             }
-
-            result["score"] = (total == 0) ? (int)0 : (int)Math.Round(Convert.ToDouble(result.Values.Sum(c => Convert.ToInt32(c)) / total) * 100, 2);
+            var valuesSum = result.Values.Sum(c => Convert.ToInt32(c));
+            result["score"] = (total == 0) ? (int)0 : (int)Math.Round(Convert.ToDouble(valuesSum / total) * 100, 2);
             result["possible"] = total;
 
             // Distance from mean used in tie breaking situations if two devices have the same score.
@@ -482,15 +482,15 @@ namespace HandsetDetectionAPI
             // Generic matching - Match of last resort
             if (headers.ContainsKey("x-operamini-phone-ua"))
             {
-                itemid = this.getMatch("x-operamini-phone-ua", headers["x-operamini-phone-ua"], DETECTIONV4_STANDARD, "x-operamini-phone-ua", "device");
+                itemid = this.getMatch("x-operamini-phone-ua", headers["x-operamini-phone-ua"], DETECTIONV4_GENERIC, "x-operamini-phone-ua", "device");
             }
             if (!HasGetData && headers.ContainsKey("agent"))
             {
-                itemid = this.getMatch("agent", headers["agent"], DETECTIONV4_STANDARD, "agent", "device");
+                itemid = this.getMatch("agent", headers["agent"], DETECTIONV4_GENERIC, "agent", "device");
             }
             if (!HasGetData && headers.ContainsKey("user-agent"))
             {
-                itemid = this.getMatch("user-agent", headers["user-agent"], DETECTIONV4_STANDARD, "user-agent", "device");
+                itemid = this.getMatch("user-agent", headers["user-agent"], DETECTIONV4_GENERIC, "user-agent", "device");
                 if (itemid is string)
                     HasGetData = true;
             }
@@ -566,8 +566,8 @@ namespace HandsetDetectionAPI
 
             // Platform Detection
             platform = v4MatchBIHelper(buildInfo, "platform");
-            if (platform != null && !platform.Count == 0)
-                this.specsOverlay("platform", ref device, platform);
+            if (platform != null && !(platform.Count == 0))
+                this.specsOverlay("platform", ref device, platform["Extra"]);
 
             reply["hd_specs"] = device["Device"]["hd_specs"];
             return this.setError(0, "OK");
@@ -595,7 +595,8 @@ namespace HandsetDetectionAPI
             foreach (KeyValuePair<string, dynamic> platform in confBIKeys)
             {
                 var value = "";
-                foreach (List<string> tuple in platform.Value)
+                List<List<string>> platformValue = platform.Value;
+                foreach (List<string> tuple in platformValue)
                 {
                     bool checking = true;
                     foreach (var item in tuple)
@@ -692,13 +693,13 @@ namespace HandsetDetectionAPI
                 {
                     key = "language";
                     var tmp = Regex.Split(Convert.ToString(item.Value).Replace(" ", ""), "[,;]");
-                    if (tmp.Count == 0)
+                    if (tmp.Length == 0)
                     {
                         continue;
                     }
                     else
                     {
-                        value = cleanStr(item.Value);
+                        value = cleanStr(tmp[0]);
                     }
 
 
@@ -716,11 +717,11 @@ namespace HandsetDetectionAPI
 
                 if (extraHeaders.ContainsKey(key))
                 {
-                    extraHeaders[key] = Extra.extraCleanStr(item.Value);
+                    extraHeaders[key] = Extra.extraCleanStr(value);
                 }
                 else
                 {
-                    extraHeaders.Add(key, Extra.extraCleanStr(item.Value));
+                    extraHeaders.Add(key, Extra.extraCleanStr(value));
 
                 }
             }
@@ -738,7 +739,7 @@ namespace HandsetDetectionAPI
             }
 
             // Stop on detect set - Tidy up and return
-            if (!string.IsNullOrEmpty(device["Device"]["hd_ops"]["stop_on_detect"]) && device["Device"]["hd_ops"]["stop_on_detect"] == "1")
+            if (!(device["Device"]["hd_ops"]["stop_on_detect"].ToString() == "") && device["Device"]["hd_ops"]["stop_on_detect"].ToString() == "1")
             {
                 // Check for hardwareInfo overlay
                 if (!string.IsNullOrEmpty(device["Device"]["hd_ops"]["overlay_result_specs"]))
@@ -775,6 +776,7 @@ namespace HandsetDetectionAPI
                     foreach (var item in deviceList)
                     {
                         var tryDevice = this.findById(item);
+                        var modelno = tryDevice["Device"]["hd_specs"]["general_model"];
                         if (Extra.verifyPlatform(tryDevice["Device"]["hd_specs"]))
                         {
                             pass1List.Add(item);
@@ -801,15 +803,14 @@ namespace HandsetDetectionAPI
                     //usort($result, array($this, 'hd_sortByScore'));
                     ratingResult = result;
 
-                    // Take the first one
-                    if (ratingResult[0]["score"] != 0)
+                    var objDevice = this.findById(GetDeviceFromRatingResult(result)["_id"]);
+                    if (objDevice.Count > 0)
                     {
-                        var objDevice = findById(result[0]["_id"]);
-                        if (objDevice.Count > 0)
-                        {
-                            device = objDevice;
-                        }
+                        var modelno1 = objDevice["Device"]["hd_specs"]["general_model"];
+                     
+                        device = objDevice;
                     }
+
                 }
 
             }
@@ -832,7 +833,7 @@ namespace HandsetDetectionAPI
                 specsOverlay("language", ref device, language["Extra"]);
             }
             // Overlay hardware info result if required
-            if (device["Device"]["hd_ops"]["overlay_result_specs"] == "1" && !string.IsNullOrEmpty(hardwareInfo))
+            if (device["Device"]["hd_ops"]["overlay_result_specs"].ToString() == "1" && !string.IsNullOrEmpty(hardwareInfo))
                 hardwareInfoOverlay(ref device, hwProps);
 
             reply["hd_specs"] = device["Device"]["hd_specs"];
@@ -891,5 +892,44 @@ namespace HandsetDetectionAPI
                 return (Convert.ToInt32(d2["score"]) - Convert.ToInt32(d1["score"]));
             return Convert.ToInt32(d1["distance"]) - Convert.ToInt32(d2["distance"]);
         }
+
+        /// <summary>
+        /// Get a device whose score is maximum
+        /// if two devices have same score then device with less distance is returned
+        /// </summary>
+        /// <param name="deviceResult"></param>
+        /// <returns></returns>
+        public Dictionary<string, dynamic> GetDeviceFromRatingResult(List<dynamic> deviceResult)
+        {
+            Dictionary<string, dynamic> bestDevice = null;
+
+            foreach (Dictionary<string, dynamic> item in deviceResult)
+            {
+                if (bestDevice == null)
+                {
+                    bestDevice = item;
+                    continue;
+                }
+                else
+                {
+                    if (item["score"] - bestDevice["score"] > 0)
+                    {
+                        bestDevice = item;
+                    }
+                    else if (item["score"] == bestDevice["score"])
+                    {
+                        if (item["distance"] - bestDevice["distance"] < 0)
+                        {
+                            bestDevice = item;
+                        }
+
+                    }
+
+                }
+            }
+
+            return bestDevice;
+        }
+
     }
 }

@@ -55,6 +55,8 @@ namespace HandsetDetectionAPI
         public void testIsHelperUsefulTrue()
         {
             Device = new HDDevice();
+            Store.setPath("E://APIData");
+          
             var result = Device.isHelperUseful(headers);
             Assert.IsTrue(result);
         }
@@ -63,6 +65,7 @@ namespace HandsetDetectionAPI
         public void testIsHelperUsefulFalse()
         {
             Device = new HDDevice();
+            Store.setPath("E://APIData");
             headers["User-Agent"] = "Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/41.0.2228.0 Safari/537.36";
             var result = Device.isHelperUseful(headers);
             Assert.IsFalse(result);
