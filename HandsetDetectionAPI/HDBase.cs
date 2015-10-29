@@ -37,8 +37,8 @@ namespace HandsetDetectionAPI
         string apiBase = "/apiv4/";
         string deviceUAFilter = " _\\#-,./:\"'";
         string extraUAFilter = " ";
-        string loggerHost = "logger.handsetdetection.com";
-        int loggerPort = 80;
+        //string loggerHost = "logger.handsetdetection.com";
+        //int loggerPort = 80;
 
         protected Dictionary<string, dynamic> detectionConfig
         {

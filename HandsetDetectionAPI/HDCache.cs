@@ -14,7 +14,7 @@ namespace HandsetDetectionAPI
     {
         private int maxJsonLength = 40000000;
         string prefix = "hd4-";
-        int duration = 7200;
+        //int duration = 7200;
         ObjectCache myCache;
         CacheItemPolicy policy = new CacheItemPolicy();
 
@@ -51,9 +51,10 @@ namespace HandsetDetectionAPI
                 jss.MaxJsonLength = this.maxJsonLength;
                 return jss.Deserialize<Dictionary<string, dynamic>>(fromCache);
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 // Not in cache
+               
                 return null;
             }
         }

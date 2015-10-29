@@ -546,11 +546,8 @@ namespace HandsetDetectionAPI
         {
             dynamic device = null;
             dynamic platform = null;
-            dynamic browser = null;
-            dynamic app = null;
-            this.detectedRuleKey = null;
-            dynamic ratingResult = null;
-            reply = new Dictionary<string, dynamic>();
+              this.detectedRuleKey = null;
+             reply = new Dictionary<string, dynamic>();
 
             // Nothing to check		
             if (buildInfo.Count == 0)

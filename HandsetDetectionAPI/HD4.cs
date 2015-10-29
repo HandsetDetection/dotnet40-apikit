@@ -27,11 +27,9 @@ namespace HandsetDetectionAPI
             }
         }
 
-        string realm = "APIv4";
 
 
 
-        string logger = null;
         bool debug = true;
         string configFile = "/hdUltimateConfig.json";
 
@@ -44,7 +42,6 @@ namespace HandsetDetectionAPI
         public string getError() { return this.error; }
 
 
-        Dictionary<string, dynamic> tree = new Dictionary<string, dynamic>();
 
         private void AddKey(string key, string value)
         {
@@ -259,7 +256,7 @@ namespace HandsetDetectionAPI
                 return false;
             }
         }
-        
+
         /// <summary>
         /// Device Detect
         /// </summary>
@@ -447,7 +444,7 @@ namespace HandsetDetectionAPI
             }
             return true;
         }
-       
+
         /// <summary>
         /// This method can indicate if using the js Helper would yeild more accurate results.
         /// </summary>
