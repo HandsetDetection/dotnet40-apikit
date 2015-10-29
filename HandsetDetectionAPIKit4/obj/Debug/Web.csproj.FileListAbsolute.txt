@@ -14,3 +14,15 @@ E:\Official\Projects\dotnetAPIKit4\HandsetDetectionAPIKit4\HandsetDetectionAPIKi
 E:\Official\Projects\dotnetAPIKit4\HandsetDetectionAPIKit4\HandsetDetectionAPIKit4\bin\HandsetDetectionAPI.pdb
 E:\Official\Projects\dotnetAPIKit4\HandsetDetectionAPIKit4\HandsetDetectionAPIKit4\obj\Debug\Web.dll
 E:\Official\Projects\dotnetAPIKit4\HandsetDetectionAPIKit4\HandsetDetectionAPIKit4\obj\Debug\Web.pdb
+E:\Projects\dotnetAPIKit4\HandsetDetectionAPIKit4\bin\Web.dll.config
+E:\Projects\dotnetAPIKit4\HandsetDetectionAPIKit4\bin\Web.dll
+E:\Projects\dotnetAPIKit4\HandsetDetectionAPIKit4\bin\Web.pdb
+E:\Projects\dotnetAPIKit4\HandsetDetectionAPIKit4\bin\HandsetDetectionAPI.dll
+E:\Projects\dotnetAPIKit4\HandsetDetectionAPIKit4\bin\Ionic.Zip.dll
+E:\Projects\dotnetAPIKit4\HandsetDetectionAPIKit4\bin\nunit.framework.dll
+E:\Projects\dotnetAPIKit4\HandsetDetectionAPIKit4\bin\HandsetDetectionAPI.pdb
+E:\Projects\dotnetAPIKit4\HandsetDetectionAPIKit4\bin\Ionic.Zip.xml
+E:\Projects\dotnetAPIKit4\HandsetDetectionAPIKit4\bin\nunit.framework.xml
+E:\Projects\dotnetAPIKit4\HandsetDetectionAPIKit4\obj\Debug\Web.csprojResolveAssemblyReference.cache
+E:\Projects\dotnetAPIKit4\HandsetDetectionAPIKit4\obj\Debug\Web.dll
+E:\Projects\dotnetAPIKit4\HandsetDetectionAPIKit4\obj\Debug\Web.pdb
