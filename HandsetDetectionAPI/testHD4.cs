@@ -497,23 +497,23 @@ namespace HandsetDetectionAPI
         // ***************************************** Ultimate Tests ******************************************
         // ***************************************************************************************************
 
-        ///// <summary>
-        ///// Fetch Archive Test
-        ///// </summary>
-        //[Test]
-        //public void test_fetchArchive()
-        //{
-        //    // Note : request storage dir to be created if it does not exist. (with TRUE as 2nd param)
+        /// <summary>
+        /// Fetch Archive Test
+        /// </summary>
+        [Test]
+        public void test_fetchArchive()
+        {
+            // Note : request storage dir to be created if it does not exist. (with TRUE as 2nd param)
 
-        //    HttpRequest request = new HttpRequest(null, "http://localhost", null);
-        //    objHD4 = new HD4(request, ultimateConfig);
+            HttpRequest request = new HttpRequest(null, "http://localhost", null);
+            objHD4 = new HD4(request, ultimateConfig);
 
-        //    var result = objHD4.deviceFetchArchive();
-        //    var reply = objHD4.getReply();
+            var result = objHD4.deviceFetchArchive();
+            var reply = objHD4.getReply();
 
-        //    Assert.IsTrue(result);
-        //    //TODO: to get no. bytes
-        //}
+            Assert.IsTrue(result);
+            //TODO: to get no. bytes
+        }
 
         /// <summary>
         /// device vendors test
@@ -523,6 +523,7 @@ namespace HandsetDetectionAPI
         {
             HttpRequest request = new HttpRequest(null, "http://localhost", null);
             objHD4 = new HD4(request, ultimateConfig);
+            
 
             var result = objHD4.deviceVendors();
             var reply = objHD4.getReply();
