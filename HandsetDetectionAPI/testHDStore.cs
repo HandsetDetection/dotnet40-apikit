@@ -16,7 +16,7 @@ namespace HandsetDetectionAPI
         private HDCache objCache;
         Dictionary<string, dynamic> testData = new Dictionary<string, dynamic>();
 
-        [SetUp]
+     ///   [SetUp]
         public void testSetupData()
         {
             Store = HDStore.Instance;
@@ -33,7 +33,7 @@ namespace HandsetDetectionAPI
         /// <summary>
         /// Writes to store & cache
         /// </summary>
-        [Test]
+      //  [Test]
         public void testReadWrite()
         {
             string key = "storeKey" + DateTime.Now.Ticks;
@@ -55,7 +55,7 @@ namespace HandsetDetectionAPI
         /// <summary>
         ///  Writes to store & not cache
         /// </summary>
-        [Test]
+      //  [Test]
         public void testStoreFetch()
         {
             string key = "storeKey2" + DateTime.Now.Ticks;
@@ -74,7 +74,7 @@ namespace HandsetDetectionAPI
         /// <summary>
         ///  Test purge
         /// </summary>
-        [Test]
+      //  [Test]
         public void testPurge()
         {
             var lstFiles = Directory.GetFiles(Store.StoreDirectory, "*.json");
@@ -87,7 +87,7 @@ namespace HandsetDetectionAPI
         /// <summary>
         /// Reads all devices from Disk (Keys need to be in Device*json format)
         /// </summary>
-        [Test]
+     //   [Test]
         public void testFetchDevices()
         {
             string key = "Device" + DateTime.Now.Ticks;
@@ -101,7 +101,7 @@ namespace HandsetDetectionAPI
         /// <summary>
         /// Moves a file from disk into store (vanishes from previous location).
         /// </summary>
-        [Test]
+      //  [Test]
         public void testMoveIn()
         {
             var jsonString = jss.Serialize(testData);
@@ -128,7 +128,7 @@ namespace HandsetDetectionAPI
         /// <summary>
         /// Test singleton'ship
         /// </summary>
-        [Test]
+     //   [Test]
         public void testSingleton()
         {
             var store1 = HDStore.Instance;
