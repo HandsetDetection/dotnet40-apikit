@@ -22,7 +22,7 @@ namespace HandsetDetectionAPI
         Dictionary<string, dynamic> devices = new Dictionary<string, dynamic>();
 
         [SetUp]
-        public void test_initialSetup()
+        public void test0_initialSetup()
         {
 
             HttpRequest request = new HttpRequest(null, "http://localhost", null);
@@ -42,7 +42,7 @@ namespace HandsetDetectionAPI
         /// test for config file .. required for all cloud tests
         /// </summary>
         [Test]
-        public void test_cloudConfigExists()
+        public void test1_cloudConfigExists()
         {
             string ApplicationPath = AppDomain.CurrentDomain.BaseDirectory;
             if (ApplicationPath.IndexOf("\\bin") >= 0)
@@ -57,7 +57,7 @@ namespace HandsetDetectionAPI
         /// device vendors test
         /// </summary>
         [Test]
-        public void test_deviceVendors()
+        public void test2_deviceVendors()
         {
             var result = objHD4.deviceVendors();
             var reply = objHD4.getReply();
@@ -73,7 +73,7 @@ namespace HandsetDetectionAPI
         /// device Models test
         /// </summary>
         [Test]
-        public void test_deviceModels()
+        public void test3_deviceModels()
         {
             var result = objHD4.deviceModels("Nokia");
             var reply = objHD4.getReply();
@@ -88,7 +88,7 @@ namespace HandsetDetectionAPI
         /// device view test
         /// </summary>
         [Test]
-        public void test_deviceView()
+        public void test4_deviceView()
         {
             var result = objHD4.deviceView("Nokia", "N95");
             var reply = objHD4.getReply();
@@ -102,7 +102,7 @@ namespace HandsetDetectionAPI
         /// device whatHas test
         /// </summary>
         [Test]
-        public void test_deviceDeviceWhatHas()
+        public void test5_deviceDeviceWhatHas()
         {
             var result = objHD4.deviceWhatHas("design_dimensions", "101 x 44 x 16");
             var reply = objHD4.getReply();
@@ -125,7 +125,7 @@ namespace HandsetDetectionAPI
         /// Detection test Windows PC running Chrome
         /// </summary>
         [Test]
-        public void test_deviceDetectHTTPDesktop()
+        public void test6_deviceDetectHTTPDesktop()
         {
             var header = new Dictionary<string, dynamic>(){
             {"User-Agent","Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/41.0.2228.0 Safari/537.36"}
@@ -142,7 +142,7 @@ namespace HandsetDetectionAPI
         /// Detection test Junk user-agent
         /// </summary>
         [Test]
-        public void test_deviceDetectHTTPDesktopJunk()
+        public void test7_deviceDetectHTTPDesktopJunk()
         {
             var header = new Dictionary<string, dynamic>(){
             {
@@ -160,7 +160,7 @@ namespace HandsetDetectionAPI
         ///  Detection test Wii
         /// </summary>
         [Test]
-        public void test_deviceDetectHTTPWii()
+        public void test8_deviceDetectHTTPWii()
         {
             var header = new Dictionary<string, dynamic>(){
             {"User-Agent","Opera/9.30 (Nintendo Wii; U; ; 2047-7; es-Es)"}
@@ -178,7 +178,7 @@ namespace HandsetDetectionAPI
         /// Detection test iPhone
         /// </summary>
         [Test]
-        public void test_deviceDetectHTTP()
+        public void test9_deviceDetectHTTP()
         {
             var header = new Dictionary<string, dynamic>(){
             {"User-Agent","Mozilla/5.0 (iPhone; U; CPU iPhone OS 4_3 like Mac OS X; en-gb) AppleWebKit/533.17.9 (KHTML, like Gecko)"}
@@ -209,7 +209,7 @@ namespace HandsetDetectionAPI
         /// Detection test iPhone in weird headers
         /// </summary>
         [Test]
-        public void test_deviceDetectHTTPOtherHeader()
+        public void test10_deviceDetectHTTPOtherHeader()
         {
             var header = new Dictionary<string, dynamic>(){
             {"User-Agent","blahblahblah"}
@@ -242,7 +242,7 @@ namespace HandsetDetectionAPI
         /// Detection test iPhone 3GS (same UA as iPhone 3G, different x-local-hardwareinfo header)
         /// </summary>
         [Test]
-        public void test_deviceDetectHTTPHardwareInfo()
+        public void test11_deviceDetectHTTPHardwareInfo()
         {
             var header = new Dictionary<string, dynamic>(){
             {"User-Agent","Mozilla/5.0 (iPhone; U; CPU iPhone OS 4_2_1 like Mac OS X; en-gb) AppleWebKit/533.17.9 (KHTML, like Gecko)"}
@@ -277,7 +277,7 @@ namespace HandsetDetectionAPI
         /// Detection test iPhone 3G (same UA as iPhone 3GS, different x-local-hardwareinfo header)
         /// </summary>
         [Test]
-        public void test_deviceDetectHTTPHardwareInfoB()
+        public void test12_deviceDetectHTTPHardwareInfoB()
         {
             var header = new Dictionary<string, dynamic>(){
             {"User-Agent","Mozilla/5.0 (iPhone; U; CPU iPhone OS 4_2_1 like Mac OS X; en-gb) AppleWebKit/533.17.9 (KHTML, like Gecko)"}
@@ -311,7 +311,7 @@ namespace HandsetDetectionAPI
         /// Detection test iPhone - Crazy benchmark (eg from emulated desktop) with outdated OS
         /// </summary>
         [Test]
-        public void test_deviceDetectHTTPHardwareInfoC()
+        public void test13_deviceDetectHTTPHardwareInfoC()
         {
             var header = new Dictionary<string, dynamic>(){
             {"User-Agent","Mozilla/5.0 (iPhone; U; CPU iPhone OS 2_0 like Mac OS X; en-gb) AppleWebKit/533.17.9 (KHTML, like Gecko)"}
@@ -345,7 +345,7 @@ namespace HandsetDetectionAPI
         /// Detection test iPhone 5s running Facebook 9.0 app (hence no general_browser set).
         /// </summary>
         [Test]
-        public void test_deviceDetectHTTPFBiOS()
+        public void test14_deviceDetectHTTPFBiOS()
         {
             var header = new Dictionary<string, dynamic>(){
             {"User-Agent","Mozilla/5.0 (iPhone; CPU iPhone OS 7_1_1 like Mac OS X) AppleWebKit/537.51.2 (KHTML, like Gecko) Mobile/11D201 [FBAN/FBIOS;FBAV/9.0.0.25.31;FBBV/2102024;FBDV/iPhone6,2;FBMD/iPhone;FBSN/iPhone OS;FBSV/7.1.1;FBSS/2; FBCR/vodafoneIE;FBID/phone;FBLC/en_US;FBOP/5]"}
@@ -385,7 +385,7 @@ namespace HandsetDetectionAPI
         /// Detection test Samsung GT-I9500 Native - Note : Device shipped with Android 4.2.2, so this device has been updated.
         /// </summary>
         [Test]
-        public void test_deviceDetectBIAndroid()
+        public void test15_deviceDetectBIAndroid()
         {
             Dictionary<string, dynamic> buildInfo = new Dictionary<string, dynamic>();
             buildInfo.Add("ro.build.PDA", "I9500XXUFNE7");
@@ -440,7 +440,7 @@ namespace HandsetDetectionAPI
         /// Detection test iPhone 4S Native
         /// </summary>
         [Test]
-        public void test_deviceDetectBIiOS()
+        public void test16_deviceDetectBIiOS()
         {
             Dictionary<string, dynamic> buildInfo = new Dictionary<string, dynamic>();
             buildInfo.Add("utsname.machine", "iphone4,1");
@@ -468,7 +468,7 @@ namespace HandsetDetectionAPI
         ///  Detection test Windows Phone Native Nokia Lumia 1020
         /// </summary>
         [Test]
-        public void test_deviceDetectWindowsPhone()
+        public void test17_deviceDetectWindowsPhone()
         {
             Dictionary<string, dynamic> buildInfo = new Dictionary<string, dynamic>();
             buildInfo.Add("devicemanufacturer", "nokia");
@@ -501,7 +501,7 @@ namespace HandsetDetectionAPI
         /// Fetch Archive Test
         /// </summary>
         [Test]
-        public void test_fetchArchive()
+        public void test18_fetchArchive()
         {
             // Note : request storage dir to be created if it does not exist. (with TRUE as 2nd param)
 
@@ -519,7 +519,7 @@ namespace HandsetDetectionAPI
         /// device vendors test
         /// </summary>
         [Test]
-        public void test_ultimate_deviceVendors()
+        public void test19_ultimate_deviceVendors()
         {
             HttpRequest request = new HttpRequest(null, "http://localhost", null);
             objHD4 = new HD4(request, ultimateConfig);
@@ -539,7 +539,7 @@ namespace HandsetDetectionAPI
         /// device models test
         /// </summary>
         [Test]
-        public void test_ultimate_deviceModels()
+        public void test20_ultimate_deviceModels()
         {
             HttpRequest request = new HttpRequest(null, "http://localhost", null);
             objHD4 = new HD4(request, ultimateConfig);
@@ -558,7 +558,7 @@ namespace HandsetDetectionAPI
         /// device view test
         /// </summary>
         [Test]
-        public void test_ultimate_deviceView()
+        public void test21_ultimate_deviceView()
         {
             HttpRequest request = new HttpRequest(null, "http://localhost", null);
             objHD4 = new HD4(request, ultimateConfig);
@@ -577,7 +577,7 @@ namespace HandsetDetectionAPI
         /// device whatHas test
         /// </summary>
         [Test]
-        public void test_ultimate_deviceDeviceWhatHas()
+        public void test22_ultimate_deviceDeviceWhatHas()
         {
             HttpRequest request = new HttpRequest(null, "http://localhost", null);
             objHD4 = new HD4(request, ultimateConfig);
@@ -603,7 +603,7 @@ namespace HandsetDetectionAPI
         /// Windows PC running Chrome
         /// </summary>
         [Test]
-        public void test_ultimate_deviceDetectHTTPDesktop()
+        public void test23_ultimate_deviceDetectHTTPDesktop()
         {
             HttpRequest request = new HttpRequest(null, "http://localhost", null);
             objHD4 = new HD4(request, ultimateConfig);
@@ -623,7 +623,7 @@ namespace HandsetDetectionAPI
         /// Junk user-agent
         /// </summary>
         [Test]
-        public void test_ultimate_deviceDetectHTTPDesktopJunk()
+        public void test24_ultimate_deviceDetectHTTPDesktopJunk()
         {
             HttpRequest request = new HttpRequest(null, "http://localhost", null);
             objHD4 = new HD4(request, ultimateConfig);
@@ -643,7 +643,7 @@ namespace HandsetDetectionAPI
         /// Wii
         /// </summary>
         [Test]
-        public void test_ultimate_deviceDetectHTTPWii()
+        public void test25_ultimate_deviceDetectHTTPWii()
         {
             HttpRequest request = new HttpRequest(null, "http://localhost", null);
             objHD4 = new HD4(request, ultimateConfig);
@@ -665,7 +665,7 @@ namespace HandsetDetectionAPI
         /// iPhone
         /// </summary>
         [Test]
-        public void test_ultimate_deviceDetectHTTP()
+        public void test26_ultimate_deviceDetectHTTP()
         {
             HttpRequest request = new HttpRequest(null, "http://localhost", null);
             objHD4 = new HD4(request, ultimateConfig);
@@ -699,7 +699,7 @@ namespace HandsetDetectionAPI
         /// iPhone - user-agent in random other header
         /// </summary>
         [Test]
-        public void test_ultimate_deviceDetectHTTPOtherHeader()
+        public void test27_ultimate_deviceDetectHTTPOtherHeader()
         {
             HttpRequest request = new HttpRequest(null, "http://localhost", null);
             objHD4 = new HD4(request, ultimateConfig);
@@ -735,7 +735,7 @@ namespace HandsetDetectionAPI
         /// iPhone 3GS (same UA as iPhone 3G, different x-local-hardwareinfo header)
         /// </summary>
         [Test]
-        public void test_ultimate_deviceDetectHTTPHardwareInfo()
+        public void test28_ultimate_deviceDetectHTTPHardwareInfo()
         {
             HttpRequest request = new HttpRequest(null, "http://localhost", null);
             objHD4 = new HD4(request, ultimateConfig);
@@ -773,7 +773,7 @@ namespace HandsetDetectionAPI
         /// iPhone 3G (same UA as iPhone 3GS, different x-local-hardwareinfo header)
         /// </summary>
         [Test]
-        public void test_ultimate_deviceDetectHTTPHardwareInfoB()
+        public void test29_ultimate_deviceDetectHTTPHardwareInfoB()
         {
             HttpRequest request = new HttpRequest(null, "http://localhost", null);
             objHD4 = new HD4(request, ultimateConfig);
@@ -810,7 +810,7 @@ namespace HandsetDetectionAPI
         /// iPhone - Crazy benchmark (eg from emulated desktop) with outdated OS
         /// </summary>
         [Test]
-        public void test_ultimate_deviceDetectHTTPHardwareInfoC()
+        public void test30_ultimate_deviceDetectHTTPHardwareInfoC()
         {
             HttpRequest request = new HttpRequest(null, "http://localhost", null);
             objHD4 = new HD4(request, ultimateConfig);
@@ -847,7 +847,7 @@ namespace HandsetDetectionAPI
         /// iPhone 5s running Facebook 9.0 app (hence no general_browser set).
         /// </summary>
         [Test]
-        public void test_ultimate_deviceDetectHTTPFBiOS()
+        public void test31_ultimate_deviceDetectHTTPFBiOS()
         {
             HttpRequest request = new HttpRequest(null, "http://localhost", null);
             objHD4 = new HD4(request, ultimateConfig);
@@ -890,7 +890,7 @@ namespace HandsetDetectionAPI
         /// Samsung GT-I9500 Native - Note : Device shipped with Android 4.2.2, so this device has been updated.
         /// </summary>
         [Test]
-        public void test_ultimate_deviceDetectBIAndroid()
+        public void test32_ultimate_deviceDetectBIAndroid()
         {
             HttpRequest request = new HttpRequest(null, "http://localhost", null);
             objHD4 = new HD4(request, ultimateConfig);
@@ -948,7 +948,7 @@ namespace HandsetDetectionAPI
         /// iPhone 4S Native
         /// </summary>
         [Test]
-        public void test_ultimate_deviceDetectBIiOS()
+        public void test33_ultimate_deviceDetectBIiOS()
         {
             HttpRequest request = new HttpRequest(null, "http://localhost", null);
             objHD4 = new HD4(request, ultimateConfig);
@@ -978,7 +978,7 @@ namespace HandsetDetectionAPI
         /// Windows Phone Native Nokia Lumia 1020
         /// </summary>
         [Test]
-        public void test_ultimate_deviceDetectWindowsPhone()
+        public void test34_ultimate_deviceDetectWindowsPhone()
         {
             HttpRequest request = new HttpRequest(null, "http://localhost", null);
             objHD4 = new HD4(request, ultimateConfig);
@@ -1019,7 +1019,7 @@ namespace HandsetDetectionAPI
 
 
         [Test]
-        public void test_ultimate_community_fetchArchive()
+        public void test35_ultimate_community_fetchArchive()
         {
 
             HttpRequest request = new HttpRequest(null, "http://localhost", null);
@@ -1040,7 +1040,7 @@ namespace HandsetDetectionAPI
         /// Windows PC running Chrome
         /// </summary>
         [Test]
-        public void test_ultimate_community_deviceDetectHTTPDesktop()
+        public void test36_ultimate_community_deviceDetectHTTPDesktop()
         {
             HttpRequest request = new HttpRequest(null, "http://localhost", null);
             objHD4 = new HD4(request, ultimateConfig);
@@ -1063,7 +1063,7 @@ namespace HandsetDetectionAPI
         /// Junk user-agent
         /// </summary>
         [Test]
-        public void test_ultimate_community_deviceDetectHTTPDesktopJunk()
+        public void test37_ultimate_community_deviceDetectHTTPDesktopJunk()
         {
             HttpRequest request = new HttpRequest(null, "http://localhost", null);
             objHD4 = new HD4(request, ultimateConfig);
@@ -1085,7 +1085,7 @@ namespace HandsetDetectionAPI
         ///  Wii
         /// </summary>
         [Test]
-        public void test_ultimate_community_deviceDetectHTTPWii()
+        public void test38_ultimate_community_deviceDetectHTTPWii()
         {
             HttpRequest request = new HttpRequest(null, "http://localhost", null);
             objHD4 = new HD4(request, ultimateConfig);
@@ -1108,7 +1108,7 @@ namespace HandsetDetectionAPI
         /// iPhone
         /// </summary>
         [Test]
-        public void test_ultimate_community_deviceDetectHTTP()
+        public void test39_ultimate_community_deviceDetectHTTP()
         {
             HttpRequest request = new HttpRequest(null, "http://localhost", null);
             objHD4 = new HD4(request, ultimateConfig);
@@ -1144,7 +1144,7 @@ namespace HandsetDetectionAPI
         /// iPhone - user-agent in random other header
         /// </summary>
         [Test]
-        public void test_ultimate_community_deviceDetectHTTPOtherHeader()
+        public void test40_ultimate_community_deviceDetectHTTPOtherHeader()
         {
             HttpRequest request = new HttpRequest(null, "http://localhost", null);
             objHD4 = new HD4(request, ultimateConfig);
@@ -1182,7 +1182,7 @@ namespace HandsetDetectionAPI
         /// iPhone 3GS (same UA as iPhone 3G, different x-local-hardwareinfo header)
         /// </summary>
         [Test]
-        public void test_ultimate_community_deviceDetectHTTPHardwareInfo()
+        public void test41_ultimate_community_deviceDetectHTTPHardwareInfo()
         {
             HttpRequest request = new HttpRequest(null, "http://localhost", null);
             objHD4 = new HD4(request, ultimateConfig);
@@ -1220,7 +1220,7 @@ namespace HandsetDetectionAPI
         /// iPhone 3G (same UA as iPhone 3GS, different x-local-hardwareinfo header)
         /// </summary>
         [Test]
-        public void test_ultimate_community_deviceDetectHTTPHardwareInfoB()
+        public void test42_ultimate_community_deviceDetectHTTPHardwareInfoB()
         {
             HttpRequest request = new HttpRequest(null, "http://localhost", null);
             objHD4 = new HD4(request, ultimateConfig);
@@ -1256,7 +1256,7 @@ namespace HandsetDetectionAPI
         /// iPhone - Crazy benchmark (eg from emulated desktop) with outdated OS
         /// </summary>
         [Test]
-        public void test_ultimate_community_deviceDetectHTTPHardwareInfoC()
+        public void test43_ultimate_community_deviceDetectHTTPHardwareInfoC()
         {
             HttpRequest request = new HttpRequest(null, "http://localhost", null);
             objHD4 = new HD4(request, ultimateConfig);
@@ -1292,7 +1292,7 @@ namespace HandsetDetectionAPI
         /// iPhone 5s running Facebook 9.0 app (hence no general_browser set).
         /// </summary>
         [Test]
-        public void test_ultimate_community_deviceDetectHTTPFBiOS()
+        public void test44_ultimate_community_deviceDetectHTTPFBiOS()
         {
             HttpRequest request = new HttpRequest(null, "http://localhost", null);
             objHD4 = new HD4(request, ultimateConfig);
@@ -1335,7 +1335,7 @@ namespace HandsetDetectionAPI
         /// Samsung GT-I9500 Native - Note : Device shipped with Android 4.2.2, so this device has been updated.
         /// </summary>
         [Test]
-        public void test_ultimate_community_deviceDetectBIAndroid()
+        public void test45_ultimate_community_deviceDetectBIAndroid()
         {
             Dictionary<string, dynamic> buildInfo = new Dictionary<string, dynamic>();
             buildInfo.Add("ro.build.PDA", "I9500XXUFNE7");
@@ -1390,7 +1390,7 @@ namespace HandsetDetectionAPI
         ///  iPhone 4S Native
         /// </summary>
         [Test]
-        public void test_ultimate_community_deviceDetectBIiOS()
+        public void test46_ultimate_community_deviceDetectBIiOS()
         {
             HttpRequest request = new HttpRequest(null, "http://localhost", null);
             objHD4 = new HD4(request, ultimateConfig);
@@ -1421,7 +1421,7 @@ namespace HandsetDetectionAPI
         /// Windows Phone Native Nokia Lumia 1020
         /// </summary>
         [Test]
-        public void test_ultimate_community_deviceDetectWindowsPhone()
+        public void test47_ultimate_community_deviceDetectWindowsPhone()
         {
             HttpRequest request = new HttpRequest(null, "http://localhost", null);
             objHD4 = new HD4(request, ultimateConfig);
