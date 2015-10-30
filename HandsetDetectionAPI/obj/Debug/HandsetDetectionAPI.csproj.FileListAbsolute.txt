@@ -8,3 +8,12 @@ E:\Official\Projects\dotnetAPIKit4\HandsetDetectionAPIKit4\HandsetDetectionAPI\b
 E:\Official\Projects\dotnetAPIKit4\HandsetDetectionAPIKit4\HandsetDetectionAPI\obj\Debug\HandsetDetectionAPI.csprojResolveAssemblyReference.cache
 E:\Official\Projects\dotnetAPIKit4\HandsetDetectionAPIKit4\HandsetDetectionAPI\obj\Debug\HandsetDetectionAPI.dll
 E:\Official\Projects\dotnetAPIKit4\HandsetDetectionAPIKit4\HandsetDetectionAPI\obj\Debug\HandsetDetectionAPI.pdb
+E:\Projects\dotnetAPIKit4\HandsetDetectionAPI\bin\Debug\HandsetDetectionAPI.dll
+E:\Projects\dotnetAPIKit4\HandsetDetectionAPI\bin\Debug\HandsetDetectionAPI.pdb
+E:\Projects\dotnetAPIKit4\HandsetDetectionAPI\bin\Debug\Ionic.Zip.dll
+E:\Projects\dotnetAPIKit4\HandsetDetectionAPI\bin\Debug\nunit.framework.dll
+E:\Projects\dotnetAPIKit4\HandsetDetectionAPI\bin\Debug\Ionic.Zip.xml
+E:\Projects\dotnetAPIKit4\HandsetDetectionAPI\bin\Debug\nunit.framework.xml
+E:\Projects\dotnetAPIKit4\HandsetDetectionAPI\obj\Debug\HandsetDetectionAPI.dll
+E:\Projects\dotnetAPIKit4\HandsetDetectionAPI\obj\Debug\HandsetDetectionAPI.pdb
+E:\Projects\dotnetAPIKit4\HandsetDetectionAPI\obj\Debug\HandsetDetectionAPI.csprojResolveAssemblyReference.cache

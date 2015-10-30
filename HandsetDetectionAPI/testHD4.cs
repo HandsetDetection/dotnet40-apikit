@@ -1191,7 +1191,7 @@ namespace HandsetDetectionAPI
             var header = new Dictionary<string, dynamic>(){
             {"User-Agent","Mozilla/5.0 (iPhone; U; CPU iPhone OS 4_2_1 like Mac OS X; en-gb) AppleWebKit/533.17.9 (KHTML, like Gecko)"}
             };
-            header.Add("x-fish-header", "320:480:100:100");
+            header.Add("x-local-hardwareinfo", "320:480:100:100");
 
             var result = objHD4.deviceDetect(header);
             var data = objHD4.getReply();
@@ -1370,6 +1370,8 @@ namespace HandsetDetectionAPI
             buildInfo.Add("ro.product.name", "ja3gxx");
             buildInfo.Add("ro.product_ship", "true");
 
+            HttpRequest request = new HttpRequest(null, "http://localhost", null);
+            objHD4 = new HD4(request, ultimateConfig);
 
             var result = objHD4.deviceDetect(buildInfo);
             var reply = objHD4.getReply();
@@ -1384,7 +1386,7 @@ namespace HandsetDetectionAPI
             Assert.AreEqual("GT-I9500", reply["hd_specs"]["general_model"]);
             Assert.AreEqual("Android", reply["hd_specs"]["general_platform"]);
             //Assert.AreEqual("4.4.2", reply["hd_specs"]["general_platform_version"]);
-            Assert.AreEqual("", reply["hd_specs"]["general_aliases"][0]);
+            Assert.AreEqual("", reply["hd_specs"]["general_aliases"]);
         }
 
         /// <summary>

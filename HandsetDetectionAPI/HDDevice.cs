@@ -277,13 +277,23 @@ namespace HandsetDetectionAPI
                             if ((int)props["benchmark"] >= Convert.ToInt32(specs["benchmark_max"]))
                             {
                                 // Above range : Calculate how many steps above range
-                                tmp = (int)Math.Round(Convert.ToDouble((props["benchmark"] - Convert.ToInt32(specs["benchmark_max"])) / steps));
+                                int objbenchmacrk = props["benchmark"];
+                                int sobjbenchmacrk = Convert.ToInt32(specs["benchmark_max"]);
+                                Double objResult = Convert.ToDouble(Convert.ToDouble(objbenchmacrk - sobjbenchmacrk) / steps);
+
+                                tmp = (int)Math.Round(objResult, MidpointRounding.AwayFromZero);
                                 result["benchmark_span"] = (int)10 - (Math.Min(10, Math.Max(0, tmp)));
                             }
                             else if ((int)props["benchmark"] <= Convert.ToInt32(specs["benchmark_min"]))
                             {
                                 // Below range : Calculate how many steps above range
-                                tmp = (int)Math.Round(Convert.ToDouble((Convert.ToInt32(specs["benchmark_min"]) - props["benchmark"]) / steps));
+                                int objbenchmacrk = props["benchmark"];
+                                int sobjbenchmacrk = Convert.ToInt32(specs["benchmark_min"]);
+
+
+                                Double objResult = Convert.ToDouble(Convert.ToDouble(sobjbenchmacrk - objbenchmacrk) / steps);
+
+                                tmp = (int)Math.Round(objResult, MidpointRounding.AwayFromZero);
                                 result["benchmark_span"] = (int)10 - (Math.Min(10, Math.Max(0, tmp)));
                             }
                         }
@@ -546,8 +556,8 @@ namespace HandsetDetectionAPI
         {
             dynamic device = null;
             dynamic platform = null;
-              this.detectedRuleKey = null;
-             reply = new Dictionary<string, dynamic>();
+            this.detectedRuleKey = null;
+            reply = new Dictionary<string, dynamic>();
 
             // Nothing to check		
             if (buildInfo.Count == 0)
@@ -799,12 +809,12 @@ namespace HandsetDetectionAPI
                     // Sort the results
                     //usort($result, array($this, 'hd_sortByScore'));
                     ratingResult = result;
-
-                    var objDevice = this.findById(GetDeviceFromRatingResult(result)["_id"]);
+                    var bestRatedDevice = GetDeviceFromRatingResult(result);
+                    var objDevice = this.findById(bestRatedDevice["_id"]);
                     if (objDevice.Count > 0)
                     {
                         var modelno1 = objDevice["Device"]["hd_specs"]["general_model"];
-                     
+
                         device = objDevice;
                     }
 
@@ -909,13 +919,13 @@ namespace HandsetDetectionAPI
                 }
                 else
                 {
-                    if (item["score"] - bestDevice["score"] > 0)
+                    if (item["score"] > bestDevice["score"])
                     {
                         bestDevice = item;
                     }
                     else if (item["score"] == bestDevice["score"])
                     {
-                        if (item["distance"] - bestDevice["distance"] < 0)
+                        if (item["distance"] < bestDevice["distance"])
                         {
                             bestDevice = item;
                         }
