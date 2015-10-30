@@ -507,7 +507,8 @@ namespace HandsetDetectionAPI
 
             HttpRequest request = new HttpRequest(null, "http://localhost", null);
             objHD4 = new HD4(request, ultimateConfig);
-
+            HDStore Store = HDStore.Instance;
+            Store.purge();
             var result = objHD4.deviceFetchArchive();
             var reply = objHD4.getReply();
 
