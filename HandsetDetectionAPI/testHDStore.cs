@@ -34,7 +34,7 @@ namespace HandsetDetectionAPI
         /// Writes to store & cache
         /// </summary>
         [Test]
-        public void testReadWrite()
+        public void test50_ReadWrite()
         {
             string key = "storeKey" + DateTime.Now.Ticks;
             Store.write(key, testData);
@@ -56,7 +56,7 @@ namespace HandsetDetectionAPI
         ///  Writes to store & not cache
         /// </summary>
         [Test]
-        public void testStoreFetch()
+        public void test51_StoreFetch()
         {
             string key = "storeKey2" + DateTime.Now.Ticks;
             Store.store(key, testData);
@@ -75,7 +75,7 @@ namespace HandsetDetectionAPI
         ///  Test purge
         /// </summary>
         [Test]
-        public void testPurge()
+        public void test52_Purge()
         {
             var lstFiles = Directory.GetFiles(Store.StoreDirectory, "*.json");
             Assert.IsNotEmpty(lstFiles);
@@ -88,7 +88,7 @@ namespace HandsetDetectionAPI
         /// Reads all devices from Disk (Keys need to be in Device*json format)
         /// </summary>
         [Test]
-        public void testFetchDevices()
+        public void test53_FetchDevices()
         {
             string key = "Device" + DateTime.Now.Ticks;
             Store.store(key, testData);
@@ -102,7 +102,7 @@ namespace HandsetDetectionAPI
         /// Moves a file from disk into store (vanishes from previous location).
         /// </summary>
         [Test]
-        public void testMoveIn()
+        public void test54_MoveIn()
         {
             var jsonString = jss.Serialize(testData);
             string filesuffix = DateTime.Now.Ticks.ToString();
@@ -129,7 +129,7 @@ namespace HandsetDetectionAPI
         /// Test singleton'ship
         /// </summary>
         [Test]
-        public void testSingleton()
+        public void test55_Singleton()
         {
             var store1 = HDStore.Instance;
             var store2 = HDStore.Instance;

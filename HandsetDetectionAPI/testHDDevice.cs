@@ -45,27 +45,28 @@ namespace HandsetDetectionAPI
         /// <summary>
         ///  Remove community edition
         /// </summary>
-        public void tearDownAfterClass()
+       [Test]
+        public void test57_tearDownAfterClass()
         {
             Store = HDStore.Instance;
             Store.purge();
         }
 
         [Test]
-        public void testIsHelperUsefulTrue()
+        public void test55_IsHelperUsefulTrue()
         {
             Device = new HDDevice();
-            Store.setPath("E://APIData");
+            Store.setPath("C://APIData");
           
             var result = Device.isHelperUseful(headers);
             Assert.IsTrue(result);
         }
 
         [Test]
-        public void testIsHelperUsefulFalse()
+        public void test56_IsHelperUsefulFalse()
         {
             Device = new HDDevice();
-            Store.setPath("E://APIData");
+            Store.setPath("C://APIData");
             headers["User-Agent"] = "Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/41.0.2228.0 Safari/537.36";
             var result = Device.isHelperUseful(headers);
             Assert.IsFalse(result);

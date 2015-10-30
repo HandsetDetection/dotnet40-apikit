@@ -27,7 +27,7 @@ namespace HandsetDetectionAPI
         }
 
         [Test]
-        public void testA()
+        public void test48_A()
         {
             string key = DateTime.Now.Ticks.ToString();
             objCache.write(key, testData);
@@ -38,7 +38,7 @@ namespace HandsetDetectionAPI
         }
 
         [Test]
-        public void testVolume()
+        public void test49_Volume()
         {
             string key = "";
 
