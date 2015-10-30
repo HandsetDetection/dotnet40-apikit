@@ -523,7 +523,7 @@ namespace HandsetDetectionAPI
         {
             HttpRequest request = new HttpRequest(null, "http://localhost", null);
             objHD4 = new HD4(request, ultimateConfig);
-            
+
 
             var result = objHD4.deviceVendors();
             var reply = objHD4.getReply();
@@ -1025,7 +1025,7 @@ namespace HandsetDetectionAPI
             HttpRequest request = new HttpRequest(null, "http://localhost", null);
             objHD4 = new HD4(request, ultimateConfig);
             HDStore Store = HDStore.Instance;
-
+            Store.purge();
             objHD4.isDownloadableFiles = true;
             var result = objHD4.communityFetchArchive();
             var data = objHD4.getReply();
