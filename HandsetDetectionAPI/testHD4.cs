@@ -42,7 +42,7 @@ namespace HandsetDetectionAPI
         /// test for config file .. required for all cloud tests
         /// </summary>
         [Test]
-        public void test1_cloudConfigExists()
+        public void test01_cloudConfigExists()
         {
             string ApplicationPath = AppDomain.CurrentDomain.BaseDirectory;
             if (ApplicationPath.IndexOf("\\bin") >= 0)
@@ -57,7 +57,7 @@ namespace HandsetDetectionAPI
         /// device vendors test
         /// </summary>
         [Test]
-        public void test2_deviceVendors()
+        public void test02_deviceVendors()
         {
             var result = objHD4.deviceVendors();
             var reply = objHD4.getReply();
@@ -73,7 +73,7 @@ namespace HandsetDetectionAPI
         /// device Models test
         /// </summary>
         [Test]
-        public void test3_deviceModels()
+        public void test03_deviceModels()
         {
             var result = objHD4.deviceModels("Nokia");
             var reply = objHD4.getReply();
@@ -88,7 +88,7 @@ namespace HandsetDetectionAPI
         /// device view test
         /// </summary>
         [Test]
-        public void test4_deviceView()
+        public void test04_deviceView()
         {
             var result = objHD4.deviceView("Nokia", "N95");
             var reply = objHD4.getReply();
@@ -102,7 +102,7 @@ namespace HandsetDetectionAPI
         /// device whatHas test
         /// </summary>
         [Test]
-        public void test5_deviceDeviceWhatHas()
+        public void test05_deviceDeviceWhatHas()
         {
             var result = objHD4.deviceWhatHas("design_dimensions", "101 x 44 x 16");
             var reply = objHD4.getReply();
@@ -125,7 +125,7 @@ namespace HandsetDetectionAPI
         /// Detection test Windows PC running Chrome
         /// </summary>
         [Test]
-        public void test6_deviceDetectHTTPDesktop()
+        public void test06_deviceDetectHTTPDesktop()
         {
             var header = new Dictionary<string, dynamic>(){
             {"User-Agent","Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/41.0.2228.0 Safari/537.36"}
@@ -142,7 +142,7 @@ namespace HandsetDetectionAPI
         /// Detection test Junk user-agent
         /// </summary>
         [Test]
-        public void test7_deviceDetectHTTPDesktopJunk()
+        public void test07_deviceDetectHTTPDesktopJunk()
         {
             var header = new Dictionary<string, dynamic>(){
             {
@@ -160,7 +160,7 @@ namespace HandsetDetectionAPI
         ///  Detection test Wii
         /// </summary>
         [Test]
-        public void test8_deviceDetectHTTPWii()
+        public void test08_deviceDetectHTTPWii()
         {
             var header = new Dictionary<string, dynamic>(){
             {"User-Agent","Opera/9.30 (Nintendo Wii; U; ; 2047-7; es-Es)"}
@@ -178,7 +178,7 @@ namespace HandsetDetectionAPI
         /// Detection test iPhone
         /// </summary>
         [Test]
-        public void test9_deviceDetectHTTP()
+        public void test09_deviceDetectHTTP()
         {
             var header = new Dictionary<string, dynamic>(){
             {"User-Agent","Mozilla/5.0 (iPhone; U; CPU iPhone OS 4_3 like Mac OS X; en-gb) AppleWebKit/533.17.9 (KHTML, like Gecko)"}
@@ -1311,7 +1311,7 @@ namespace HandsetDetectionAPI
             Assert.AreEqual("", data["hd_specs"]["general_type"]);
 
             Assert.AreEqual("Apple", data["hd_specs"]["general_vendor"]);
-            Assert.AreEqual("iPhone 5s", data["hd_specs"]["general_model"]);
+            Assert.AreEqual("iPhone 5S", data["hd_specs"]["general_model"]);
             Assert.AreEqual("iOS", data["hd_specs"]["general_platform"]);
             Assert.AreEqual("7.1.1", data["hd_specs"]["general_platform_version"]);
             Assert.AreEqual("da", data["hd_specs"]["general_language"]);
