@@ -7,22 +7,22 @@ using System.Threading.Tasks;
 
 namespace HandsetDetectionAPI
 {
-    public class testHDCache
+    public class TestHdCache
     {
-        private HDCache objCache;
+        private HdCache _objCache;
 
-        Dictionary<string, dynamic> testData = new Dictionary<string, dynamic>();
+        Dictionary<string, dynamic> _testData = new Dictionary<string, dynamic>();
 
         [SetUp]
-        public void testSetupData()
+        public void TestSetupData()
         {
-            objCache = new HDCache();
-            if (testData.Count == 0)
+            _objCache = new HdCache();
+            if (_testData.Count == 0)
             {
-                testData.Add("roses", "red");
-                testData.Add("fish", "blue");
-                testData.Add("sugar", "sweet");
-                testData.Add("number", "4");
+                _testData.Add("roses", "red");
+                _testData.Add("fish", "blue");
+                _testData.Add("sugar", "sweet");
+                _testData.Add("number", "4");
             }
         }
 
@@ -30,11 +30,11 @@ namespace HandsetDetectionAPI
         public void test48_A()
         {
             string key = DateTime.Now.Ticks.ToString();
-            objCache.write(key, testData);
+            _objCache.Write(key, _testData);
 
-            var reply = objCache.read(key);
+            var reply = _objCache.Read(key);
 
-            Assert.AreEqual(testData, reply);
+            Assert.AreEqual(_testData, reply);
         }
 
         [Test]
@@ -46,14 +46,14 @@ namespace HandsetDetectionAPI
             for (int i = 0; i < 10000; i++)
             {
                 key = string.Format("test{0}_{1}", DateTime.Now.Ticks, i);
-                objCache.write(key, testData);
+                _objCache.Write(key, _testData);
                 lstkeys.Add(key);
             }
 
             foreach (var objKey in lstkeys)
             {
-                var reply = objCache.read(objKey);
-                Assert.AreEqual(reply, testData);
+                var reply = _objCache.Read(objKey);
+                Assert.AreEqual(reply, _testData);
             }
         }
     }

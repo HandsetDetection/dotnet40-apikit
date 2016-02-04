@@ -55,7 +55,7 @@ namespace Web
             {
                 Response.Write("File error: " + ex.Message);
             }
-            var objHd = new HD4(Request);
+            var objHd = new Hd4(Request);
 
             FlyThrough(objHd);
             lblTotDetect.Text = TotalCount.ToString();
@@ -63,7 +63,7 @@ namespace Web
             lblDetectPerSec.Text = ((Convert.ToDouble(TotalCount) * 1000) / TotalMilliSec).ToString(CultureInfo.InvariantCulture);
         }
 
-        public void FlyThrough(HD4 objHd)
+        public void FlyThrough(Hd4 objHd)
         {
             var deviceModelList = new List<DeviceModel>();
             TotalCount = 1;
@@ -72,7 +72,7 @@ namespace Web
             stopwatch.Start();
             foreach (var header in _headers)
             {
-                var result = objHd.deviceDetect(header);
+                var result = objHd.DeviceDetect(header);
                 TotalCount++;
 
             }

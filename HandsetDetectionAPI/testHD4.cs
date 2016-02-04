@@ -12,27 +12,26 @@ using System.Web.Script.Serialization;
 namespace HandsetDetectionAPI
 {
     [TestFixture]
-    public class testHD4
+    public class TestHd4
     {
-        private HD4 objHD4;
-        string cloudConfig = "/hdCloudConfig.json"; //Cloud Config Name
-        string ultimateConfig = "/hdUltimateConfig.json"; // Ultimate Config Name
-        JavaScriptSerializer jss = new JavaScriptSerializer();
+        private Hd4 _objHd4;
+        string _cloudConfig = "/hdCloudConfig.json"; //Cloud Config Name
+        string _ultimateConfig = "/hdUltimateConfig.json"; // Ultimate Config Name
+        JavaScriptSerializer _jss = new JavaScriptSerializer { MaxJsonLength = Hd4.MaxJsonLength };
 
-        Dictionary<string, dynamic> devices = new Dictionary<string, dynamic>();
+        Dictionary<string, dynamic> _devices = new Dictionary<string, dynamic>();
 
         [SetUp]
         public void test0_initialSetup()
         {
 
             HttpRequest request = new HttpRequest(null, "http://localhost", null);
-            objHD4 = new HD4(request, cloudConfig);
-            jss.MaxJsonLength = objHD4.maxJsonLength;
+            _objHd4 = new Hd4(request, _cloudConfig);
 
-            if (!devices.ContainsKey("NokiaN95"))
+            if (!_devices.ContainsKey("NokiaN95"))
             {
                 string noikaN95JsonText = "{\"general_vendor\":\"Nokia\",\"general_model\":\"N95\",\"general_platform\":\"Symbian\",\"general_platform_version\":\"9.2\",\"general_browser\":\"\",\"general_browser_version\":\"\",\"general_image\":\"nokian95-1403496370-0.gif\",\"general_aliases\":[],\"general_eusar\":\"0.50\",\"general_battery\":[\"Li-Ion 950 mAh\",\"BL-5F\"],\"general_type\":\"Mobile\",\"general_cpu\":[\"Dual ARM 11\",\"332MHz\"],\"design_formfactor\":\"Dual Slide\",\"design_dimensions\":\"99 x 53 x 21\",\"design_weight\":\"120\",\"design_antenna\":\"Internal\",\"design_keyboard\":\"Numeric\",\"design_softkeys\":\"2\",\"design_sidekeys\":[\"Volume\",\"Camera\"],\"display_type\":\"TFT\",\"display_color\":\"Yes\",\"display_colors\":\"16M\",\"display_size\":\"2.6\\\"\",\"display_x\":\"240\",\"display_y\":\"320\",\"display_other\":[],\"memory_internal\":[\"160MB\",\"64MB RAM\",\"256MB ROM\"],\"memory_slot\":[\"microSD\",\"8GB\",\"128MB\"],\"network\":[\"GSM850\",\"GSM900\",\"GSM1800\",\"GSM1900\",\"UMTS2100\",\"HSDPA2100\",\"Infrared\",\"Bluetooth 2.0\",\"802.11b\",\"802.11g\",\"GPRS Class 10\",\"EDGE Class 32\"],\"media_camera\":[\"5MP\",\"2592x1944\"],\"media_secondcamera\":[\"QVGA\"],\"media_videocapture\":[\"VGA@30fps\"],\"media_videoplayback\":[\"MPEG4\",\"H.263\",\"H.264\",\"3GPP\",\"RealVideo 8\",\"RealVideo 9\",\"RealVideo 10\"],\"media_audio\":[\"MP3\",\"AAC\",\"AAC+\",\"eAAC+\",\"WMA\"],\"media_other\":[\"Auto focus\",\"Video stabilizer\",\"Video calling\",\"Carl Zeiss optics\",\"LED Flash\"],\"features\":[\"Unlimited entries\",\"Multiple numbers per contact\",\"Picture ID\",\"Ring ID\",\"Calendar\",\"Alarm\",\"To-Do\",\"Document viewer\",\"Calculator\",\"Notes\",\"UPnP\",\"Computer sync\",\"VoIP\",\"Music ringtones (MP3)\",\"Vibration\",\"Phone profiles\",\"Speakerphone\",\"Accelerometer\",\"Voice dialing\",\"Voice commands\",\"Voice recording\",\"Push-to-Talk\",\"SMS\",\"MMS\",\"Email\",\"Instant Messaging\",\"Stereo FM radio\",\"Visual radio\",\"Dual slide design\",\"Organizer\",\"Word viewer\",\"Excel viewer\",\"PowerPoint viewer\",\"PDF viewer\",\"Predictive text input\",\"Push to talk\",\"Voice memo\",\"Games\"],\"connectors\":[\"USB\",\"MiniUSB\",\"3.5mm Audio\",\"TV Out\"],\"general_platform_version_max\":\"\",\"general_app\":\"\",\"general_app_version\":\"\",\"general_language\":\"\",\"display_ppi\":154,\"display_pixel_ratio\":\"1.0\",\"benchmark_min\":0,\"benchmark_max\":0,\"general_app_category\":\"\"}";
-                devices.Add("NokiaN95", jss.Deserialize<Dictionary<string, dynamic>>(noikaN95JsonText));
+                _devices.Add("NokiaN95", _jss.Deserialize<Dictionary<string, dynamic>>(noikaN95JsonText));
             }
 
         }
@@ -44,13 +43,13 @@ namespace HandsetDetectionAPI
         [Test]
         public void test01_cloudConfigExists()
         {
-            string ApplicationPath = AppDomain.CurrentDomain.BaseDirectory;
-            if (ApplicationPath.IndexOf("\\bin") >= 0)
+            string applicationPath = AppDomain.CurrentDomain.BaseDirectory;
+            if (applicationPath.IndexOf("\\bin", StringComparison.Ordinal) >= 0)
             {
-                ApplicationPath = ApplicationPath.Substring(0, ApplicationPath.IndexOf("\\bin"));
+                applicationPath = applicationPath.Substring(0, applicationPath.IndexOf("\\bin", StringComparison.Ordinal));
             }
-            bool IsFileExist = File.Exists(ApplicationPath + "/" + cloudConfig);
-            Assert.AreEqual(IsFileExist, true);
+            bool isFileExist = File.Exists(applicationPath + "/" + _cloudConfig);
+            Assert.AreEqual(isFileExist, true);
         }
 
         /// <summary>
@@ -59,8 +58,8 @@ namespace HandsetDetectionAPI
         [Test]
         public void test02_deviceVendors()
         {
-            var result = objHD4.deviceVendors();
-            var reply = objHD4.getReply();
+            bool result = _objHd4.DeviceVendors();
+            Dictionary<string, dynamic> reply = _objHd4.GetReply();
 
             Assert.IsTrue(result);
             Assert.AreEqual(0, reply["status"]);
@@ -75,8 +74,8 @@ namespace HandsetDetectionAPI
         [Test]
         public void test03_deviceModels()
         {
-            var result = objHD4.deviceModels("Nokia");
-            var reply = objHD4.getReply();
+            bool result = _objHd4.DeviceModels("Nokia");
+            Dictionary<string, dynamic> reply = _objHd4.GetReply();
             Assert.IsTrue(result);
             Assert.AreEqual(0, reply["status"]);
             Assert.AreEqual("OK", reply["message"]);
@@ -90,12 +89,12 @@ namespace HandsetDetectionAPI
         [Test]
         public void test04_deviceView()
         {
-            var result = objHD4.deviceView("Nokia", "N95");
-            var reply = objHD4.getReply();
+            bool result = _objHd4.DeviceView("Nokia", "N95");
+            Dictionary<string, dynamic> reply = _objHd4.GetReply();
             Assert.IsTrue(result);
             Assert.AreEqual(0, reply["status"]);
             Assert.AreEqual("OK", reply["message"]);
-            Assert.AreEqual(jss.Serialize(devices["NokiaN95"]), jss.Serialize(reply["device"]));
+            Assert.AreEqual(_jss.Serialize(_devices["NokiaN95"]), _jss.Serialize(reply["device"]));
         }
 
         /// <summary>
@@ -104,14 +103,14 @@ namespace HandsetDetectionAPI
         [Test]
         public void test05_deviceDeviceWhatHas()
         {
-            var result = objHD4.deviceWhatHas("design_dimensions", "101 x 44 x 16");
-            var reply = objHD4.getReply();
+            bool result = _objHd4.DeviceWhatHas("design_dimensions", "101 x 44 x 16");
+            Dictionary<string, dynamic> reply = _objHd4.GetReply();
 
             Assert.IsTrue(result);
             Assert.AreEqual(0, reply["status"]);
             Assert.AreEqual("OK", reply["message"]);
 
-            var jsonString = jss.Serialize(reply["devices"]);
+            dynamic jsonString = _jss.Serialize(reply["devices"]);
 
             Assert.AreEqual(true, Regex.IsMatch(jsonString, "Asus"));
             Assert.AreEqual(true, Regex.IsMatch(jsonString, "V80"));
@@ -127,11 +126,11 @@ namespace HandsetDetectionAPI
         [Test]
         public void test06_deviceDetectHTTPDesktop()
         {
-            var header = new Dictionary<string, dynamic>(){
+            Dictionary<string, dynamic> header = new Dictionary<string, dynamic>(){
             {"User-Agent","Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/41.0.2228.0 Safari/537.36"}
             };
-            var result = objHD4.deviceDetect(header);
-            var reply = objHD4.getReply();
+            bool result = _objHd4.DeviceDetect(header);
+            Dictionary<string, dynamic> reply = _objHd4.GetReply();
             Assert.IsTrue(result);
             Assert.AreEqual(0, reply["status"]);
             Assert.AreEqual("OK", reply["message"]);
@@ -144,12 +143,12 @@ namespace HandsetDetectionAPI
         [Test]
         public void test07_deviceDetectHTTPDesktopJunk()
         {
-            var header = new Dictionary<string, dynamic>(){
+            Dictionary<string, dynamic> header = new Dictionary<string, dynamic>(){
             {
                 "User-Agent","aksjakdjkjdaiwdidjkjdkawjdijwidawjdiajwdkawdjiwjdiawjdwidjwakdjajdkad"}
             };
-            var result = objHD4.deviceDetect(header);
-            var reply = objHD4.getReply();
+            bool result = _objHd4.DeviceDetect(header);
+            Dictionary<string, dynamic> reply = _objHd4.GetReply();
             Assert.IsFalse(result);
             Assert.AreEqual(301, reply["status"]);
             Assert.AreEqual("Not Found", reply["message"]);
@@ -162,12 +161,12 @@ namespace HandsetDetectionAPI
         [Test]
         public void test08_deviceDetectHTTPWii()
         {
-            var header = new Dictionary<string, dynamic>(){
+            Dictionary<string, dynamic> header = new Dictionary<string, dynamic>(){
             {"User-Agent","Opera/9.30 (Nintendo Wii; U; ; 2047-7; es-Es)"}
             
             };
-            var result = objHD4.deviceDetect(header);
-            var reply = objHD4.getReply();
+            bool result = _objHd4.DeviceDetect(header);
+            Dictionary<string, dynamic> reply = _objHd4.GetReply();
             Assert.IsTrue(result);
             Assert.AreEqual(0, reply["status"]);
             Assert.AreEqual("OK", reply["message"]);
@@ -180,11 +179,11 @@ namespace HandsetDetectionAPI
         [Test]
         public void test09_deviceDetectHTTP()
         {
-            var header = new Dictionary<string, dynamic>(){
+            Dictionary<string, dynamic> header = new Dictionary<string, dynamic>(){
             {"User-Agent","Mozilla/5.0 (iPhone; U; CPU iPhone OS 4_3 like Mac OS X; en-gb) AppleWebKit/533.17.9 (KHTML, like Gecko)"}
             };
-            var result = objHD4.deviceDetect(header);
-            var reply = objHD4.getReply();
+            bool result = _objHd4.DeviceDetect(header);
+            Dictionary<string, dynamic> reply = _objHd4.GetReply();
 
             Assert.IsTrue(result);
             Assert.AreEqual(0, reply["status"]);
@@ -211,13 +210,13 @@ namespace HandsetDetectionAPI
         [Test]
         public void test10_deviceDetectHTTPOtherHeader()
         {
-            var header = new Dictionary<string, dynamic>(){
+            Dictionary<string, dynamic> header = new Dictionary<string, dynamic>(){
             {"User-Agent","blahblahblah"}
             };
             header.Add("x-fish-header", "Mozilla/5.0 (iPhone; U; CPU iPhone OS 4_3 like Mac OS X; en-gb) AppleWebKit/533.17.9 (KHTML, like Gecko)");
 
-            var result = objHD4.deviceDetect(header);
-            var reply = objHD4.getReply();
+            bool result = _objHd4.DeviceDetect(header);
+            Dictionary<string, dynamic> reply = _objHd4.GetReply();
 
             Assert.IsTrue(result);
             Assert.AreEqual(0, reply["status"]);
@@ -244,13 +243,13 @@ namespace HandsetDetectionAPI
         [Test]
         public void test11_deviceDetectHTTPHardwareInfo()
         {
-            var header = new Dictionary<string, dynamic>(){
+            Dictionary<string, dynamic> header = new Dictionary<string, dynamic>(){
             {"User-Agent","Mozilla/5.0 (iPhone; U; CPU iPhone OS 4_2_1 like Mac OS X; en-gb) AppleWebKit/533.17.9 (KHTML, like Gecko)"}
             };
             header.Add("x-local-hardwareinfo", "320:480:100:100");
 
-            var result = objHD4.deviceDetect(header);
-            var reply = objHD4.getReply();
+            bool result = _objHd4.DeviceDetect(header);
+            Dictionary<string, dynamic> reply = _objHd4.GetReply();
 
 
             Assert.IsTrue(result);
@@ -279,13 +278,13 @@ namespace HandsetDetectionAPI
         [Test]
         public void test12_deviceDetectHTTPHardwareInfoB()
         {
-            var header = new Dictionary<string, dynamic>(){
+            Dictionary<string, dynamic> header = new Dictionary<string, dynamic>(){
             {"User-Agent","Mozilla/5.0 (iPhone; U; CPU iPhone OS 4_2_1 like Mac OS X; en-gb) AppleWebKit/533.17.9 (KHTML, like Gecko)"}
             };
             header.Add("x-local-hardwareinfo", "320:480:100:72");
 
-            var result = objHD4.deviceDetect(header);
-            var reply = objHD4.getReply();
+            bool result = _objHd4.DeviceDetect(header);
+            Dictionary<string, dynamic> reply = _objHd4.GetReply();
 
 
             Assert.IsTrue(result);
@@ -313,13 +312,13 @@ namespace HandsetDetectionAPI
         [Test]
         public void test13_deviceDetectHTTPHardwareInfoC()
         {
-            var header = new Dictionary<string, dynamic>(){
+            Dictionary<string, dynamic> header = new Dictionary<string, dynamic>(){
             {"User-Agent","Mozilla/5.0 (iPhone; U; CPU iPhone OS 2_0 like Mac OS X; en-gb) AppleWebKit/533.17.9 (KHTML, like Gecko)"}
             };
             header.Add("x-local-hardwareinfo", "320:480:200:1200");
 
-            var result = objHD4.deviceDetect(header);
-            var reply = objHD4.getReply();
+            bool result = _objHd4.DeviceDetect(header);
+            Dictionary<string, dynamic> reply = _objHd4.GetReply();
 
 
             Assert.IsTrue(result);
@@ -347,13 +346,13 @@ namespace HandsetDetectionAPI
         [Test]
         public void test14_deviceDetectHTTPFBiOS()
         {
-            var header = new Dictionary<string, dynamic>(){
+            Dictionary<string, dynamic> header = new Dictionary<string, dynamic>(){
             {"User-Agent","Mozilla/5.0 (iPhone; CPU iPhone OS 7_1_1 like Mac OS X) AppleWebKit/537.51.2 (KHTML, like Gecko) Mobile/11D201 [FBAN/FBIOS;FBAV/9.0.0.25.31;FBBV/2102024;FBDV/iPhone6,2;FBMD/iPhone;FBSN/iPhone OS;FBSV/7.1.1;FBSS/2; FBCR/vodafoneIE;FBID/phone;FBLC/en_US;FBOP/5]"}
             };
             header.Add("Accept-Language", "da, en-gb;q=0.8, en;q=0.7");
 
-            var result = objHD4.deviceDetect(header);
-            var reply = objHD4.getReply();
+            bool result = _objHd4.DeviceDetect(header);
+            Dictionary<string, dynamic> reply = _objHd4.GetReply();
 
 
             Assert.IsTrue(result);
@@ -420,8 +419,8 @@ namespace HandsetDetectionAPI
             buildInfo.Add("ro.product_ship", "true");
 
 
-            var result = objHD4.deviceDetect(buildInfo);
-            var reply = objHD4.getReply();
+            bool result = _objHd4.DeviceDetect(buildInfo);
+            Dictionary<string, dynamic> reply = _objHd4.GetReply();
 
             Assert.IsTrue(result);
             Assert.AreEqual(0, reply["status"]);
@@ -446,8 +445,8 @@ namespace HandsetDetectionAPI
             buildInfo.Add("utsname.machine", "iphone4,1");
             buildInfo.Add("utsname.brand", "Apple");
 
-            var result = objHD4.deviceDetect(buildInfo);
-            var reply = objHD4.getReply();
+            bool result = _objHd4.DeviceDetect(buildInfo);
+            Dictionary<string, dynamic> reply = _objHd4.GetReply();
 
 
             Assert.IsTrue(result);
@@ -474,8 +473,8 @@ namespace HandsetDetectionAPI
             buildInfo.Add("devicemanufacturer", "nokia");
             buildInfo.Add("devicename", "RM-875");
 
-            var result = objHD4.deviceDetect(buildInfo);
-            var reply = objHD4.getReply();
+            bool result = _objHd4.DeviceDetect(buildInfo);
+            Dictionary<string, dynamic> reply = _objHd4.GetReply();
 
 
             Assert.IsTrue(result);
@@ -506,11 +505,11 @@ namespace HandsetDetectionAPI
             // Note : request storage dir to be created if it does not exist. (with TRUE as 2nd param)
 
             HttpRequest request = new HttpRequest(null, "http://localhost", null);
-            objHD4 = new HD4(request, ultimateConfig);
-            HDStore Store = HDStore.Instance;
-            Store.purge();
-            var result = objHD4.deviceFetchArchive();
-            var reply = objHD4.getReply();
+            _objHd4 = new Hd4(request, _ultimateConfig);
+            HdStore store = HdStore.Instance;
+            store.Purge();
+            dynamic result = _objHd4.DeviceFetchArchive();
+            Dictionary<string, dynamic> reply = _objHd4.GetReply();
 
             Assert.IsTrue(result);
             //TODO: to get no. bytes
@@ -523,11 +522,11 @@ namespace HandsetDetectionAPI
         public void test19_ultimate_deviceVendors()
         {
             HttpRequest request = new HttpRequest(null, "http://localhost", null);
-            objHD4 = new HD4(request, ultimateConfig);
+            _objHd4 = new Hd4(request, _ultimateConfig);
 
 
-            var result = objHD4.deviceVendors();
-            var reply = objHD4.getReply();
+            bool result = _objHd4.DeviceVendors();
+            Dictionary<string, dynamic> reply = _objHd4.GetReply();
 
             Assert.IsTrue(result);
             Assert.AreEqual(0, reply["status"]);
@@ -543,10 +542,10 @@ namespace HandsetDetectionAPI
         public void test20_ultimate_deviceModels()
         {
             HttpRequest request = new HttpRequest(null, "http://localhost", null);
-            objHD4 = new HD4(request, ultimateConfig);
+            _objHd4 = new Hd4(request, _ultimateConfig);
 
-            var result = objHD4.deviceModels("Nokia");
-            var reply = objHD4.getReply();
+            bool result = _objHd4.DeviceModels("Nokia");
+            Dictionary<string, dynamic> reply = _objHd4.GetReply();
 
             Assert.IsTrue(result);
             Assert.AreEqual(0, reply["status"]);
@@ -562,15 +561,15 @@ namespace HandsetDetectionAPI
         public void test21_ultimate_deviceView()
         {
             HttpRequest request = new HttpRequest(null, "http://localhost", null);
-            objHD4 = new HD4(request, ultimateConfig);
+            _objHd4 = new Hd4(request, _ultimateConfig);
 
-            var result = objHD4.deviceView("Nokia", "N95");
-            var reply = objHD4.getReply();
+            bool result = _objHd4.DeviceView("Nokia", "N95");
+            Dictionary<string, dynamic> reply = _objHd4.GetReply();
 
             Assert.IsTrue(result);
             Assert.AreEqual(0, reply["status"]);
             Assert.AreEqual("OK", reply["message"]);
-            Assert.AreEqual(jss.Serialize(devices["NokiaN95"]), jss.Serialize(reply["device"]));
+            Assert.AreEqual(_jss.Serialize(_devices["NokiaN95"]), _jss.Serialize(reply["device"]));
 
         }
 
@@ -581,16 +580,16 @@ namespace HandsetDetectionAPI
         public void test22_ultimate_deviceDeviceWhatHas()
         {
             HttpRequest request = new HttpRequest(null, "http://localhost", null);
-            objHD4 = new HD4(request, ultimateConfig);
+            _objHd4 = new Hd4(request, _ultimateConfig);
 
-            var result = objHD4.deviceWhatHas("design_dimensions", "101 x 44 x 16");
-            var reply = objHD4.getReply();
+            bool result = _objHd4.DeviceWhatHas("design_dimensions", "101 x 44 x 16");
+            Dictionary<string, dynamic> reply = _objHd4.GetReply();
 
             Assert.IsTrue(result);
             Assert.AreEqual(0, reply["status"]);
             Assert.AreEqual("OK", reply["message"]);
 
-            var jsonString = jss.Serialize(reply["devices"]);
+            dynamic jsonString = _jss.Serialize(reply["devices"]);
 
             Assert.AreEqual(true, Regex.IsMatch(jsonString, "Asus"));
             Assert.AreEqual(true, Regex.IsMatch(jsonString, "V80"));
@@ -607,13 +606,13 @@ namespace HandsetDetectionAPI
         public void test23_ultimate_deviceDetectHTTPDesktop()
         {
             HttpRequest request = new HttpRequest(null, "http://localhost", null);
-            objHD4 = new HD4(request, ultimateConfig);
+            _objHd4 = new Hd4(request, _ultimateConfig);
 
-            var header = new Dictionary<string, dynamic>(){
+            Dictionary<string, dynamic> header = new Dictionary<string, dynamic>(){
             {"User-Agent","Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/41.0.2228.0 Safari/537.36"}
             };
-            var result = objHD4.deviceDetect(header);
-            var reply = objHD4.getReply();
+            bool result = _objHd4.DeviceDetect(header);
+            Dictionary<string, dynamic> reply = _objHd4.GetReply();
             Assert.IsTrue(result);
             Assert.AreEqual(0, reply["status"]);
             Assert.AreEqual("OK", reply["message"]);
@@ -627,14 +626,14 @@ namespace HandsetDetectionAPI
         public void test24_ultimate_deviceDetectHTTPDesktopJunk()
         {
             HttpRequest request = new HttpRequest(null, "http://localhost", null);
-            objHD4 = new HD4(request, ultimateConfig);
+            _objHd4 = new Hd4(request, _ultimateConfig);
 
-            var header = new Dictionary<string, dynamic>(){
+            Dictionary<string, dynamic> header = new Dictionary<string, dynamic>(){
             {"User-Agent","aksjakdjkjdaiwdidjkjdkawjdijwidawjdiajwdkawdjiwjdiawjdwidjwakdjajdkad"}
             
             };
-            var result = objHD4.deviceDetect(header);
-            var reply = objHD4.getReply();
+            bool result = _objHd4.DeviceDetect(header);
+            Dictionary<string, dynamic> reply = _objHd4.GetReply();
             Assert.IsFalse(result);
             Assert.AreEqual(301, reply["status"]);
             Assert.AreEqual("Not Found", reply["message"]);
@@ -647,14 +646,14 @@ namespace HandsetDetectionAPI
         public void test25_ultimate_deviceDetectHTTPWii()
         {
             HttpRequest request = new HttpRequest(null, "http://localhost", null);
-            objHD4 = new HD4(request, ultimateConfig);
+            _objHd4 = new Hd4(request, _ultimateConfig);
 
-            var header = new Dictionary<string, dynamic>(){
+            Dictionary<string, dynamic> header = new Dictionary<string, dynamic>(){
             {"User-Agent","Opera/9.30 (Nintendo Wii; U; ; 2047-7; es-Es)"}
             };
 
-            var result = objHD4.deviceDetect(header);
-            var reply = objHD4.getReply();
+            bool result = _objHd4.DeviceDetect(header);
+            Dictionary<string, dynamic> reply = _objHd4.GetReply();
 
             Assert.IsTrue(result);
             Assert.AreEqual(0, reply["status"]);
@@ -669,13 +668,13 @@ namespace HandsetDetectionAPI
         public void test26_ultimate_deviceDetectHTTP()
         {
             HttpRequest request = new HttpRequest(null, "http://localhost", null);
-            objHD4 = new HD4(request, ultimateConfig);
+            _objHd4 = new Hd4(request, _ultimateConfig);
 
-            var header = new Dictionary<string, dynamic>(){
+            Dictionary<string, dynamic> header = new Dictionary<string, dynamic>(){
             {"User-Agent","Mozilla/5.0 (iPhone; U; CPU iPhone OS 4_3 like Mac OS X; en-gb) AppleWebKit/533.17.9 (KHTML, like Gecko)"}
             };
-            var result = objHD4.deviceDetect(header);
-            var reply = objHD4.getReply();
+            bool result = _objHd4.DeviceDetect(header);
+            Dictionary<string, dynamic> reply = _objHd4.GetReply();
 
             Assert.IsTrue(result);
             Assert.AreEqual(0, reply["status"]);
@@ -703,15 +702,15 @@ namespace HandsetDetectionAPI
         public void test27_ultimate_deviceDetectHTTPOtherHeader()
         {
             HttpRequest request = new HttpRequest(null, "http://localhost", null);
-            objHD4 = new HD4(request, ultimateConfig);
+            _objHd4 = new Hd4(request, _ultimateConfig);
 
-            var header = new Dictionary<string, dynamic>(){
+            Dictionary<string, dynamic> header = new Dictionary<string, dynamic>(){
             {"User-Agent","blahblahblah"}
             };
             header.Add("x-fish-header", "Mozilla/5.0 (iPhone; U; CPU iPhone OS 4_3 like Mac OS X; en-gb) AppleWebKit/533.17.9 (KHTML, like Gecko)");
 
-            var result = objHD4.deviceDetect(header);
-            var reply = objHD4.getReply();
+            bool result = _objHd4.DeviceDetect(header);
+            Dictionary<string, dynamic> reply = _objHd4.GetReply();
 
             Assert.IsTrue(result);
             Assert.AreEqual(0, reply["status"]);
@@ -739,15 +738,15 @@ namespace HandsetDetectionAPI
         public void test28_ultimate_deviceDetectHTTPHardwareInfo()
         {
             HttpRequest request = new HttpRequest(null, "http://localhost", null);
-            objHD4 = new HD4(request, ultimateConfig);
+            _objHd4 = new Hd4(request, _ultimateConfig);
 
-            var header = new Dictionary<string, dynamic>(){
+            Dictionary<string, dynamic> header = new Dictionary<string, dynamic>(){
             {"User-Agent","Mozilla/5.0 (iPhone; U; CPU iPhone OS 4_2_1 like Mac OS X; en-gb) AppleWebKit/533.17.9 (KHTML, like Gecko)"}
             };
             header.Add("x-local-hardwareinfo", "320:480:100:100");
 
-            var result = objHD4.deviceDetect(header);
-            var reply = objHD4.getReply();
+            bool result = _objHd4.DeviceDetect(header);
+            Dictionary<string, dynamic> reply = _objHd4.GetReply();
 
 
             Assert.IsTrue(result);
@@ -777,15 +776,15 @@ namespace HandsetDetectionAPI
         public void test29_ultimate_deviceDetectHTTPHardwareInfoB()
         {
             HttpRequest request = new HttpRequest(null, "http://localhost", null);
-            objHD4 = new HD4(request, ultimateConfig);
+            _objHd4 = new Hd4(request, _ultimateConfig);
 
-            var header = new Dictionary<string, dynamic>(){
+            Dictionary<string, dynamic> header = new Dictionary<string, dynamic>(){
             {"User-Agent","Mozilla/5.0 (iPhone; U; CPU iPhone OS 4_2_1 like Mac OS X; en-gb) AppleWebKit/533.17.9 (KHTML, like Gecko)"}
             };
             header.Add("x-local-hardwareinfo", "320:480:100:72");
 
-            var result = objHD4.deviceDetect(header);
-            var reply = objHD4.getReply();
+            bool result = _objHd4.DeviceDetect(header);
+            Dictionary<string, dynamic> reply = _objHd4.GetReply();
 
 
             Assert.IsTrue(result);
@@ -814,15 +813,15 @@ namespace HandsetDetectionAPI
         public void test30_ultimate_deviceDetectHTTPHardwareInfoC()
         {
             HttpRequest request = new HttpRequest(null, "http://localhost", null);
-            objHD4 = new HD4(request, ultimateConfig);
+            _objHd4 = new Hd4(request, _ultimateConfig);
 
-            var header = new Dictionary<string, dynamic>(){
+            Dictionary<string, dynamic> header = new Dictionary<string, dynamic>(){
             {"User-Agent","Mozilla/5.0 (iPhone; U; CPU iPhone OS 2_0 like Mac OS X; en-gb) AppleWebKit/533.17.9 (KHTML, like Gecko)"}
             };
             header.Add("x-local-hardwareinfo", "320:480:200:1200");
 
-            var result = objHD4.deviceDetect(header);
-            var reply = objHD4.getReply();
+            bool result = _objHd4.DeviceDetect(header);
+            Dictionary<string, dynamic> reply = _objHd4.GetReply();
 
 
             Assert.IsTrue(result);
@@ -851,15 +850,15 @@ namespace HandsetDetectionAPI
         public void test31_ultimate_deviceDetectHTTPFBiOS()
         {
             HttpRequest request = new HttpRequest(null, "http://localhost", null);
-            objHD4 = new HD4(request, ultimateConfig);
+            _objHd4 = new Hd4(request, _ultimateConfig);
 
-            var header = new Dictionary<string, dynamic>(){
+            Dictionary<string, dynamic> header = new Dictionary<string, dynamic>(){
             {"User-Agent","Mozilla/5.0 (iPhone; CPU iPhone OS 7_1_1 like Mac OS X) AppleWebKit/537.51.2 (KHTML, like Gecko) Mobile/11D201 [FBAN/FBIOS;FBAV/9.0.0.25.31;FBBV/2102024;FBDV/iPhone6,2;FBMD/iPhone;FBSN/iPhone OS;FBSV/7.1.1;FBSS/2; FBCR/vodafoneIE;FBID/phone;FBLC/en_US;FBOP/5]"}
             };
             header.Add("Accept-Language", "da, en-gb;q=0.8, en;q=0.7");
 
-            var result = objHD4.deviceDetect(header);
-            var reply = objHD4.getReply();
+            bool result = _objHd4.DeviceDetect(header);
+            Dictionary<string, dynamic> reply = _objHd4.GetReply();
 
 
             Assert.IsTrue(result);
@@ -894,7 +893,7 @@ namespace HandsetDetectionAPI
         public void test32_ultimate_deviceDetectBIAndroid()
         {
             HttpRequest request = new HttpRequest(null, "http://localhost", null);
-            objHD4 = new HD4(request, ultimateConfig);
+            _objHd4 = new Hd4(request, _ultimateConfig);
 
             Dictionary<string, dynamic> buildInfo = new Dictionary<string, dynamic>();
             buildInfo.Add("ro.build.PDA", "I9500XXUFNE7");
@@ -929,8 +928,8 @@ namespace HandsetDetectionAPI
             buildInfo.Add("ro.product_ship", "true");
 
 
-            var result = objHD4.deviceDetect(buildInfo);
-            var reply = objHD4.getReply();
+            bool result = _objHd4.DeviceDetect(buildInfo);
+            Dictionary<string, dynamic> reply = _objHd4.GetReply();
 
             Assert.IsTrue(result);
             Assert.AreEqual(0, reply["status"]);
@@ -952,14 +951,14 @@ namespace HandsetDetectionAPI
         public void test33_ultimate_deviceDetectBIiOS()
         {
             HttpRequest request = new HttpRequest(null, "http://localhost", null);
-            objHD4 = new HD4(request, ultimateConfig);
+            _objHd4 = new Hd4(request, _ultimateConfig);
 
             Dictionary<string, dynamic> buildInfo = new Dictionary<string, dynamic>();
             buildInfo.Add("utsname.machine", "iphone4,1");
             buildInfo.Add("utsname.brand", "Apple");
 
-            var result = objHD4.deviceDetect(buildInfo);
-            var reply = objHD4.getReply();
+            bool result = _objHd4.DeviceDetect(buildInfo);
+            Dictionary<string, dynamic> reply = _objHd4.GetReply();
 
 
             Assert.IsTrue(result);
@@ -982,14 +981,14 @@ namespace HandsetDetectionAPI
         public void test34_ultimate_deviceDetectWindowsPhone()
         {
             HttpRequest request = new HttpRequest(null, "http://localhost", null);
-            objHD4 = new HD4(request, ultimateConfig);
+            _objHd4 = new Hd4(request, _ultimateConfig);
 
             Dictionary<string, dynamic> buildInfo = new Dictionary<string, dynamic>();
             buildInfo.Add("devicemanufacturer", "nokia");
             buildInfo.Add("devicename", "RM-875");
 
-            var result = objHD4.deviceDetect(buildInfo);
-            var reply = objHD4.getReply();
+            bool result = _objHd4.DeviceDetect(buildInfo);
+            Dictionary<string, dynamic> reply = _objHd4.GetReply();
 
 
             Assert.IsTrue(result);
@@ -1024,12 +1023,12 @@ namespace HandsetDetectionAPI
         {
 
             HttpRequest request = new HttpRequest(null, "http://localhost", null);
-            objHD4 = new HD4(request, ultimateConfig);
-            HDStore Store = HDStore.Instance;
-            Store.purge();
-            objHD4.isDownloadableFiles = true;
-            var result = objHD4.communityFetchArchive();
-            var data = objHD4.getReply();
+            _objHd4 = new Hd4(request, _ultimateConfig);
+            HdStore store = HdStore.Instance;
+            store.Purge();
+            _objHd4.IsDownloadableFiles = true;
+            dynamic result = _objHd4.CommunityFetchArchive();
+            Dictionary<string, dynamic> data = _objHd4.GetReply();
 
             Assert.IsTrue(result);
 
@@ -1044,15 +1043,15 @@ namespace HandsetDetectionAPI
         public void test36_ultimate_community_deviceDetectHTTPDesktop()
         {
             HttpRequest request = new HttpRequest(null, "http://localhost", null);
-            objHD4 = new HD4(request, ultimateConfig);
+            _objHd4 = new Hd4(request, _ultimateConfig);
 
 
-            var header = new Dictionary<string, dynamic>(){
+            Dictionary<string, dynamic> header = new Dictionary<string, dynamic>(){
             {"User-Agent","Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/41.0.2228.0 Safari/537.36"}
             };
 
-            var result = objHD4.deviceDetect(header);
-            var data = objHD4.getReply();
+            bool result = _objHd4.DeviceDetect(header);
+            Dictionary<string, dynamic> data = _objHd4.GetReply();
 
             Assert.IsTrue(result);
             Assert.AreEqual(0, data["status"]);
@@ -1067,14 +1066,14 @@ namespace HandsetDetectionAPI
         public void test37_ultimate_community_deviceDetectHTTPDesktopJunk()
         {
             HttpRequest request = new HttpRequest(null, "http://localhost", null);
-            objHD4 = new HD4(request, ultimateConfig);
+            _objHd4 = new Hd4(request, _ultimateConfig);
 
-            var header = new Dictionary<string, dynamic>(){
+            Dictionary<string, dynamic> header = new Dictionary<string, dynamic>(){
             {"User-Agent","aksjakdjkjdaiwdidjkjdkawjdijwidawjdiajwdkawdjiwjdiawjdwidjwakdjajdkad"+DateTime.Now.Ticks.ToString()}
             };
 
-            var result = objHD4.deviceDetect(header);
-            var data = objHD4.getReply();
+            bool result = _objHd4.DeviceDetect(header);
+            Dictionary<string, dynamic> data = _objHd4.GetReply();
 
             Assert.IsFalse(result);
             Assert.AreEqual(301, data["status"]);
@@ -1089,14 +1088,14 @@ namespace HandsetDetectionAPI
         public void test38_ultimate_community_deviceDetectHTTPWii()
         {
             HttpRequest request = new HttpRequest(null, "http://localhost", null);
-            objHD4 = new HD4(request, ultimateConfig);
+            _objHd4 = new Hd4(request, _ultimateConfig);
 
-            var header = new Dictionary<string, dynamic>(){
+            Dictionary<string, dynamic> header = new Dictionary<string, dynamic>(){
             {"User-Agent","Opera/9.30 (Nintendo Wii; U; ; 2047-7; es-Es)"}
             };
 
-            var result = objHD4.deviceDetect(header);
-            var data = objHD4.getReply();
+            bool result = _objHd4.DeviceDetect(header);
+            Dictionary<string, dynamic> data = _objHd4.GetReply();
 
             Assert.IsTrue(result);
             Assert.AreEqual(0, data["status"]);
@@ -1112,14 +1111,14 @@ namespace HandsetDetectionAPI
         public void test39_ultimate_community_deviceDetectHTTP()
         {
             HttpRequest request = new HttpRequest(null, "http://localhost", null);
-            objHD4 = new HD4(request, ultimateConfig);
+            _objHd4 = new Hd4(request, _ultimateConfig);
 
-            var header = new Dictionary<string, dynamic>(){
+            Dictionary<string, dynamic> header = new Dictionary<string, dynamic>(){
             {"User-Agent","Mozilla/5.0 (iPhone; U; CPU iPhone OS 4_3 like Mac OS X; en-gb) AppleWebKit/533.17.9 (KHTML, like Gecko)"}
             };
 
-            var result = objHD4.deviceDetect(header);
-            var data = objHD4.getReply();
+            bool result = _objHd4.DeviceDetect(header);
+            Dictionary<string, dynamic> data = _objHd4.GetReply();
 
             Assert.IsTrue(result);
             Assert.AreEqual(0, data["status"]);
@@ -1148,15 +1147,15 @@ namespace HandsetDetectionAPI
         public void test40_ultimate_community_deviceDetectHTTPOtherHeader()
         {
             HttpRequest request = new HttpRequest(null, "http://localhost", null);
-            objHD4 = new HD4(request, ultimateConfig);
+            _objHd4 = new Hd4(request, _ultimateConfig);
 
-            var header = new Dictionary<string, dynamic>(){
+            Dictionary<string, dynamic> header = new Dictionary<string, dynamic>(){
             {"User-Agent","blahblahblah"}
             };
             header.Add("x-fish-header", "Mozilla/5.0 (iPhone; U; CPU iPhone OS 4_3 like Mac OS X; en-gb) AppleWebKit/533.17.9 (KHTML, like Gecko)");
 
-            var result = objHD4.deviceDetect(header);
-            var data = objHD4.getReply();
+            bool result = _objHd4.DeviceDetect(header);
+            Dictionary<string, dynamic> data = _objHd4.GetReply();
 
             Assert.IsTrue(result);
             Assert.AreEqual(0, data["status"]);
@@ -1186,15 +1185,15 @@ namespace HandsetDetectionAPI
         public void test41_ultimate_community_deviceDetectHTTPHardwareInfo()
         {
             HttpRequest request = new HttpRequest(null, "http://localhost", null);
-            objHD4 = new HD4(request, ultimateConfig);
+            _objHd4 = new Hd4(request, _ultimateConfig);
 
-            var header = new Dictionary<string, dynamic>(){
+            Dictionary<string, dynamic> header = new Dictionary<string, dynamic>(){
             {"User-Agent","Mozilla/5.0 (iPhone; U; CPU iPhone OS 4_2_1 like Mac OS X; en-gb) AppleWebKit/533.17.9 (KHTML, like Gecko)"}
             };
             header.Add("x-local-hardwareinfo", "320:480:100:100");
 
-            var result = objHD4.deviceDetect(header);
-            var data = objHD4.getReply();
+            bool result = _objHd4.DeviceDetect(header);
+            Dictionary<string, dynamic> data = _objHd4.GetReply();
 
             Assert.IsTrue(result);
             Assert.AreEqual(0, data["status"]);
@@ -1224,15 +1223,15 @@ namespace HandsetDetectionAPI
         public void test42_ultimate_community_deviceDetectHTTPHardwareInfoB()
         {
             HttpRequest request = new HttpRequest(null, "http://localhost", null);
-            objHD4 = new HD4(request, ultimateConfig);
+            _objHd4 = new Hd4(request, _ultimateConfig);
 
-            var header = new Dictionary<string, dynamic>(){
+            Dictionary<string, dynamic> header = new Dictionary<string, dynamic>(){
             {"User-Agent","Mozilla/5.0 (iPhone; U; CPU iPhone OS 4_2_1 like Mac OS X; en-gb) AppleWebKit/533.17.9 (KHTML, like Gecko)"}
             };
             header.Add("x-local-hardwareinfo", "320:480:100:72");
 
-            var result = objHD4.deviceDetect(header);
-            var data = objHD4.getReply();
+            bool result = _objHd4.DeviceDetect(header);
+            Dictionary<string, dynamic> data = _objHd4.GetReply();
 
             Assert.IsTrue(result);
             Assert.AreEqual(0, data["status"]);
@@ -1260,15 +1259,15 @@ namespace HandsetDetectionAPI
         public void test43_ultimate_community_deviceDetectHTTPHardwareInfoC()
         {
             HttpRequest request = new HttpRequest(null, "http://localhost", null);
-            objHD4 = new HD4(request, ultimateConfig);
+            _objHd4 = new Hd4(request, _ultimateConfig);
 
-            var header = new Dictionary<string, dynamic>(){
+            Dictionary<string, dynamic> header = new Dictionary<string, dynamic>(){
             {"User-Agent","Mozilla/5.0 (iPhone; U; CPU iPhone OS 2_0 like Mac OS X; en-gb) AppleWebKit/533.17.9 (KHTML, like Gecko)"}
             };
             header.Add("x-local-hardwareinfo", "320:480:200:1200");
 
-            var result = objHD4.deviceDetect(header);
-            var data = objHD4.getReply();
+            bool result = _objHd4.DeviceDetect(header);
+            Dictionary<string, dynamic> data = _objHd4.GetReply();
 
             Assert.IsTrue(result);
             Assert.AreEqual(0, data["status"]);
@@ -1296,15 +1295,15 @@ namespace HandsetDetectionAPI
         public void test44_ultimate_community_deviceDetectHTTPFBiOS()
         {
             HttpRequest request = new HttpRequest(null, "http://localhost", null);
-            objHD4 = new HD4(request, ultimateConfig);
+            _objHd4 = new Hd4(request, _ultimateConfig);
 
-            var header = new Dictionary<string, dynamic>(){
+            Dictionary<string, dynamic> header = new Dictionary<string, dynamic>(){
             {"User-Agent","Mozilla/5.0 (iPhone; CPU iPhone OS 7_1_1 like Mac OS X) AppleWebKit/537.51.2 (KHTML, like Gecko) Mobile/11D201 [FBAN/FBIOS;FBAV/9.0.0.25.31;FBBV/2102024;FBDV/iPhone6,2;FBMD/iPhone;FBSN/iPhone OS;FBSV/7.1.1;FBSS/2; FBCR/vodafoneIE;FBID/phone;FBLC/en_US;FBOP/5]"}
             };
             header.Add("Accept-Language", "da, en-gb;q=0.8, en;q=0.7");
 
-            var result = objHD4.deviceDetect(header);
-            var data = objHD4.getReply();
+            bool result = _objHd4.DeviceDetect(header);
+            Dictionary<string, dynamic> data = _objHd4.GetReply();
 
             Assert.IsTrue(result);
             Assert.AreEqual(0, data["status"]);
@@ -1371,10 +1370,10 @@ namespace HandsetDetectionAPI
             buildInfo.Add("ro.product_ship", "true");
 
             HttpRequest request = new HttpRequest(null, "http://localhost", null);
-            objHD4 = new HD4(request, ultimateConfig);
+            _objHd4 = new Hd4(request, _ultimateConfig);
 
-            var result = objHD4.deviceDetect(buildInfo);
-            var reply = objHD4.getReply();
+            bool result = _objHd4.DeviceDetect(buildInfo);
+            Dictionary<string, dynamic> reply = _objHd4.GetReply();
 
             Assert.IsTrue(result);
             Assert.AreEqual(0, reply["status"]);
@@ -1396,15 +1395,15 @@ namespace HandsetDetectionAPI
         public void test46_ultimate_community_deviceDetectBIiOS()
         {
             HttpRequest request = new HttpRequest(null, "http://localhost", null);
-            objHD4 = new HD4(request, ultimateConfig);
+            _objHd4 = new Hd4(request, _ultimateConfig);
 
 
             Dictionary<string, dynamic> buildInfo = new Dictionary<string, dynamic>();
             buildInfo.Add("utsname.machine", "iphone4,1");
             buildInfo.Add("utsname.brand", "Apple");
 
-            var result = objHD4.deviceDetect(buildInfo);
-            var reply = objHD4.getReply();
+            bool result = _objHd4.DeviceDetect(buildInfo);
+            Dictionary<string, dynamic> reply = _objHd4.GetReply();
 
 
             Assert.IsTrue(result);
@@ -1427,14 +1426,14 @@ namespace HandsetDetectionAPI
         public void test47_ultimate_community_deviceDetectWindowsPhone()
         {
             HttpRequest request = new HttpRequest(null, "http://localhost", null);
-            objHD4 = new HD4(request, ultimateConfig);
+            _objHd4 = new Hd4(request, _ultimateConfig);
 
             Dictionary<string, dynamic> buildInfo = new Dictionary<string, dynamic>();
             buildInfo.Add("devicemanufacturer", "nokia");
             buildInfo.Add("devicename", "RM-875");
 
-            var result = objHD4.deviceDetect(buildInfo);
-            var reply = objHD4.getReply();
+            bool result = _objHd4.DeviceDetect(buildInfo);
+            Dictionary<string, dynamic> reply = _objHd4.GetReply();
 
 
             Assert.IsTrue(result);

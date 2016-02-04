@@ -9,46 +9,46 @@ using System.Web.Script.Serialization;
 
 namespace HandsetDetectionAPI
 {
-    public class HDStore : HDBase
+    public class HdStore : HdBase
     {
-        public string dirname = "hd40store";
-        string path = "";
-        public static string directory = "";
+        public string Dirname = "hd40store";
+        string _path = "";
+        public static string Directory = "";
         public string StoreDirectory
         {
             get
             {
-                if (!string.IsNullOrEmpty(directory) && !Directory.Exists(directory))
+                if (!string.IsNullOrEmpty(Directory) && !System.IO.Directory.Exists(Directory))
                 {
-                    Directory.CreateDirectory(directory);
+                    System.IO.Directory.CreateDirectory(Directory);
                 }
 
-                return directory;
+                return Directory;
             }
         }
-        private HDCache _Cache = null;
+        private HdCache _cache = null;
 
         /***        
          * 
          * Singleton object creation code from http://csharpindepth.com/Articles/General/Singleton.aspx
          * **/
-        private static readonly HDStore instance = new HDStore();
+        private static readonly HdStore instance = new HdStore();
 
         // Explicit static constructor to tell C# compiler
         // not to mark type as beforefieldinit
-        static HDStore()
+        static HdStore()
         {
 
         }
 
-        private HDStore()
+        private HdStore()
         {
-            this.path = ApplicationRootDirectory;
-            directory = this.path + "\\" + this.dirname;
-            this._Cache = new HDCache();
+            _path = ApplicationRootDirectory;
+            Directory = _path + "\\" + Dirname;
+            _cache = new HdCache();
         }
 
-        public static HDStore Instance
+        public static HdStore Instance
         {
             get
             {
@@ -60,28 +60,23 @@ namespace HandsetDetectionAPI
         /// Sets the path to the root directory for storage operations, optionally creating the storage directory in it.
         /// </summary>
         /// <param name="path"></param>
-        /// <param name="IsCreateDirectory"></param>
-        public void setPath(string path = null, bool IsCreateDirectory = false)
+        /// <param name="isCreateDirectory"></param>
+        public void SetPath(string path = null, bool isCreateDirectory = false)
         {
-            this.path = string.IsNullOrEmpty(path) ? AppDomain.CurrentDomain.BaseDirectory : path;//dirname(__FILE__)
-            directory = this.path + "\\" + this.dirname;
-            config["filesdir"] = path;
-            if (IsCreateDirectory)
+            this._path = string.IsNullOrEmpty(path) ? AppDomain.CurrentDomain.BaseDirectory : path;//dirname(__FILE__)
+            Directory = _path + "\\" + Dirname;
+            Config["filesdir"] = path;
+            if (!isCreateDirectory) return;
+            if (System.IO.Directory.Exists(StoreDirectory)) return;
+            try
             {
-
-                if (!Directory.Exists(this.StoreDirectory))
-                {
-                    try
-                    {
-                        Directory.CreateDirectory(this.StoreDirectory);
-                    }
-                    catch (Exception)
-                    {
-                        throw new Exception("Error : Failed to create storage directory at (" + this.StoreDirectory + "). Check permissions.");
+                System.IO.Directory.CreateDirectory(StoreDirectory);
+            }
+            catch (Exception)
+            {
+                throw new Exception("Error : Failed to create storage directory at (" + StoreDirectory + "). Check permissions.");
 
 
-                    }
-                }
             }
         }
 
@@ -91,7 +86,7 @@ namespace HandsetDetectionAPI
         /// <param name="key"></param>
         /// <param name="data"></param>
         /// <returns></returns>
-        public bool write(string key, Dictionary<string, dynamic> data)
+        public bool Write(string key, Dictionary<string, dynamic> data)
         {
             if (!data.Any())
             {
@@ -103,7 +98,7 @@ namespace HandsetDetectionAPI
                 return false;
             }
 
-            return this._Cache.write(key, data).Any();
+            return _cache.Write(key, data).Any();
 
         }
 
@@ -115,14 +110,10 @@ namespace HandsetDetectionAPI
         /// <returns> true on success, false otherwise</returns>
         public bool store(string key, Dictionary<string, dynamic> data)
         {
-            var jss = new JavaScriptSerializer();
-            jss.MaxJsonLength = this.maxJsonLength;
-
-            string jsonstr = jss.Serialize(data);
+            string jsonstr = Jss.Serialize(data);
             try
             {
-                System.IO.File.WriteAllText(this.StoreDirectory + "//" + key + ".json", jsonstr);
-
+                File.WriteAllText(StoreDirectory + "//" + key + ".json", jsonstr);
             }
             catch (Exception)
             {
@@ -137,16 +128,16 @@ namespace HandsetDetectionAPI
         /// </summary>
         /// <param name="key">Key to search for</param>
         /// <returns> boolean true on success, false</returns>
-        public Dictionary<string, dynamic> read(string key)
+        public Dictionary<string, dynamic> Read(string key)
         {
-            Dictionary<string, dynamic> reply = this._Cache.read(key);
+            Dictionary<string, dynamic> reply = _cache.Read(key);
             if (reply != null && reply.Any())
                 return reply;
 
-            reply = this.fetch(key);
+            reply = Fetch(key);
             if (reply != null && reply.Any())
             {
-                this._Cache.write(key, reply);
+                _cache.Write(key, reply);
                 return reply;
             }
             else
@@ -162,17 +153,10 @@ namespace HandsetDetectionAPI
         /// <param name="key">key</param>
         /// <returns></returns>
 
-        public Dictionary<string, dynamic> fetch(string key)
+        public Dictionary<string, dynamic> Fetch(string key)
         {
-            var jss = new JavaScriptSerializer();
-            jss.MaxJsonLength = this.maxJsonLength;
-
-            string jsonText = System.IO.File.ReadAllText(this.StoreDirectory + "//" + key + ".json");
-            if (string.IsNullOrEmpty(jsonText))
-            {
-                return null;
-            }
-            return jss.Deserialize<Dictionary<string, dynamic>>(jsonText);
+            string jsonText = File.ReadAllText(StoreDirectory + "//" + key + ".json");
+            return !string.IsNullOrEmpty(jsonText) ? Jss.Deserialize<Dictionary<string, dynamic>>(jsonText) : null;
         }
 
         /// <summary>
@@ -180,31 +164,21 @@ namespace HandsetDetectionAPI
         /// Used by localDevice* functions to iterate over all devies
         /// </summary>
         /// <returns>array All devices in one giant assoc array</returns>
-        public Dictionary<string, dynamic> fetchDevices()
+        public Dictionary<string, dynamic> FetchDevices()
         {
-            var jss = new JavaScriptSerializer();
-            jss.MaxJsonLength = this.maxJsonLength;
             Dictionary<string, dynamic> data = new Dictionary<string, dynamic>();
             List<Dictionary<string, dynamic>> dicList = new List<Dictionary<string, dynamic>>();
             try
             {
-                string[] filePaths = Directory.GetFiles(this.StoreDirectory, "Device*.json");
-                foreach (var item in filePaths)
-                {
-                    string jsonText = System.IO.File.ReadAllText(item);
-                    if (string.IsNullOrEmpty(jsonText))
-                    {
-                        continue;
-                    }
-                    dicList.Add(jss.Deserialize<Dictionary<string, dynamic>>(jsonText));
-                }
+                string[] filePaths = System.IO.Directory.GetFiles(StoreDirectory, "Device*.json");
+                dicList.AddRange(from item in filePaths select File.ReadAllText(item) into jsonText where !string.IsNullOrEmpty(jsonText) select Jss.Deserialize<Dictionary<string, dynamic>>(jsonText));
                 data["devices"] = dicList;
                 return data;
             }
             catch (Exception ex)
             {
-                reply = new Dictionary<string, dynamic>();
-                this.setError(1, "Exception : " + ex.Message + " " + ex.StackTrace);
+                Reply = new Dictionary<string, dynamic>();
+                SetError(1, "Exception : " + ex.Message + " " + ex.StackTrace);
             }
             return null;
         }
@@ -215,7 +189,7 @@ namespace HandsetDetectionAPI
         /// <param name="srcAbsName">srcAbsName The fully qualified path and file name eg /tmp/sjjhas778hsjhh</param>
         /// <param name="destName">destName The key name inside the cache eg Device_19.json</param>
         /// <returns>true on success, false otherwise</returns>
-        public bool moveIn(string srcAbsName, string destName)
+        public bool MoveIn(string srcAbsName, string destName)
         {
             // Move the file.
             try
@@ -236,15 +210,15 @@ namespace HandsetDetectionAPI
         /// Cleans out the store - Use with caution
         /// </summary>
         /// <returns>true on success, false otherwise</returns>
-        public bool purge()
+        public bool Purge()
         {
-            string[] filePaths = Directory.GetFiles(this.StoreDirectory, "*.json");
-            foreach (var item in filePaths)
+            string[] filePaths = System.IO.Directory.GetFiles(StoreDirectory, "*.json");
+            foreach (string item in filePaths)
             {
                 File.Delete(item);
             }
 
-            return this._Cache.purge();
+            return _cache.Purge();
         }
     }
 }

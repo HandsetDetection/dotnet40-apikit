@@ -2,28 +2,26 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Collections.Specialized;
 using System.IO;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 using System.Web;
 using System.Web.Script.Serialization;
 
 namespace HandsetDetectionAPI
 {
-    public class HD4 : HDBase
+    public class Hd4 : HdBase
     {
         public bool UseLocal
         {
             get
             {
-                return Convert.ToBoolean(config["use_local"]);
+                return Convert.ToBoolean(Config["use_local"]);
             }
             set
             {
-                config["use_local"] = value.ToString();
+                Config["use_local"] = value.ToString();
             }
         }
 
@@ -31,38 +29,35 @@ namespace HandsetDetectionAPI
         {
             get
             {
-                return Convert.ToBoolean(config["geoip"]);
+                return Convert.ToBoolean(Config["geoip"]);
             }
             set
             {
-                config["geoip"] = value.ToString();
+                Config["geoip"] = value.ToString();
             }
         }
 
 
+        string _configFile = "/hdUltimateConfig.json";
 
-
-        bool debug = true;
-        string configFile = "/hdUltimateConfig.json";
-
-        HDStore Store;
-        HDCache cache = null;
-        HDDevice device = null;
-        private HttpRequest Request;
-        public void cleanUp() { rawreply = ""; reply = new Dictionary<string, dynamic>(); }
-        public string getLog() { return this.log; }
-        public string getError() { return this.error; }
+        HdStore _store;
+        HdCache _cache = null;
+        HdDevice _device = null;
+        private HttpRequest _request;
+        public void CleanUp() { Rawreply = ""; Reply = new Dictionary<string, dynamic>(); }
+        public string GetLog() { return Log; }
+        public string GetError() { return Error; }
 
 
 
         private void AddKey(string key, string value)
         {
             key = key.ToLower();
-            if (detectRequest.ContainsKey(key))
+            if (DetectRequest.ContainsKey(key))
             {
-                this.detectRequest.Remove(key);
+                DetectRequest.Remove(key);
             }
-            this.detectRequest.Add(key, value);
+            DetectRequest.Add(key, value);
         }
 
         /// <summary>
@@ -70,20 +65,20 @@ namespace HandsetDetectionAPI
         /// </summary>
         /// <param name="request">Curret Request Object</param>
         /// <param name="configuration">config can be an array of config options or a fully qualified path to an alternate config file.</param>
-        public HD4(HttpRequest request, dynamic configuration = null)
+        public Hd4(HttpRequest request, dynamic configuration = null)
         {
-            this.Request = request;
+            _request = request;
             if (configuration != null && configuration is IDictionary)
             {
-                foreach (var item in (Dictionary<string, string>)configuration)
+                foreach (KeyValuePair<string, string> item in (Dictionary<string, string>)configuration)
                 {
-                    if (config.ContainsKey(item.Key))
+                    if (Config.ContainsKey(item.Key))
                     {
-                        config[item.Key] = item.Value;
+                        Config[item.Key] = item.Value;
                     }
                     else
                     {
-                        config.Add(item.Key, item.Value);
+                        Config.Add(item.Key, item.Value);
                     }
                 }
             }
@@ -91,24 +86,22 @@ namespace HandsetDetectionAPI
             {
                 AddConfigSettingFromFile(ApplicationRootDirectory + configuration);
             }
-            else if (!File.Exists(ApplicationRootDirectory + configFile))
+            else if (!File.Exists(ApplicationRootDirectory + _configFile))
             {
                 throw new Exception("Error : Invalid config file and no config passed to constructor");
             }
             else
             {
-                AddConfigSettingFromFile(ApplicationRootDirectory + configFile);
+                AddConfigSettingFromFile(ApplicationRootDirectory + _configFile);
             }
 
-            this.debug = Debug;
+            _store = HdStore.Instance;
+            _store.SetPath(Config["filesdir"], true);
 
-            this.Store = HDStore.Instance;
-            this.Store.setPath(config["filesdir"], true);
+            _cache = new HdCache();
+            _device = new HdDevice();
 
-            this.cache = new HDCache();
-            this.device = new HDDevice();
-
-            this.setup();
+            Setup();
         }
 
         /// <summary>
@@ -119,19 +112,19 @@ namespace HandsetDetectionAPI
         {
             Dictionary<string, string> hdConfig = new Dictionary<string, string>();
 
-            var serializer = new JavaScriptSerializer();
-            string jsonText = System.IO.File.ReadAllText(configFile);
+            JavaScriptSerializer serializer = new JavaScriptSerializer();
+            string jsonText = File.ReadAllText(configFile);
             hdConfig = serializer.Deserialize<Dictionary<string, string>>(jsonText);
 
-            foreach (var item in hdConfig)
+            foreach (KeyValuePair<string, string> item in hdConfig)
             {
-                if (config.ContainsKey(item.Key))
+                if (Config.ContainsKey(item.Key))
                 {
-                    config[item.Key] = item.Value;
+                    Config[item.Key] = item.Value;
                 }
                 else
                 {
-                    config.Add(item.Key, item.Value);
+                    Config.Add(item.Key, item.Value);
                 }
             }
         }
@@ -139,37 +132,37 @@ namespace HandsetDetectionAPI
         /// <summary>
         /// Initialize inital properties
         /// </summary>
-        void setup()
+        void Setup()
         {
-            reply = new Dictionary<string, dynamic>();
-            rawReply = new Dictionary<string, dynamic>();
-            detectRequest = new Dictionary<string, dynamic>();
+            Reply = new Dictionary<string, dynamic>();
+            RawReply = new Dictionary<string, dynamic>();
+            DetectRequest = new Dictionary<string, dynamic>();
 
             Regex reg = new Regex("^x|^http", RegexOptions.IgnoreCase);
-            foreach (string header in Request.Headers)
+            foreach (string header in _request.Headers)
             {
                 if (reg.IsMatch(header))
                 {
-                    AddKey(header.ToLower(), Request[header]);
+                    AddKey(header.ToLower(), _request[header]);
                 }
             }
-            AddKey("user-agent", Request.UserAgent);
-            AddKey("ipaddress", Request.UserHostAddress);
-            AddKey("request_uri", Request.Url.ToString());
+            AddKey("user-agent", _request.UserAgent);
+            AddKey("ipaddress", _request.UserHostAddress);
+            AddKey("request_uri", _request.Url.ToString());
 
             if (!UseLocal && Geoip)
             {
                 // Ip address only used in cloud mode
-                this.detectRequest["ipaddress"] = this.Request.ServerVariables["REMOTE_ADDR"] != null ? this.Request.ServerVariables["REMOTE_ADDR"] : null;
+                DetectRequest["ipaddress"] = _request.ServerVariables["REMOTE_ADDR"] != null ? _request.ServerVariables["REMOTE_ADDR"] : null;
             }
-            detectRequest["Cookie"] = null;
+            DetectRequest["Cookie"] = null;
         }
 
         /// <summary>
         /// List all known vendors
         /// </summary>
         /// <returns>true on success, false otherwise. Use getRawReply to inspect results on success.</returns>
-        public bool deviceVendors()
+        public bool DeviceVendors()
         {
             // resetLog();
             try
@@ -177,7 +170,7 @@ namespace HandsetDetectionAPI
                 if (UseLocal)
                 {
 
-                    return device.localDeviceVendors();
+                    return _device.LocalDeviceVendors();
                 }
                 else
                 {
@@ -186,7 +179,7 @@ namespace HandsetDetectionAPI
             }
             catch (Exception ex)
             {
-                this.setError(299, "Exception : " + ex.Message + " " + ex.StackTrace);
+                SetError(299, "Exception : " + ex.Message + " " + ex.StackTrace);
                 return false;
             }
         }
@@ -196,14 +189,14 @@ namespace HandsetDetectionAPI
         /// </summary>
         /// <param name="vendor">vendor The device vendor eg Apple</param>
         /// <returns>true on success, false otherwise. Use getRawReply to inspect results on success</returns>
-        public bool deviceModels(string vendor)
+        public bool DeviceModels(string vendor)
         {
             // resetLog();
             try
             {
                 if (UseLocal)
                 {
-                    return device.localDeviceModels(vendor);
+                    return _device.LocalDeviceModels(vendor);
                 }
                 else
                 {
@@ -212,7 +205,7 @@ namespace HandsetDetectionAPI
             }
             catch (Exception ex)
             {
-                this.setError(299, "Exception : " + ex.Message + " " + ex.StackTrace);
+                SetError(299, "Exception : " + ex.Message + " " + ex.StackTrace);
                 return false;
             }
         }
@@ -223,13 +216,13 @@ namespace HandsetDetectionAPI
         /// <param name="vendor">vendor The device vendor eg. Nokia</param>
         /// <param name="model">model The deviec model eg. N95</param>
         /// <returns>true on success, false otherwise. Use getReply to inspect results on success</returns>
-        public bool deviceView(string vendor, string model)
+        public bool DeviceView(string vendor, string model)
         {
             try
             {
                 if (UseLocal)
                 {
-                    return device.localDeviceView(vendor, model);
+                    return _device.LocalDeviceView(vendor, model);
                 }
                 else
                 {
@@ -238,7 +231,7 @@ namespace HandsetDetectionAPI
             }
             catch (Exception ex)
             {
-                this.setError(299, "Exception : " + ex.Message + " " + ex.StackTrace);
+                SetError(299, "Exception : " + ex.Message + " " + ex.StackTrace);
                 return false;
             }
         }
@@ -249,13 +242,13 @@ namespace HandsetDetectionAPI
         /// <param name="key">Property to inquire about eg 'network', 'connectors' etc...</param>
         /// <param name="value">true on success, false otherwise. Use getReply to inspect results on success. </param>
         /// <returns></returns>
-        public bool deviceWhatHas(string key, string value)
+        public bool DeviceWhatHas(string key, string value)
         {
             try
             {
                 if (UseLocal)
                 {
-                    return device.localWhatHas(key, value);
+                    return _device.LocalWhatHas(key, value);
                 }
                 else
                 {
@@ -264,7 +257,7 @@ namespace HandsetDetectionAPI
             }
             catch (Exception ex)
             {
-                this.setError(299, "Exception : " + ex.Message + " " + ex.StackTrace);
+                SetError(299, "Exception : " + ex.Message + " " + ex.StackTrace);
                 return false;
             }
         }
@@ -274,12 +267,12 @@ namespace HandsetDetectionAPI
         /// </summary>
         /// <param name="data">Data for device detection : HTTP Headers usually</param>
         /// <returns>true on success, false otherwise. Use getReply to inspect results on success.</returns>
-        public bool deviceDetect(Dictionary<string, dynamic> data = null)
+        public bool DeviceDetect(Dictionary<string, dynamic> data = null)
         {
             int id = 0;
-            if (data == null || data.Count() == 0 || !data.ContainsKey("id"))
+            if (data == null || !data.Any() || !data.ContainsKey("id"))
             {
-                id = Convert.ToInt32(config["site_id"]);
+                id = Convert.ToInt32(Config["site_id"]);
             }
             else
             {
@@ -287,7 +280,7 @@ namespace HandsetDetectionAPI
             }
 
             Dictionary<string, dynamic> requestBody = new Dictionary<string, dynamic>();
-            foreach (var item in data)
+            foreach (KeyValuePair<string, dynamic> item in data)
             {
                 if (requestBody.ContainsKey(item.Key.ToLower()))
                 {
@@ -305,35 +298,39 @@ namespace HandsetDetectionAPI
             // If caching enabled then check cache
             if (Cacherequests)
             {
-                var headersKeys = requestBody.Values.Select(c => c).OrderBy(c => c);
-                var serializer = new JavaScriptSerializer();
-                fastKey = serializer.Serialize(headersKeys).Replace(" ", "");
-                var objReply = this.cache.read(fastKey);
+                IOrderedEnumerable<dynamic> headersKeys = requestBody.Values.Select(c => c).OrderBy(c => c);
+                fastKey = Jss.Serialize(headersKeys).Replace(" ", "");
+                Dictionary<string, dynamic> objReply = _cache.Read(fastKey);
                 if (objReply.Count > 0)
                 {
-                    reply = objReply;
-                    setRawReply();
-                    return setError(0, "OK");
+                    Reply = objReply;
+                    SetRawReply();
+                    return SetError(0, "OK");
                 }
             }
 
             try
             {
+                bool result = false;
                 if (UseLocal)
                 {
-                    var result = device.localDetect(requestBody);
+                    result = _device.LocalDetect(requestBody);
                     // Log unknown headers if enabled
-                    setError(device.getStatus(), device.getMessage());
-                    return result;
+                    SetError(_device.GetStatus(), _device.GetMessage());
                 }
                 else
                 {
-                    return Remote(string.Format("/device/detect/{0}", id.ToString()), requestBody);
+                    result = Remote(string.Format("/device/detect/{0}", id), requestBody);
                 }
+                if (Cacherequests)
+                {
+                    _cache.Write(fastKey, GetReply());
+                }
+                return result;
             }
             catch (Exception ex)
             {
-                this.setError(299, "Exception : " + ex.Message + " " + ex.StackTrace);
+                SetError(299, "Exception : " + ex.Message + " " + ex.StackTrace);
                 return false;
             }
         }
@@ -342,51 +339,51 @@ namespace HandsetDetectionAPI
         ///  Fetch an archive from handset detection which contains all the device specs and matching trees as individual json files.
         /// </summary>
         /// <returns>hd_specs data on success, false otherwise</returns>
-        public dynamic deviceFetchArchive()
+        public dynamic DeviceFetchArchive()
         {
-            this.isDownloadableFiles = true;
-            if (!this.Remote("device/fetcharchive", null, "zip"))
+            IsDownloadableFiles = true;
+            if (!Remote("device/fetcharchive", null, "zip"))
                 return false;
 
-            var data = this.getRawReply();
+            string data = GetRawReply();
 
-            if (data.Count() == 0)
-                return this.setError(299, "Error : FetchArchive failed. Bad Download. File is zero length");
+            if (!data.Any())
+                return SetError(299, "Error : FetchArchive failed. Bad Download. File is zero length");
             else if (data.Length < 9000000)
             {
-                var serializer = new JavaScriptSerializer();
-                var trythis = serializer.Deserialize<Dictionary<string, string>>(data);
+                JavaScriptSerializer serializer = new JavaScriptSerializer();
+                Dictionary<string, string> trythis = serializer.Deserialize<Dictionary<string, string>>(data);
                 if (trythis.Count > 0 && trythis.ContainsKey("status") && trythis.ContainsKey("message"))
-                    return setError(Convert.ToInt32(trythis["status"]), trythis["message"]);
+                    return SetError(Convert.ToInt32(trythis["status"]), trythis["message"]);
             }
 
-            return installArchive(config["filesdir"], "ultimate.zip");
+            return installArchive(Config["filesdir"], "ultimate.zip");
         }
 
         /// <summary>
         /// Community Fetch Archive - Fetch the community archive version
         /// </summary>
         /// <returns>hd_specs data on success, false otherwise</returns>
-        public dynamic communityFetchArchive()
+        public dynamic CommunityFetchArchive()
         {
-            this.isDownloadableFiles = true;
-            if (!this.Remote("community/fetcharchive", null, "zip", false))
+            IsDownloadableFiles = true;
+            if (!Remote("community/fetcharchive", null, "zip", false))
                 return false;
 
-            var data = this.getRawReply();
+            string data = GetRawReply();
 
             if (string.IsNullOrEmpty(data))
-                return setError(299, "Error : FetchArchive failed. Bad Download. File is zero length");
+                return SetError(299, "Error : FetchArchive failed. Bad Download. File is zero length");
             else if (data.Length < 900000)
             {
-                var serializer = new JavaScriptSerializer();
-                var trythis = serializer.Deserialize<Dictionary<string, string>>(data);
+                JavaScriptSerializer serializer = new JavaScriptSerializer();
+                Dictionary<string, string> trythis = serializer.Deserialize<Dictionary<string, string>>(data);
                 if (trythis.Count > 0 && trythis.ContainsKey("status") && trythis.ContainsKey("message"))
-                    return setError(Convert.ToInt32(trythis["status"]), trythis["message"]);
+                    return SetError(Convert.ToInt32(trythis["status"]), trythis["message"]);
             }
 
 
-            return installArchive(config["filesdir"], "communityTest.zip");
+            return installArchive(Config["filesdir"], "communityTest.zip");
         }
 
         /// <summary>
@@ -402,9 +399,9 @@ namespace HandsetDetectionAPI
             }
             else
             {
-                var directoryArray = directoryPath.Replace("/", "\\").Split(new String[] { "\\" }, StringSplitOptions.RemoveEmptyEntries).ToList();
-                var directoryString = "";
-                foreach (var item in directoryArray)
+                List<string> directoryArray = directoryPath.Replace("/", "\\").Split(new String[] { "\\" }, StringSplitOptions.RemoveEmptyEntries).ToList();
+                string directoryString = "";
+                foreach (string item in directoryArray)
                 {
                     directoryString += item + "\\";
                     if (DriveInfo.GetDrives().Any(drive => drive.Name.ToLower() == directoryString))
@@ -421,7 +418,7 @@ namespace HandsetDetectionAPI
                 }
             }
 
-            fileName = config["filesdir"] + "\\" + fileName;
+            fileName = Config["filesdir"] + "\\" + fileName;
 
             // responseStream.Close();
             return installArchive(fileName);
@@ -434,23 +431,23 @@ namespace HandsetDetectionAPI
             int c = 1;
             while (c > 0)
             {
-                c = reader.Read(buff, 0, 1024);
+                c = Reader.Read(buff, 0, 1024);
                 for (int i = 0; i < c; i++)
                     bw.Write(buff[i]);
             }
             bw.Close();
-            var directoryPath = filePath.Substring(0, filePath.LastIndexOf("\\"));
+            string directoryPath = filePath.Substring(0, filePath.LastIndexOf("\\"));
 
-            if (!directoryPath.Contains(Store.dirname))
+            if (!directoryPath.Contains(_store.Dirname))
             {
-                directoryPath += "\\" + Store.dirname;
+                directoryPath += "\\" + _store.Dirname;
             }
 
             using (ZipFile zip = ZipFile.Read(filePath))
             {
                 zip.ToList().ForEach(entry =>
                 {
-                    entry.FileName = System.IO.Path.GetFileName(entry.FileName.Replace(':', '_'));
+                    entry.FileName = Path.GetFileName(entry.FileName.Replace(':', '_'));
                     entry.Extract(directoryPath, ExtractExistingFileAction.OverwriteSilently);
                 });
             }
@@ -462,9 +459,9 @@ namespace HandsetDetectionAPI
         /// </summary>
         /// <param name="headers">headers</param>
         /// <returns>true if helpful, false otherwise.</returns>
-        public bool isHelperUseful(Dictionary<string, dynamic> headers)
+        public bool IsHelperUseful(Dictionary<string, dynamic> headers)
         {
-            return device.isHelperUseful(headers);
+            return _device.IsHelperUseful(headers);
         }
     }
 }

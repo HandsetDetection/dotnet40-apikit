@@ -13,9 +13,13 @@ using System.Web.Script.Serialization;
 namespace HandsetDetectionAPI
 {
     //#define DEBUG = 0
-    public class HDBase
+    public class HdBase
     {
-        protected static Dictionary<string, dynamic> config = new Dictionary<string, dynamic>() {{"username", ""},
+        public static int MaxJsonLength = 40000000;
+
+        protected static JavaScriptSerializer Jss = new JavaScriptSerializer { MaxJsonLength = MaxJsonLength };
+
+        protected static Dictionary<string, dynamic> Config = new Dictionary<string, dynamic>() {{"username", ""},
 		{"secret", ""},
 		{"site_id", ""},
 		{"mobile_site", ""},
@@ -33,14 +37,14 @@ namespace HandsetDetectionAPI
 		{"cache_requests", true},
 		{"geoip", false},
 		{"log_unknown", true }};
-        protected Dictionary<string, dynamic> detectedRuleKey = new Dictionary<string, dynamic>();
-        string apiBase = "/apiv4/";
-        string deviceUAFilter = " _\\#-,./:\"'";
-        string extraUAFilter = " ";
+        protected Dictionary<string, dynamic> DetectedRuleKey = new Dictionary<string, dynamic>();
+        string _apiBase = "/apiv4/";
+        string _deviceUaFilter = " _\\#-,./:\"'";
+        string _extraUaFilter = " ";
         //string loggerHost = "logger.handsetdetection.com";
         //int loggerPort = 80;
 
-        protected Dictionary<string, dynamic> detectionConfig
+        protected Dictionary<string, dynamic> DetectionConfig
         {
             get
             {
@@ -62,10 +66,10 @@ namespace HandsetDetectionAPI
 
                 dicDeviceBiOrder.Add("android", dicAndroid);
 
-                List<List<string>> dicIOS = new List<List<string>>();
-                dicIOS.Add(new List<string>() { "utsname.brand", "utsname.machine" });
+                List<List<string>> dicIos = new List<List<string>>();
+                dicIos.Add(new List<string>() { "utsname.brand", "utsname.machine" });
 
-                dicDeviceBiOrder.Add("ios", dicIOS);
+                dicDeviceBiOrder.Add("ios", dicIos);
 
                 List<List<string>> dicWindowPhone = new List<List<string>>();
                 dicWindowPhone.Add(new List<string>() { "devicemanufacturer", "devicename" });
@@ -81,10 +85,10 @@ namespace HandsetDetectionAPI
 
                 dicPlatformBiOrder.Add("android", dicPlatformAndroid);
 
-                List<List<string>> dicPlatformIOS = new List<List<string>>();
-                dicPlatformIOS.Add(new List<string>() { "uidevice.systemName", "uidevice.systemversion" });
+                List<List<string>> dicPlatformIos = new List<List<string>>();
+                dicPlatformIos.Add(new List<string>() { "uidevice.systemName", "uidevice.systemversion" });
 
-                dicPlatformBiOrder.Add("ios", dicPlatformIOS);
+                dicPlatformBiOrder.Add("ios", dicPlatformIos);
 
 
                 List<List<string>> dicPlatformWindowPhone = new List<List<string>>();
@@ -106,45 +110,44 @@ namespace HandsetDetectionAPI
         /// <summary>
         /// Getting languages list from Languages.json file
         /// </summary>
-        public Dictionary<string, string> detectionLanguages
+        public Dictionary<string, string> DetectionLanguages
         {
             get
             {
-                var serializer = new JavaScriptSerializer();
+                JavaScriptSerializer serializer = new JavaScriptSerializer();
                 string jsonText = System.IO.File.ReadAllText(ApplicationRootDirectory + "\\Languages.json");
                 return serializer.Deserialize<Dictionary<string, string>>(jsonText);
             }
         }
-        protected static Dictionary<string, dynamic> reply = null;
+        protected static Dictionary<string, dynamic> Reply = null;
 
-        public HDBase()
+        public HdBase()
         {
-            deviceUAFilterList = deviceUAFilter.Split(new String[] { "//" }, StringSplitOptions.RemoveEmptyEntries).ToList();
-            extraUAFilterList = extraUAFilter.Split(new String[] { "//" }, StringSplitOptions.RemoveEmptyEntries).ToList();
+            DeviceUaFilterList = _deviceUaFilter.Split(new String[] { "//" }, StringSplitOptions.RemoveEmptyEntries).ToList();
+            ExtraUaFilterList = _extraUaFilter.Split(new String[] { "//" }, StringSplitOptions.RemoveEmptyEntries).ToList();
             ReadTimeout = 120;
-            Store = HDStore.Instance;
+            _store = HdStore.Instance;
         }
 
         /// <summary>
         /// Get reply status
         /// </summary>
         /// <returns>int error status, 0 is Ok, anything else is probably not Ok</returns>
-        public int getStatus()
+        public int GetStatus()
         {
-            if (reply.ContainsKey("status"))
-                return Convert.ToInt32(reply["status"]);
-            else
+            if (!Reply.ContainsKey("status"))
                 return 301;
+            return Convert.ToInt32(Reply["status"]);
         }
 
         /// <summary>
         /// Get reply message
         /// </summary>
         /// <returns>string A message</returns>
-        public string getMessage()
+        public string GetMessage()
         {
-            if (reply.ContainsKey("status"))
-                return reply["message"];
+            if (Reply.ContainsKey("status"))
+                return Reply["message"];
             else
                 return "Not Found";
         }
@@ -153,18 +156,18 @@ namespace HandsetDetectionAPI
         /// Get reply payload in array assoc format
         /// </summary>
         /// <returns></returns>
-        public Dictionary<string, dynamic> getReply()
+        public Dictionary<string, dynamic> GetReply()
         {
-            return reply;
+            return Reply;
         }
 
         /// <summary>
         /// Set a reply payload
         /// </summary>
         /// <param name="objReply"></param>
-        public void setReply(Dictionary<string, dynamic> objReply)
+        public void SetReply(Dictionary<string, dynamic> objReply)
         {
-            reply = objReply;
+            Reply = objReply;
         }
 
         /// <summary>
@@ -173,12 +176,12 @@ namespace HandsetDetectionAPI
         /// <param name="status"></param>
         /// <param name="msg"></param>
         /// <returns>true if no error, or false otherwise.</returns>
-        protected bool setError(int status, string msg)
+        protected bool SetError(int status, string msg)
         {
-            this.error = msg;
-            reply["status"] = status;
-            reply["message"] = msg;
-            return (status > 0 ? false : true);
+            this.Error = msg;
+            Reply["status"] = status;
+            Reply["message"] = msg;
+            return (status <= 0);
         }
 
         /// <summary>
@@ -186,42 +189,43 @@ namespace HandsetDetectionAPI
         /// </summary>
         /// <param name="str"></param>
         /// <returns>string Cleansed string</returns>
-        public string extraCleanStr(string str)
+        public string ExtraCleanStr(string str)
         {
             if (string.IsNullOrEmpty(str))
                 return string.Empty;
 
-            foreach (string item in extraUAFilterList)
+            for (int i = 0; i < ExtraUaFilterList.Count; i++)
             {
-                foreach (var itemChar in item)
+                for (int j = 0; j < ExtraUaFilterList[i].Length; j++)
                 {
-                    str = str.Replace(itemChar, ' ');
+                    str = str.Replace(ExtraUaFilterList[i][j], ' ');
                 }
             }
-            Regex reg = new Regex("[^(\x20-\x7F)]*");
-            str = reg.Replace(str, "");
+
+            str = _reg.Replace(str, "");
             return Regex.Replace(str, @"\s+", "");
         }
+        static Regex _reg = new Regex("[^(\x20-\x7F)]*", RegexOptions.Compiled);
 
         /// <summary>
         /// Standard string cleanse for device matching
         /// </summary>
         /// <param name="str"></param>
         /// <returns>string cleansed string</returns>
-        public string cleanStr(string str)
+        public string CleanStr(string str)
         {
             if (string.IsNullOrEmpty(str))
                 return string.Empty;
-            foreach (string item in deviceUAFilterList)
-            {
-                foreach (var itemChar in item)
-                {
-                    str = str.Replace(itemChar, ' ');
-                }
 
+            for (int i = 0; i < DeviceUaFilterList.Count; i++)
+            {
+                for (int j = 0; j < DeviceUaFilterList[i].Length; j++)
+                {
+                    str = str.Replace(DeviceUaFilterList[i][j], ' ');
+                }
             }
-            Regex reg = new Regex("[^(\x20-\x7F)]*");
-            str = reg.Replace(str, "");
+
+            str = _reg.Replace(str, "");
             return Regex.Replace(str, @"\s+", "");
         }
 
@@ -233,21 +237,18 @@ namespace HandsetDetectionAPI
         /// <returns>JsonData</returns>
         protected bool Remote(string suburl, Dictionary<string, dynamic> data, string filetype = "json", bool authRequired = true)
         {
-            reply = new Dictionary<string, dynamic>();
-            this.rawReply = new Dictionary<string, dynamic>();
-            this.setError(0, "OK");
-
-            var jss = new JavaScriptSerializer();
-            jss.MaxJsonLength = this.maxJsonLength;
+            Reply = new Dictionary<string, dynamic>();
+            this.RawReply = new Dictionary<string, dynamic>();
+            this.SetError(0, "OK");
 
             string request;
-            string requestUrl = apiBase + suburl;
-            int attempts = config["retries"] + 1;
+            string requestUrl = _apiBase + suburl;
+            int attempts = Config["retries"] + 1;
             int trys = 0;
             if (data == null || data.Count == 0)
                 request = "";
             else
-                request = jss.Serialize(data);
+                request = Jss.Serialize(data);
 
             bool status = false;
             bool success = false;
@@ -257,23 +258,23 @@ namespace HandsetDetectionAPI
             {
                 while (trys++ < attempts && success == false)
                 {
-                    status = post(config["api_server"], requestUrl, request, authRequired);
+                    status = Post(Config["api_server"], requestUrl, request, authRequired);
                     if (status)
                     {
-                        reply = jss.Deserialize<Dictionary<string, dynamic>>(rawreply);
+                        Reply = Jss.Deserialize<Dictionary<string, dynamic>>(Rawreply);
                         if (filetype.ToLower() == "json")
                         {
-                            if (reply.Count == 0)
+                            if (Reply.Count == 0)
                             {
-                                setError(299, "Error: Empty Reply.");
+                                SetError(299, "Error: Empty Reply.");
                             }
-                            else if (!reply.ContainsKey("status"))
+                            else if (!Reply.ContainsKey("status"))
                             {
-                                setError(299, "Error : No status set in reply");
+                                SetError(299, "Error : No status set in reply");
                             }
-                            else if (Convert.ToInt32(reply["status"]) != 0)
+                            else if (Convert.ToInt32(Reply["status"]) != 0)
                             {
-                                setError(reply["status"], reply["message"]);
+                                SetError(Reply["status"], Reply["message"]);
                                 trys = attempts + 1;
                             }
                             else
@@ -291,7 +292,7 @@ namespace HandsetDetectionAPI
             }
             catch (Exception ex)
             {
-                this.setError(299, "Exception : " + ex.Message + " " + ex.StackTrace);
+                this.SetError(299, "Exception : " + ex.Message + " " + ex.StackTrace);
             }
             return success;
         }
@@ -304,7 +305,7 @@ namespace HandsetDetectionAPI
         /// <param name="jsondata">Data in json format</param>
         /// <param name="authRequired">Is authentication reguired </param>
         /// <returns>false on failue (sets error), or string on success.</returns>
-        private bool post(string server, string service, string jsondata, bool authRequired = true)
+        private bool Post(string server, string service, string jsondata, bool authRequired = true)
         {
             try
             {
@@ -353,20 +354,20 @@ namespace HandsetDetectionAPI
                     Stream dataStream = req.GetRequestStream();
                     dataStream.Write(payload, 0, payload.Length);
                     dataStream.Close();
-                    var httpResponse = (HttpWebResponse)req.GetResponse();
-                    responseStream = new MemoryStream();
-                    responseStream = httpResponse.GetResponseStream();
-                    reader = new BinaryReader(responseStream);
+                    HttpWebResponse httpResponse = (HttpWebResponse)req.GetResponse();
+                    _responseStream = new MemoryStream();
+                    _responseStream = httpResponse.GetResponseStream();
+                    Reader = new BinaryReader(_responseStream);
 
                     if (httpResponse.StatusCode == HttpStatusCode.OK)
                     {
-                        if (this.isDownloadableFiles)
+                        if (this.IsDownloadableFiles)
                         {
-                            rawreply = "{\"status\":0}";
+                            Rawreply = "{\"status\":0}";
                         }
                         else
                         {
-                            rawreply = new StreamReader(responseStream).ReadToEnd();
+                            Rawreply = new StreamReader(_responseStream).ReadToEnd();
                         }
                         return true;
                     }
@@ -374,7 +375,7 @@ namespace HandsetDetectionAPI
             }
             catch (Exception ex)
             {
-                this.setError(299, "Exception : " + ex.Message + " " + ex.StackTrace);
+                this.SetError(299, "Exception : " + ex.Message + " " + ex.StackTrace);
             }
             return false;
         }
@@ -384,9 +385,9 @@ namespace HandsetDetectionAPI
         /// </summary>
         /// <param name="branchName"></param>
         /// <returns>platform name on success, false otherwise</returns>
-        public dynamic hasBiKeys(Dictionary<string, dynamic> headers)
+        public dynamic HasBiKeys(Dictionary<string, dynamic> headers)
         {
-            Dictionary<string, dynamic> biKeys = detectionConfig["device-bi-order"];
+            Dictionary<string, dynamic> biKeys = DetectionConfig["device-bi-order"];
             List<string> dataKeys = headers.Select(c => c.Key.ToLower()).ToList();
 
             // Fast check
@@ -400,18 +401,17 @@ namespace HandsetDetectionAPI
                 return false;
             }
 
-            int count = 0;
-            int total = 0;
             foreach (KeyValuePair<string, dynamic> platform in biKeys)
             {
                 List<List<string>> set = platform.Value;
-                foreach (var tuple in set)
+                for (int i = 0; i < set.Count; i++)
                 {
-                    List<string> tupleSet = tuple;
-                    count = 0;
-                    total = tupleSet.Count();
-                    foreach (var item in tupleSet)
+                    List<string> tupleSet = set[i];
+                    int count = 0;
+                    int total = tupleSet.Count();
+                    for (int index = 0; index < tupleSet.Count; index++)
                     {
+                        string item = tupleSet[index];
                         if (dataKeys.Contains(item))
                         {
                             count++;
@@ -421,7 +421,6 @@ namespace HandsetDetectionAPI
                             return platform;
                     }
                 }
-
             }
             return false;
         }
@@ -435,66 +434,54 @@ namespace HandsetDetectionAPI
         /// <param name="actualHeader"></param>
         /// <param name="className"></param>
         /// <returns>node (which is an id) on success, false otherwise</returns>
-        public dynamic getMatch(string header, string value, string subtree = "0", string actualHeader = "", string className = "device")
+        public dynamic GetMatch(string header, string value, string subtree = "0", string actualHeader = "", string className = "device")
         {
-            int f = 0;
-            int r = 0;
-            string treetag;
+            //int f = 0;
+            //int r = 0;
+            string branchName;
             value = value.ToLower();
-            if (className.ToLower() == "device")
+            if (string.Compare(className, "device", StringComparison.OrdinalIgnoreCase) == 0)
             {
-                value = cleanStr(value);
-                treetag = header + subtree;
+                value = CleanStr(value);
+                branchName = header + subtree;
             }
             else
             {
-                value = extraCleanStr(value);
-                treetag = header + subtree;
+                value = ExtraCleanStr(value);
+                branchName = header + subtree;
             }
 
             if (string.IsNullOrEmpty(value) || value.Length < 4)
             {
                 return false;
             }
-            Dictionary<string, dynamic> branch = getBranch(treetag);
-            string node = string.Empty;
+            Dictionary<string, dynamic> branch = GetBranch(branchName);
+
             if (branch == null)
             {
                 return false;
             }
 
-            if (header.ToLower() == "user-agent")
+            if (string.Compare(header, "user-agent", StringComparison.OrdinalIgnoreCase) == 0)
             {
 
-                foreach (var order in branch)
+                foreach (KeyValuePair<string, dynamic> filter in branch.Select(order => order.Value).OfType<Dictionary<string, dynamic>>().SelectMany(filters => filters))
                 {
-                    Dictionary<string, dynamic> filters = order.Value;
-                    foreach (var filter in filters)
+                    // ++f;
+                    if (!value.Contains(filter.Key)) continue;
+
+                    Dictionary<string, dynamic> matches = (Dictionary<string, dynamic>)filter.Value;
+                    foreach (KeyValuePair<string, dynamic> match in matches.Where(match => value.Contains(match.Key)))
                     {
-                        ++f;
-                        Dictionary<string, dynamic> matches = filter.Value;
-                        if (value.Contains(filter.Key))
-                        {
-                            foreach (var match in matches)
-                            {
-                                ++r;
-                                if (value.Contains(match.Key))
-                                {
-                                    detectedRuleKey[className] = cleanStr(header) + ":" + cleanStr(filter.Key) + ":" + cleanStr(match.Key);
-                                    return match.Value;
-                                }
-                            }
-                        }
+                        DetectedRuleKey[className] = CleanStr(header) + ":" + CleanStr(filter.Key) + ":" + CleanStr(match.Key);
+                        return match.Value;
                     }
                 }
             }
             else
             {
-                if (branch.ContainsKey(value))
-                {
-                    node = branch[value];
-                    return node;
-                }
+                if (branch.ContainsKey(value)) return branch[value];
+                return false;
             }
 
 
@@ -506,20 +493,18 @@ namespace HandsetDetectionAPI
         /// </summary>
         /// <param name="branchName">The name of the branch to find</param>
         /// <returns>an assoc array on success, false otherwise.</returns>
-        public Dictionary<string, dynamic> getBranch(string branchName)
+        public Dictionary<string, dynamic> GetBranch(string branchName)
         {
-            if (tree.ContainsKey(branchName) && tree[branchName] != null)
+            if (Tree != null && (Tree.ContainsKey(branchName) && Tree[branchName] != null))
             {
-                return tree[branchName];
+                return Tree[branchName];
             }
 
-            Dictionary<string, dynamic> tmp = Store.read(branchName);
-            if (tmp != null)
-            {
-                tree[branchName] = tmp;
-                return tmp;
-            }
-            return null;
+            Dictionary<string, dynamic> tmp = _store.Read(branchName);
+            if (tmp == null) return null;
+
+            Tree[branchName] = tmp;
+            return tmp;
         }
 
 
@@ -547,16 +532,16 @@ namespace HandsetDetectionAPI
 
 
 
-        private HDStore Store = null;
+        private HdStore _store = null;
         public bool UseProxy
         {
             get
             {
-                return config["use_proxy"];
+                return Config["use_proxy"];
             }
             set
             {
-                config["use_proxy"] = value;
+                Config["use_proxy"] = value;
             }
         }
 
@@ -565,11 +550,11 @@ namespace HandsetDetectionAPI
         {
             get
             {
-                return Convert.ToBoolean(config["cache_requests"]);
+                return Convert.ToBoolean(Config["cache_requests"]);
             }
             set
             {
-                config["cache_requests"] = value.ToString();
+                Config["cache_requests"] = value.ToString();
             }
         }
 
@@ -577,11 +562,11 @@ namespace HandsetDetectionAPI
         {
             get
             {
-                return Convert.ToBoolean(config["debug"]);
+                return Convert.ToBoolean(Config["debug"]);
             }
             set
             {
-                config["debug"] = value.ToString();
+                Config["debug"] = value.ToString();
             }
         }
 
@@ -589,22 +574,22 @@ namespace HandsetDetectionAPI
         {
             get
             {
-                return config["username"];
+                return Config["username"];
             }
             set
             {
-                config["username"] = value;
+                Config["username"] = value;
             }
         }
         public string Secret
         {
             get
             {
-                return config["secret"];
+                return Config["secret"];
             }
             set
             {
-                config["secret"] = value;
+                Config["secret"] = value;
             }
         }
 
@@ -612,11 +597,11 @@ namespace HandsetDetectionAPI
         {
             get
             {
-                return config["proxy_server"];
+                return Config["proxy_server"];
             }
             set
             {
-                config["proxy_server"] = value;
+                Config["proxy_server"] = value;
             }
         }
 
@@ -624,22 +609,22 @@ namespace HandsetDetectionAPI
         {
             get
             {
-                return config["proxy_port"];
+                return Config["proxy_port"];
             }
             set
             {
-                config["proxy_port"] = value;
+                Config["proxy_port"] = value;
             }
         }
         public string ProxyUser
         {
             get
             {
-                return config["proxy_user"];
+                return Config["proxy_user"];
             }
             set
             {
-                config["proxy_user"] = value;
+                Config["proxy_user"] = value;
             }
         }
 
@@ -647,17 +632,17 @@ namespace HandsetDetectionAPI
         {
             get
             {
-                return config["proxy_pass"];
+                return Config["proxy_pass"];
             }
             set
             {
-                config["proxy_pass"] = value;
+                Config["proxy_pass"] = value;
             }
         }
 
-        public Dictionary<string, dynamic> detectRequest = new Dictionary<string, dynamic>();
+        public Dictionary<string, dynamic> DetectRequest = new Dictionary<string, dynamic>();
 
-        public void setDetectVar(string key, string value) { detectRequest[key.ToLower()] = value; }
+        public void SetDetectVar(string key, string value) { DetectRequest[key.ToLower()] = value; }
 
 
 
@@ -668,27 +653,26 @@ namespace HandsetDetectionAPI
         {
             get
             {
-                return config["timeout"];
+                return Config["timeout"];
             }
             set
             {
-                config["timeout"] = value;
+                Config["timeout"] = value;
             }
         }
-        private Stream responseStream = null;
-        protected static BinaryReader reader { get; set; }
-        public bool isDownloadableFiles = false;
+        private Stream _responseStream = null;
+        protected static BinaryReader Reader { get; set; }
+        public bool IsDownloadableFiles = false;
 
-        public List<string> deviceUAFilterList;
-        public List<string> extraUAFilterList;
-        protected static string rawreply;
-        protected string log;
-        protected Dictionary<string, dynamic> rawReply = null;
-        protected Dictionary<string, dynamic> tree = new Dictionary<string, dynamic>();
-        public int maxJsonLength = 40000000;
+        public List<string> DeviceUaFilterList;
+        public List<string> ExtraUaFilterList;
+        protected static string Rawreply;
+        protected string Log;
+        protected Dictionary<string, dynamic> RawReply = null;
+        protected Dictionary<string, dynamic> Tree = new Dictionary<string, dynamic>();
+       
 
-
-        protected string error = "";
+        protected string Error = "";
 
 
 
@@ -713,14 +697,14 @@ namespace HandsetDetectionAPI
         /// <summary>
         /// Return replay
         /// </summary>
-        protected void setRawReply()
+        protected void SetRawReply()
         {
-            var jss = new JavaScriptSerializer();
-            jss.MaxJsonLength = maxJsonLength;
-            rawreply = jss.Serialize(reply);
+            JavaScriptSerializer jss = new JavaScriptSerializer();
+            jss.MaxJsonLength = MaxJsonLength;
+            Rawreply = jss.Serialize(Reply);
         }
 
-        public string getRawReply() { return rawreply; }
+        public string GetRawReply() { return Rawreply; }
         public string ApiServer { get; set; }
 
 

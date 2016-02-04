@@ -10,30 +10,31 @@ using System.Web.Script.Serialization;
 
 namespace HandsetDetectionAPI
 {
-    public class HDCache
+    public class HdCache
     {
-        private int maxJsonLength = 40000000;
-        string prefix = "hd4-";
+        private static int _maxJsonLength = 40000000;
+        string _prefix = "hd4-";
         //int duration = 7200;
-        ObjectCache myCache;
-        CacheItemPolicy policy = new CacheItemPolicy();
+        ObjectCache _myCache;
+        CacheItemPolicy _policy = new CacheItemPolicy();
+        JavaScriptSerializer _jss = new JavaScriptSerializer { MaxJsonLength = _maxJsonLength };
 
-        public HDCache()
+        public HdCache()
         {
-            policy.AbsoluteExpiration = new DateTimeOffset(DateTime.Now.AddHours(24));
-            NameValueCollection CacheSettings = new NameValueCollection(3);
-            CacheSettings.Add("CacheMemoryLimitMegabytes", Convert.ToString(200));
-            this.myCache = MemoryCache.Default;
+            _policy.AbsoluteExpiration = new DateTimeOffset(DateTime.Now.AddHours(24));
+            NameValueCollection cacheSettings = new NameValueCollection(3)
+            {
+                {"CacheMemoryLimitMegabytes", Convert.ToString(200)}
+            };
+            _myCache = MemoryCache.Default;
         }
 
-        public Dictionary<string, dynamic> write(string key, dynamic value)
+        public Dictionary<string, dynamic> Write(string key, dynamic value)
         {
             if (value != null && key != "")
             {
-                var jss = new JavaScriptSerializer();
-                jss.MaxJsonLength = this.maxJsonLength;
-                string storethis = jss.Serialize(value);
-                this.myCache.Set(this.prefix + key, storethis, policy);
+                string storethis = _jss.Serialize(value);
+                _myCache.Set(_prefix + key, storethis, _policy);
                 return value;
             }
             else
@@ -42,30 +43,28 @@ namespace HandsetDetectionAPI
             }
         }
 
-        public Dictionary<string, dynamic> read(string key)
+        public Dictionary<string, dynamic> Read(string key)
         {
             try
             {
-                string fromCache = this.myCache.Get(this.prefix + key) as string;
-                var jss = new JavaScriptSerializer();
-                jss.MaxJsonLength = this.maxJsonLength;
-                return jss.Deserialize<Dictionary<string, dynamic>>(fromCache);
+                string fromCache = _myCache.Get(_prefix + key) as string;
+                if (fromCache != null) return _jss.Deserialize<Dictionary<string, dynamic>>(fromCache);
             }
             catch (Exception)
             {
                 // Not in cache
-               
-                return null;
+
             }
+            return null;
         }
 
-        public bool purge()
+        public bool Purge()
         {
             try
             {
-                foreach (var item in this.myCache.Select(kvp => kvp.Key))
+                foreach (string item in _myCache.Select(kvp => kvp.Key))
                 {
-                    this.myCache.Remove(item);
+                    _myCache.Remove(item);
                 }
                 return true;
             }

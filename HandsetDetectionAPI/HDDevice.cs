@@ -9,41 +9,41 @@ using System.Web.Script.Serialization;
 
 namespace HandsetDetectionAPI
 {
-    public class HDDevice : HDBase
+    public class HdDevice : HdBase
     {
-        string DETECTIONV4_STANDARD = "0";
-        string DETECTIONV4_GENERIC = "1";
+        string _detectionv4Standard = "0";
+        string _detectionv4Generic = "1";
 
-        private HDStore Store;
-        private HDExtra Extra;
+        private HdStore _store;
+        private HdExtra _extra;
 
-        public HDDevice()
+        public HdDevice()
         {
-            this.Store = HDStore.Instance;
-            this.Extra = new HDExtra();
+            _store = HdStore.Instance;
+            _extra = new HdExtra();
         }
 
         /// <summary>
         /// Find all device vendors
         /// </summary>
         /// <returns>bool true on success, false otherwise. Use getReply to inspect results on success.</returns>
-        public bool localDeviceVendors()
+        public bool LocalDeviceVendors()
         {
-            reply = new Dictionary<string, dynamic>();
-            Dictionary<string, dynamic> data = fetchDevices();
+            Reply = new Dictionary<string, dynamic>();
+            Dictionary<string, dynamic> data = FetchDevices();
             if (data == null)
                 return false;
-            var temp = new HashSet<string>();
-            foreach (var item in data["devices"])
+            HashSet<string> temp = new HashSet<string>();
+            foreach (dynamic item in data["devices"])
             {
                 temp.Add(item["Device"]["hd_specs"]["general_vendor"].ToString());
             }
 
-            reply["vendor"] = temp.OrderBy(c => c).ToList();
-            reply["message"] = "OK";
-            reply["status"] = 0;
-            setRawReply();
-            return setError(0, "OK");
+            Reply["vendor"] = temp.OrderBy(c => c).ToList();
+            Reply["message"] = "OK";
+            Reply["status"] = 0;
+            SetRawReply();
+            return SetError(0, "OK");
         }
 
         /// <summary>
@@ -51,10 +51,10 @@ namespace HandsetDetectionAPI
         /// </summary>
         /// <param name="vendor">vendor The device vendor</param>
         /// <returns>true on success, false otherwise. Use getRawReply to inspect results on success</returns>
-        public bool localDeviceModels(string vendor)
+        public bool LocalDeviceModels(string vendor)
         {
-            reply = new Dictionary<string, dynamic>();
-            Dictionary<string, dynamic> data = fetchDevices();
+            Reply = new Dictionary<string, dynamic>();
+            Dictionary<string, dynamic> data = FetchDevices();
             if (data == null)
                 return false;
 
@@ -68,23 +68,23 @@ namespace HandsetDetectionAPI
                     temp.Add(item["Device"]["hd_specs"]["general_model"].ToString());
                 }
                 string key = vendor + " ";
-                if (item["Device"]["hd_specs"]["general_aliases"].ToString() != "")
+
+                if (item["Device"]["hd_specs"]["general_aliases"].ToString() == "") continue;
+
+                foreach (string aliasItem in item["Device"]["hd_specs"]["general_aliases"])
                 {
-                    foreach (string alias_item in item["Device"]["hd_specs"]["general_aliases"])
+                    int result = aliasItem.IndexOf(key, StringComparison.Ordinal);
+                    if (result == 0)
                     {
-                        int result = alias_item.IndexOf(key);
-                        if (result == 0)
-                        {
-                            temp.Add(alias_item.Replace(key, ""));
-                        }
+                        temp.Add(aliasItem.Replace(key, ""));
                     }
                 }
             }
-            reply["model"] = temp.OrderBy(c => c).ToList();
-            reply["status"] = 0;
-            reply["message"] = "OK";
-            this.setRawReply();
-            return this.setError(0, "OK");
+            Reply["model"] = temp.OrderBy(c => c).ToList();
+            Reply["status"] = 0;
+            Reply["message"] = "OK";
+            SetRawReply();
+            return SetError(0, "OK");
         }
 
         /// <summary>
@@ -93,30 +93,30 @@ namespace HandsetDetectionAPI
         /// <param name="vendor">vendor The device vendor</param>
         /// <param name="model">model The device model</param>
         /// <returns>true on success, false otherwise. Use getRawReply to inspect results on success</returns>
-        public bool localDeviceView(string vendor, string model)
+        public bool LocalDeviceView(string vendor, string model)
         {
-            Dictionary<string, dynamic> data = fetchDevices();
+            Dictionary<string, dynamic> data = FetchDevices();
             if (data == null)
                 return false;
             vendor = vendor.ToLower();
             model = model.ToLower();
             foreach (Dictionary<string, dynamic> item in data["devices"])
             {
-                if (vendor == (item["Device"]["hd_specs"]["general_vendor"].ToString().ToLower()) && model == item["Device"]["hd_specs"]["general_model"].ToString().ToLower())
+                if (string.Compare(vendor, (item["Device"]["hd_specs"]["general_vendor"].ToString().ToLower()), StringComparison.OrdinalIgnoreCase) == 0 && string.Compare(model, item["Device"]["hd_specs"]["general_model"].ToString(), StringComparison.OrdinalIgnoreCase) == 0)
                 {
-                    reply = new Dictionary<string, dynamic>();
-                    reply["device"] = item["Device"]["hd_specs"];
-                    reply["status"] = 0;
-                    reply["message"] = "OK";
-                    this.setRawReply();
-                    return this.setError(0, "OK");
+                    Reply = new Dictionary<string, dynamic>();
+                    Reply["device"] = item["Device"]["hd_specs"];
+                    Reply["status"] = 0;
+                    Reply["message"] = "OK";
+                    SetRawReply();
+                    return SetError(0, "OK");
                 }
             }
-            reply = new Dictionary<string, dynamic>();
-            reply["status"] = 301;
-            reply["message"] = "Nothing found";
-            this.setRawReply();
-            return this.setError(301, "Nothing found");
+            Reply = new Dictionary<string, dynamic>();
+            Reply["status"] = 301;
+            Reply["message"] = "Nothing found";
+            SetRawReply();
+            return SetError(301, "Nothing found");
         }
 
         /// <summary>
@@ -125,25 +125,25 @@ namespace HandsetDetectionAPI
         /// <param name="key">key</param>
         /// <param name="value">value</param>
         /// <returns>true on success, false otherwise. Use getRawReply to inspect results on success</returns>
-        public bool localWhatHas(string key, string value)
+        public bool LocalWhatHas(string key, string value)
         {
-            Dictionary<string, dynamic> data = this.fetchDevices();
+            Dictionary<string, dynamic> data = FetchDevices();
             if (data == null)
                 return false;
             value = value.ToLower();
             key = key.ToLower();
             string s = "";
             Type sType = s.GetType();
-            var temp = new ArrayList();
+            ArrayList temp = new ArrayList();
             foreach (Dictionary<string, dynamic> item in data["devices"])
             {
                 if (item["Device"]["hd_specs"][key].ToString() == "")
                     continue;
-                var match = false;
+                bool match = false;
                 if (item["Device"]["hd_specs"][key].GetType() == sType)
                 {
                     string check = item["Device"]["hd_specs"][key].ToString().ToLower();
-                    if (check.IndexOf(value) >= 0)
+                    if (check.IndexOf(value, StringComparison.Ordinal) >= 0)
                         match = true;
                 }
                 else
@@ -151,25 +151,25 @@ namespace HandsetDetectionAPI
                     foreach (string check in item["Device"]["hd_specs"][key])
                     {
                         string tmpcheck = check.ToLower();
-                        if (tmpcheck.IndexOf(value) >= 0)
+                        if (tmpcheck.IndexOf(value, StringComparison.Ordinal) >= 0)
                             match = true;
                     }
                 }
-                if (match == true)
+                if (match != true) continue;
+                Dictionary<string, string> sublist = new Dictionary<string, string>
                 {
-                    Dictionary<string, string> sublist = new Dictionary<string, string>();
-                    sublist.Add("id", item["Device"]["_id"].ToString());
-                    sublist.Add("general_vendor", item["Device"]["hd_specs"]["general_vendor"].ToString());
-                    sublist.Add("general_model", item["Device"]["hd_specs"]["general_model"].ToString());
-                    temp.Add(sublist);
-                }
+                    {"id", item["Device"]["_id"].ToString()},
+                    {"general_vendor", item["Device"]["hd_specs"]["general_vendor"].ToString()},
+                    {"general_model", item["Device"]["hd_specs"]["general_model"].ToString()}
+                };
+                temp.Add(sublist);
             }
-            reply = new Dictionary<string, dynamic>();
-            reply["devices"] = temp;
-            reply["status"] = 0;
-            reply["message"] = "OK";
-            this.setRawReply();
-            return this.setError(0, "OK");
+            Reply = new Dictionary<string, dynamic>();
+            Reply["devices"] = temp;
+            Reply["status"] = 0;
+            Reply["message"] = "OK";
+            SetRawReply();
+            return SetError(0, "OK");
         }
 
         /// <summary>
@@ -177,7 +177,7 @@ namespace HandsetDetectionAPI
         /// </summary>
         /// <param name="headers">headers HTTP headers as an assoc array. keys are standard http header names eg user-agent, x-wap-profile</param>
         /// <returns>true on success, false otherwise</returns>
-        public bool localDetect(Dictionary<string, dynamic> headers)
+        public bool LocalDetect(Dictionary<string, dynamic> headers)
         {
             string hardwareInfo = string.Empty;
 
@@ -187,12 +187,12 @@ namespace HandsetDetectionAPI
                 headers.Remove("x-local-hardwareinfo");
             }
 
-            if (!(this.hasBiKeys(headers) is Boolean))
+            if (!(HasBiKeys(headers) is bool))
             {
-                return v4MatchBuildInfo(headers);
+                return V4MatchBuildInfo(headers);
             }
 
-            return v4MatchHttpHeaders(headers, hardwareInfo);
+            return V4MatchHttpHeaders(headers, hardwareInfo);
         }
 
         /// <summary>
@@ -201,18 +201,18 @@ namespace HandsetDetectionAPI
         /// <param name="deviceId">deviceId : The ID of the device to check.</param>
         /// <param name="props">Properties extracted from the device (display_x, display_y etc .. )</param>
         /// <returns></returns>
-        public Dictionary<string, dynamic> findRating(string deviceId, Dictionary<string, dynamic> props)
+        public Dictionary<string, dynamic> FindRating(string deviceId, Dictionary<string, dynamic> props)
         {
-            var device = findById(deviceId);
+            Dictionary<string, dynamic> device = FindById(deviceId);
             if (device["Device"]["hd_specs"] is string)
                 return null;
 
-            var specs = device["Device"]["hd_specs"];
+            dynamic specs = device["Device"]["hd_specs"];
 
-            Double total = 0;
-            var result = new Dictionary<string, dynamic>();
-            var adjX = 0;
-            var adjY = 0;
+            double total = 0;
+            Dictionary<string, dynamic> result = new Dictionary<string, dynamic>();
+            int adjX = 0;
+            int adjY = 0;
             // Display Resolution - Worth 40 points if correct
             if (props["display_x"].ToString() != "" && props["display_y"].ToString() != "")
             {
@@ -252,8 +252,6 @@ namespace HandsetDetectionAPI
                 }
             }
 
-            var steps = 0;
-            var tmp = 0;
             // Benchmark - 10 points - Enough to tie break but not enough to overrule display or pixel ratio.
             if (!string.IsNullOrEmpty(props["benchmark"].ToString()))
             {
@@ -300,7 +298,7 @@ namespace HandsetDetectionAPI
                     }
                 }
             }
-            var valuesSum = result.Values.Sum(c => Convert.ToInt32(c));
+            int valuesSum = result.Values.Sum(c => Convert.ToInt32(c));
             result["score"] = (total == 0) ? (int)0 : (int)Math.Round(Convert.ToDouble(valuesSum / total) * 100, 2);
             result["possible"] = total;
 
@@ -319,7 +317,7 @@ namespace HandsetDetectionAPI
         /// <param name="specsField">string specsField : Either "platform', 'browser', 'language'</param>
         /// <param name="device"></param>
         /// <param name="specs"></param>
-        public void specsOverlay(string specsField, ref  dynamic device, Dictionary<string, dynamic> specs)
+        public void SpecsOverlay(string specsField, ref  dynamic device, Dictionary<string, dynamic> specs)
         {
             switch (specsField)
             {
@@ -373,13 +371,13 @@ namespace HandsetDetectionAPI
         /// </summary>
         /// <param name="hardwareInfo">hardwareInfo String of light weight device property information, separated by ':'</param>
         /// <returns>partial specs array of information we can use to improve detection accuracy</returns>
-        private Dictionary<string, dynamic> infoStringToArray(string hardwareInfo)
+        private Dictionary<string, dynamic> InfoStringToArray(string hardwareInfo)
         {
             Dictionary<string, dynamic> result = new Dictionary<string, dynamic>();
             // Remove the header or cookie name from the string 'x-specs1a='
-            if (hardwareInfo.IndexOf("=") >= 0)
+            if (hardwareInfo.IndexOf("=", StringComparison.Ordinal) >= 0)
             {
-                List<string> lstHardwareInfo = hardwareInfo.Split(new String[] { "=" }, StringSplitOptions.RemoveEmptyEntries).ToList();
+                List<string> lstHardwareInfo = hardwareInfo.Split(new string[] { "=" }, StringSplitOptions.RemoveEmptyEntries).ToList();
                 if (lstHardwareInfo.Count > 1)
                 {
                     hardwareInfo = lstHardwareInfo[1];
@@ -389,17 +387,17 @@ namespace HandsetDetectionAPI
                     return result;
                 }
             }
-            reply = new Dictionary<string, dynamic>();
-            var info = hardwareInfo.Split(new String[] { ":" }, StringSplitOptions.RemoveEmptyEntries).ToList();
+            Reply = new Dictionary<string, dynamic>();
+            List<string> info = hardwareInfo.Split(new string[] { ":" }, StringSplitOptions.RemoveEmptyEntries).ToList();
             if (info.Count != 4)
             {
                 return result;
             }
-            reply["display_x"] = Convert.ToInt32(info[0].Trim());
-            reply["display_y"] = Convert.ToInt32(info[1].Trim());
-            reply["display_pixel_ratio"] = Convert.ToInt32(info[2].Trim());
-            reply["benchmark"] = Convert.ToInt32(info[3].Trim());
-            return reply;
+            Reply["display_x"] = Convert.ToInt32(info[0].Trim());
+            Reply["display_y"] = Convert.ToInt32(info[1].Trim());
+            Reply["display_pixel_ratio"] = Convert.ToInt32(info[2].Trim());
+            Reply["benchmark"] = Convert.ToInt32(info[3].Trim());
+            return Reply;
         }
 
         /// <summary>
@@ -407,14 +405,11 @@ namespace HandsetDetectionAPI
         /// </summary>
         /// <param name="device"></param>
         /// <param name="infoArray"></param>
-        private void hardwareInfoOverlay(ref dynamic device, Dictionary<string, dynamic> infoArray)
+        private void HardwareInfoOverlay(ref dynamic device, Dictionary<string, dynamic> infoArray)
         {
-
             device["Device"]["hd_ops"]["display_x"] = infoArray["display_x"];
             device["Device"]["hd_ops"]["display_y"] = infoArray["display_y"];
             device["Device"]["hd_ops"]["display_pixel_ratio"] = infoArray["display_pixel_ratio"];
-
-
         }
 
         /// <summary>
@@ -429,28 +424,26 @@ namespace HandsetDetectionAPI
         /// </summary>
         /// <param name="headers"></param>
         /// <returns>array The matched device or null if not found</returns>
-        private dynamic matchDevice(Dictionary<string, dynamic> headers)
+        private dynamic MatchDevice(Dictionary<string, dynamic> headers)
         {
-            string agent = "";
             // Opera mini sometimes puts the vendor # model in the header - nice! ... sometimes it puts ? # ? in as well
             if (headers.ContainsKey("x-operamini-phone") && headers["x-operamini-phone"].trim() != "? # ?")
             {
-                var id = this.getMatch("x-operamini-phone", headers["x-operamini-phone"], DETECTIONV4_STANDARD, "x-operamini-phone", "device");
-                if (!(id is Boolean))
+                dynamic id = this.GetMatch("x-operamini-phone", headers["x-operamini-phone"], _detectionv4Standard, "x-operamini-phone", "device");
+                if (!(id is bool))
                 {
-                    return this.findById(id);
+                    return this.FindById(id);
                 }
-                agent = headers["x-operamini-phone"];
                 headers.Remove("x-operamini-phone");
             }
 
             // Profile header matching
             if (headers.ContainsKey("profile"))
             {
-                var id = this.getMatch("profile", headers["profile"], DETECTIONV4_STANDARD, "profile", "device");
-                if (!(id is Boolean))
+                dynamic id = this.GetMatch("profile", headers["profile"], _detectionv4Standard, "profile", "device");
+                if (!(id is bool))
                 {
-                    return this.findById(id);
+                    return this.FindById(id);
                 }
                 headers.Remove("profile");
             }
@@ -458,56 +451,46 @@ namespace HandsetDetectionAPI
             // Profile header matching
             if (headers.ContainsKey("x-wap-profile"))
             {
-                var id = this.getMatch("x-wap-profile", headers["x-wap-profile"], DETECTIONV4_STANDARD, "x-wap-profile", "device");
-                if (!(id is Boolean))
+                dynamic id = this.GetMatch("x-wap-profile", headers["x-wap-profile"], _detectionv4Standard, "x-wap-profile", "device");
+                if (!(id is bool))
                 {
-                    return this.findById(id);
+                    return this.FindById(id);
                 }
                 headers.Remove("x-wap-profile");
             }
 
-            List<string> order = this.detectionConfig["device-ua-order"];
-            foreach (var item in headers)
+            List<string> order = DetectionConfig["device-ua-order"];
+            foreach (KeyValuePair<string, dynamic> item in headers.Where(item => !order.Contains(item.Key) && Regex.IsMatch(item.Key, "^x-")))
             {
-                if (!order.Contains(item.Key) && Regex.IsMatch(item.Key, "^x-"))
-                {
-                    order.Add(item.Key);
-                }
+                order.Add(item.Key);
             }
 
-            foreach (var item in order)
+            foreach (dynamic id in from item in order where headers.ContainsKey(item) select this.GetMatch("user-agent", headers[item], _detectionv4Standard, item, "device") into id where !(id is bool) select id)
             {
-                if (headers.ContainsKey(item))
-                {
-                    var id = this.getMatch("user-agent", headers[item], DETECTIONV4_STANDARD, item, "device");
-                    if (!(id is Boolean))
-                    {
-                        return this.findById(id);
-                    }
-                }
+                return this.FindById(id);
             }
 
-            bool HasGetData = false;
+            bool hasGetData = false;
             dynamic itemid = "";
             // Generic matching - Match of last resort
             if (headers.ContainsKey("x-operamini-phone-ua"))
             {
-                itemid = this.getMatch("x-operamini-phone-ua", headers["x-operamini-phone-ua"], DETECTIONV4_GENERIC, "x-operamini-phone-ua", "device");
+                itemid = this.GetMatch("x-operamini-phone-ua", headers["x-operamini-phone-ua"], _detectionv4Generic, "x-operamini-phone-ua", "device");
             }
-            if (!HasGetData && headers.ContainsKey("agent"))
+            if (!hasGetData && headers.ContainsKey("agent"))
             {
-                itemid = this.getMatch("agent", headers["agent"], DETECTIONV4_GENERIC, "agent", "device");
+                itemid = this.GetMatch("agent", headers["agent"], _detectionv4Generic, "agent", "device");
             }
-            if (!HasGetData && headers.ContainsKey("user-agent"))
+            if (!hasGetData && headers.ContainsKey("user-agent"))
             {
-                itemid = this.getMatch("user-agent", headers["user-agent"], DETECTIONV4_GENERIC, "user-agent", "device");
+                itemid = this.GetMatch("user-agent", headers["user-agent"], _detectionv4Generic, "user-agent", "device");
                 if (itemid is string)
-                    HasGetData = true;
+                    hasGetData = true;
             }
 
-            if (HasGetData)
+            if (hasGetData)
             {
-                return this.findById(itemid);
+                return this.FindById(itemid);
             }
 
             return false;
@@ -518,30 +501,30 @@ namespace HandsetDetectionAPI
         /// </summary>
         /// <param name="id">id</param>
         /// <returns>list of device on success, false otherwise</returns>
-        public Dictionary<string, dynamic> findById(string id)
+        public Dictionary<string, dynamic> FindById(string id)
         {
-            return this.Store.read(string.Format("Device_{0}", id));
+            return _store.Read(string.Format("Device_{0}", id));
         }
 
         /// <summary>
         /// Internal helper for building a list of all devices.
         /// </summary>
         /// <returns>Dictionary List of all devices.</returns>
-        private Dictionary<string, dynamic> fetchDevices()
+        private Dictionary<string, dynamic> FetchDevices()
         {
             try
             {
-                Dictionary<string, dynamic> data = this.Store.fetchDevices();
-                if (!(data.Count() > 0))
+                Dictionary<string, dynamic> data = _store.FetchDevices();
+                if (!(data.Any()))
                 {
-                    this.setError(299, "Error : fetchDevices cannot read files from store.");
+                    SetError(299, "Error : fetchDevices cannot read files from store.");
 
                 }
                 return data;
             }
             catch (Exception ex)
             {
-                this.setError(299, "Exception : " + ex.Message + " " + ex.StackTrace);
+                SetError(299, "Exception : " + ex.Message + " " + ex.StackTrace);
             }
             return null;
         }
@@ -552,32 +535,32 @@ namespace HandsetDetectionAPI
         /// </summary>
         /// <param name="buildInfo">Buildinfo key/value array</param>
         /// <returns>mixed device array on success, false otherwise</returns>
-        public dynamic v4MatchBuildInfo(Dictionary<string, dynamic> buildInfo)
+        public dynamic V4MatchBuildInfo(Dictionary<string, dynamic> buildInfo)
         {
-            dynamic device = null;
-            dynamic platform = null;
-            this.detectedRuleKey = null;
-            reply = new Dictionary<string, dynamic>();
+
 
             // Nothing to check		
             if (buildInfo.Count == 0)
                 return false;
 
+
+            DetectedRuleKey = null;
+            Reply = new Dictionary<string, dynamic>();
             //this.buildInfo = buildInfo;
 
             // Device Detection
-            device = this.v4MatchBIHelper(buildInfo, "device");
+            dynamic device = V4MatchBiHelper(buildInfo);
 
             if (device == null || device.Count == 0)
                 return false;
 
             // Platform Detection
-            platform = v4MatchBIHelper(buildInfo, "platform");
-            if (platform != null && !(platform.Count == 0))
-                this.specsOverlay("platform", ref device, platform["Extra"]);
+            dynamic platform = V4MatchBiHelper(buildInfo, "platform");
+            if (platform != null && platform.Count != 0)
+                this.SpecsOverlay("platform", ref device, platform["Extra"]);
 
-            reply["hd_specs"] = device["Device"]["hd_specs"];
-            return this.setError(0, "OK");
+            Reply["hd_specs"] = device["Device"]["hd_specs"];
+            return SetError(0, "OK");
         }
 
         /// <summary>
@@ -586,28 +569,29 @@ namespace HandsetDetectionAPI
         /// <param name="buildInfo">A buildInfo key/value array</param>
         /// <param name="category"></param>
         /// <returns></returns>
-        private Dictionary<string, dynamic> v4MatchBIHelper(Dictionary<string, dynamic> buildInfo, string category = "device")
+        private Dictionary<string, dynamic> V4MatchBiHelper(Dictionary<string, dynamic> buildInfo, string category = "device")
         {
             // ***** Device Detection *****
-            var confBIKeys = new Dictionary<string, dynamic>();
-            if (detectionConfig.ContainsKey(string.Format("{0}-bi-order", category)))
+            Dictionary<string, dynamic> confBiKeys = new Dictionary<string, dynamic>();
+            if (DetectionConfig.ContainsKey(string.Format("{0}-bi-order", category)))
             {
-                confBIKeys = detectionConfig[string.Format("{0}-bi-order", category)];
+                confBiKeys = DetectionConfig[string.Format("{0}-bi-order", category)];
             }
 
-            if (confBIKeys.Count == 0 || buildInfo.Count == 0)
+            if (confBiKeys.Count == 0 || buildInfo.Count == 0)
                 return null;
 
-            var hints = new Dictionary<string, dynamic>();
-            foreach (KeyValuePair<string, dynamic> platform in confBIKeys)
+            foreach (KeyValuePair<string, dynamic> platform in confBiKeys)
             {
-                var value = "";
+                string value = "";
                 List<List<string>> platformValue = platform.Value;
-                foreach (List<string> tuple in platformValue)
+                for (int index = 0; index < platformValue.Count; index++)
                 {
+                    List<string> tuple = platformValue[index];
                     bool checking = true;
-                    foreach (var item in tuple)
+                    for (int i = 0; i < tuple.Count; i++)
                     {
+                        string item = tuple[i];
                         if (!buildInfo.ContainsKey(item))
                         {
                             checking = false;
@@ -619,37 +603,25 @@ namespace HandsetDetectionAPI
                         }
                     }
 
-                    if (checking)
+                    if (!checking) continue;
+
+                    value = value.Trim(("| \t\n\r\0\x0B").ToArray());
+                    string subtree = string.Compare(category, "device", StringComparison.OrdinalIgnoreCase) == 0 ? _detectionv4Standard : category;
+                    dynamic id = GetMatch("buildinfo", value, subtree, "buildinfo", category);
+                    if (!(id is bool))
                     {
-                        value = value.Trim(("| \t\n\r\0\x0B").ToArray());
-                        hints[value] = value;
-                        var subtree = (category == "device") ? DETECTIONV4_STANDARD : category;
-                        var _id = this.getMatch("buildinfo", value, subtree, "buildinfo", category);
-                        if (!(_id is Boolean))
-                        {
-                            return (category == "device") ? this.findById(_id) : this.Extra.findById(_id);
-                        }
+                        return string.Compare(category, "device", StringComparison.OrdinalIgnoreCase) == 0 ? this.FindById(id) : _extra.FindById(id);
                     }
                 }
             }
 
             // If we get this far then not found, so try generic.
-            var objplatform = this.hasBiKeys(buildInfo);
-            if (!(objplatform is Boolean))
-            {
-                var objTry = new string[2] { string.Format("generic|{0}", objplatform.Key.ToLower()), string.Format("{0}|generic", objplatform.Key.ToLower()) };
+            dynamic objplatform = HasBiKeys(buildInfo);
+            if (objplatform is bool) return null;
 
-                foreach (var objvalue in objTry)
-                {
-                    var subtree = (category == "device") ? DETECTIONV4_GENERIC : category;
-                    var _id = this.getMatch("buildinfo", objvalue, subtree, "buildinfo", category);
-                    if (!(_id is Boolean))
-                    {
-                        return (category == "device") ? this.findById(_id) : this.Extra.findById(_id);
-                    }
-                }
-            }
-            return null;
+            string[] objTry = new string[2] { string.Format("generic|{0}", objplatform.Key.ToLower()), string.Format("{0}|generic", objplatform.Key.ToLower()) };
+
+            return (from objvalue in objTry let subtree = string.Compare(category, "device", StringComparison.OrdinalIgnoreCase) == 0 ? _detectionv4Generic : category select GetMatch("buildinfo", objvalue, subtree, "buildinfo", category) into id where !(id is bool) select string.Compare(category, "device", StringComparison.OrdinalIgnoreCase) == 0 ? this.FindById(id) : _extra.FindById(id)).FirstOrDefault();
         }
 
         /// <summary>
@@ -661,17 +633,8 @@ namespace HandsetDetectionAPI
         /// <param name="headers">headers Set of sanitized http headers</param>
         /// <param name="hardwareInfo">hardwareInfo Information about the hardware</param>
         /// <returns></returns>
-        private dynamic v4MatchHttpHeaders(Dictionary<string, dynamic> headers, string hardwareInfo)
+        private dynamic V4MatchHttpHeaders(Dictionary<string, dynamic> headers, string hardwareInfo)
         {
-            dynamic device = new Dictionary<string, dynamic>();
-            dynamic platform = new Dictionary<string, dynamic>();
-            dynamic browser = new Dictionary<string, dynamic>();
-            dynamic app = new Dictionary<string, dynamic>();
-            dynamic ratingResult = new Dictionary<string, dynamic>();
-            this.detectedRuleKey = new Dictionary<string, dynamic>(); ;
-            reply = new Dictionary<string, dynamic>();
-            dynamic hwProps = "";
-
             if (headers == null || headers.Count == 0)
             {
                 return false;
@@ -687,29 +650,27 @@ namespace HandsetDetectionAPI
                 headers.Remove("host");
             }
 
+            DetectedRuleKey = new Dictionary<string, dynamic>();
+            Reply = new Dictionary<string, dynamic>();
+            dynamic hwProps = "";
             Dictionary<string, dynamic> deviceHeaders = new Dictionary<string, dynamic>();
             Dictionary<string, dynamic> extraHeaders = new Dictionary<string, dynamic>();
             // Sanitize headers & cleanup language
 
-            foreach (var item in headers)
+            foreach (KeyValuePair<string, dynamic> item in headers)
             {
                 string key = item.Key.ToLower();
                 string value = item.Value;
 
-                if (item.Key.ToLower() == "accept-language" || item.Key.ToLower() == "content-language")
+                if (string.Compare(item.Key, "accept-language", StringComparison.OrdinalIgnoreCase) == 0 || string.Compare(item.Key, "content-language", StringComparison.OrdinalIgnoreCase) == 0)
                 {
                     key = "language";
-                    var tmp = Regex.Split(Convert.ToString(item.Value).Replace(" ", ""), "[,;]");
+                    dynamic tmp = Regex.Split(Convert.ToString(item.Value).Replace(" ", ""), "[,;]");
                     if (tmp.Length == 0)
                     {
                         continue;
                     }
-                    else
-                    {
-                        value = cleanStr(tmp[0]);
-                    }
-
-
+                    value = CleanStr(tmp[0]);
                 }
 
                 if (deviceHeaders.ContainsKey(key))
@@ -724,67 +685,67 @@ namespace HandsetDetectionAPI
 
                 if (extraHeaders.ContainsKey(key))
                 {
-                    extraHeaders[key] = Extra.extraCleanStr(value);
+                    extraHeaders[key] = _extra.ExtraCleanStr(value);
                 }
                 else
                 {
-                    extraHeaders.Add(key, Extra.extraCleanStr(value));
+                    extraHeaders.Add(key, _extra.ExtraCleanStr(value));
 
                 }
             }
 
-            device = matchDevice(deviceHeaders);
+            dynamic device = MatchDevice(deviceHeaders);
 
-            if (device is Boolean)
+            if (device is bool)
             {
-                return setError(301, "Not Found");
+                return SetError(301, "Not Found");
             }
 
             if (!string.IsNullOrEmpty(hardwareInfo))
             {
-                hwProps = infoStringToArray(hardwareInfo);
+                hwProps = InfoStringToArray(hardwareInfo);
             }
 
             // Stop on detect set - Tidy up and return
-            if (!(device["Device"]["hd_ops"]["stop_on_detect"].ToString() == "") && device["Device"]["hd_ops"]["stop_on_detect"].ToString() == "1")
+            if (device["Device"]["hd_ops"]["stop_on_detect"].ToString() != "" && device["Device"]["hd_ops"]["stop_on_detect"].ToString() == "1")
             {
                 // Check for hardwareInfo overlay
                 if (!string.IsNullOrEmpty(device["Device"]["hd_ops"]["overlay_result_specs"]))
                 {
                     if (hwProps is IDictionary)
                     {
-                        hardwareInfoOverlay(ref device, (Dictionary<string, dynamic>)hwProps);
+                        HardwareInfoOverlay(ref device, (Dictionary<string, dynamic>)hwProps);
                     }
 
                 }
-                reply["hd_specs"] = device["Device"]["hd_specs"];
-                return setError(0, "OK");
+                Reply["hd_specs"] = device["Device"]["hd_specs"];
+                return SetError(0, "OK");
 
             }
             // Get extra info
 
-            platform = Extra.matchExtra("platform", extraHeaders);
-            browser = Extra.matchExtra("browser", extraHeaders);
-            app = Extra.matchExtra("app", extraHeaders);
-            var language = Extra.matchLanguage(extraHeaders);
+            dynamic platform = _extra.MatchExtra("platform", extraHeaders);
+            dynamic browser = _extra.MatchExtra("browser", extraHeaders);
+            dynamic app = _extra.MatchExtra("app", extraHeaders);
+            dynamic language = _extra.MatchLanguage(extraHeaders);
 
             // Find out if there is any contention on the detected rule.
-            var deviceList = this.getHighAccuracyCandidates();
+            dynamic deviceList = GetHighAccuracyCandidates();
 
-            if (!(deviceList is Boolean))
+            if (!(deviceList is bool))
             {
-                var pass1List = new List<string>();
+                List<string> pass1List = new List<string>();
                 // Resolve contention with OS check
-                if (!(platform is Boolean))
+                if (!(platform is bool))
                 {
-                    Extra.set(platform);
+                    _extra.Set(platform);
 
 
-                    foreach (var item in deviceList)
+                    foreach (dynamic item in deviceList)
                     {
-                        var tryDevice = this.findById(item);
-                        var modelno = tryDevice["Device"]["hd_specs"]["general_model"];
-                        if (Extra.verifyPlatform(tryDevice["Device"]["hd_specs"]))
+                        dynamic tryDevice = this.FindById(item);
+
+                        if (_extra.VerifyPlatform(tryDevice["Device"]["hd_specs"]))
                         {
                             pass1List.Add(item);
                         }
@@ -796,55 +757,52 @@ namespace HandsetDetectionAPI
                 {
                     // Score the list based on hardware
                     List<dynamic> result = new List<dynamic>();
-                    foreach (var id in pass1List)
+                    for (int index = 0; index < pass1List.Count; index++)
                     {
-                        var tmp = findRating(id, hwProps);
-                        if (tmp.Count > 0)
-                        {
-                            tmp["_id"] = id;
-                            result.Add(tmp);
-                        }
+                        string id = pass1List[index];
+                        dynamic tmp = FindRating(id, hwProps);
+
+                        if (tmp.Count <= 0) continue;
+
+                        tmp["_id"] = id;
+                        result.Add(tmp);
                     }
 
                     // Sort the results
                     //usort($result, array($this, 'hd_sortByScore'));
-                    ratingResult = result;
-                    var bestRatedDevice = GetDeviceFromRatingResult(result);
-                    var objDevice = this.findById(bestRatedDevice["_id"]);
+                    Dictionary<string, dynamic> bestRatedDevice = GetDeviceFromRatingResult(result);
+                    dynamic objDevice = this.FindById(bestRatedDevice["_id"]);
                     if (objDevice.Count > 0)
                     {
-                        var modelno1 = objDevice["Device"]["hd_specs"]["general_model"];
-
                         device = objDevice;
                     }
-
                 }
 
             }
 
             // Overlay specs
-            if (!(platform is Boolean))
+            if (!(platform is bool))
             {
-                specsOverlay("platform", ref device, platform["Extra"]);
+                SpecsOverlay("platform", ref device, platform["Extra"]);
             }
-            if (!(browser is Boolean))
+            if (!(browser is bool))
             {
-                specsOverlay("browser", ref device, browser["Extra"]);
+                SpecsOverlay("browser", ref device, browser["Extra"]);
             }
-            if (!(app is Boolean))
+            if (!(app is bool))
             {
-                specsOverlay("app", ref device, app["Extra"]);
+                SpecsOverlay("app", ref device, app["Extra"]);
             }
-            if (!(language is Boolean))
+            if (!(language is bool))
             {
-                specsOverlay("language", ref device, language["Extra"]);
+                SpecsOverlay("language", ref device, language["Extra"]);
             }
             // Overlay hardware info result if required
             if (device["Device"]["hd_ops"]["overlay_result_specs"].ToString() == "1" && !string.IsNullOrEmpty(hardwareInfo))
-                hardwareInfoOverlay(ref device, hwProps);
+                HardwareInfoOverlay(ref device, hwProps);
 
-            reply["hd_specs"] = device["Device"]["hd_specs"];
-            return setError(0, "OK");//for meantime
+            Reply["hd_specs"] = device["Device"]["hd_specs"];
+            return SetError(0, "OK");//for meantime
         }
 
         /// <summary>
@@ -852,10 +810,10 @@ namespace HandsetDetectionAPI
         /// 
         /// </summary>
         /// <returns>a list of candidate devices which have this detection rule or false otherwise.</returns>
-        private dynamic getHighAccuracyCandidates()
+        private dynamic GetHighAccuracyCandidates()
         {
-            var branch = this.getBranch("hachecks");
-            var ruleKey = detectedRuleKey["device"];
+            Dictionary<string, dynamic> branch = GetBranch("hachecks");
+            dynamic ruleKey = DetectedRuleKey["device"];
             if (branch.ContainsKey(ruleKey))
             {
                 return branch[ruleKey];
@@ -868,7 +826,7 @@ namespace HandsetDetectionAPI
         /// </summary>
         /// <param name="headers">$headers HTTP Headers</param>
         /// <returns>true if required, false otherwise</returns>
-        public bool isHelperUseful(Dictionary<string, dynamic> headers)
+        public bool IsHelperUseful(Dictionary<string, dynamic> headers)
         {
             if (headers.Count == 0)
                 return false;
@@ -876,13 +834,10 @@ namespace HandsetDetectionAPI
             headers.Remove("ip");
             headers.Remove("host");
 
-            if (!localDetect(headers))
+            if (!LocalDetect(headers))
                 return false;
 
-            if (getHighAccuracyCandidates() is Boolean)
-                return false;
-
-            return true;
+            return !(GetHighAccuracyCandidates() is bool);
         }
 
         /// <summary>
@@ -910,28 +865,25 @@ namespace HandsetDetectionAPI
         {
             Dictionary<string, dynamic> bestDevice = null;
 
-            foreach (Dictionary<string, dynamic> item in deviceResult)
+            for (int index = 0; index < deviceResult.Count; index++)
             {
+                Dictionary<string, dynamic> item = deviceResult[index];
                 if (bestDevice == null)
                 {
                     bestDevice = item;
                     continue;
                 }
-                else
+
+                if (item["score"] > bestDevice["score"])
                 {
-                    if (item["score"] > bestDevice["score"])
+                    bestDevice = item;
+                }
+                else if (item["score"] == bestDevice["score"])
+                {
+                    if (item["distance"] < bestDevice["distance"])
                     {
                         bestDevice = item;
                     }
-                    else if (item["score"] == bestDevice["score"])
-                    {
-                        if (item["distance"] < bestDevice["distance"])
-                        {
-                            bestDevice = item;
-                        }
-
-                    }
-
                 }
             }
 

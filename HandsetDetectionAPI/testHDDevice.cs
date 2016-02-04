@@ -13,31 +13,31 @@ namespace HandsetDetectionAPI
     // To perform tests we need to setup the environment by populating the the Storage layer with device specs.
     // So install the latest community edition so there is something to work with.
 
-    public class testHDDevice
+    public class TestHdDevice
     {
-        private HDStore Store;
-        private HDDevice Device;
+        private HdStore _store;
+        private HdDevice _device;
 
-        private static bool IsCommunitySetupDone = true;
-        Dictionary<string, dynamic> headers = new Dictionary<string, dynamic>() {
+        private static bool _isCommunitySetupDone = true;
+        Dictionary<string, dynamic> _headers = new Dictionary<string, dynamic>() {
         {"User-Agent","Mozilla/5.0 (iPhone; U; CPU iPhone OS 4_3 like Mac OS X; en-gb) AppleWebKit/533.17.9 (KHTML, like Gecko)"}};
 
         /// <summary>
         /// Setup community edition for tests. Takes 60s or so to download and install.
         /// </summary>
         [SetUp]
-        public void setUpBeforeClass()
+        public void SetUpBeforeClass()
         {
-            if (IsCommunitySetupDone)
+            if (_isCommunitySetupDone)
             {
                 HttpRequest request = new HttpRequest(null, "http://localhost", null);
-                HD4 objHD4 = new HD4(request, "/hdCloudConfig.json");
+                Hd4 objHd4 = new Hd4(request, "/hdCloudConfig.json");
                 string directoryPath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
                 string filePath = directoryPath + "\\" + "communityTest.zip";
-                Store = HDStore.Instance;
-                Store.setPath(directoryPath, true);
-                  objHD4.communityFetchArchive();
-                IsCommunitySetupDone = false;
+                _store = HdStore.Instance;
+                _store.SetPath(directoryPath, true);
+                  objHd4.CommunityFetchArchive();
+                _isCommunitySetupDone = false;
             }
         }
 
@@ -48,27 +48,27 @@ namespace HandsetDetectionAPI
        [Test]
         public void test57_tearDownAfterClass()
         {
-            Store = HDStore.Instance;
-            Store.purge();
+            _store = HdStore.Instance;
+            _store.Purge();
         }
 
         [Test]
         public void test55_IsHelperUsefulTrue()
         {
-            Device = new HDDevice();
-            Store.setPath("C://APIData");
+            _device = new HdDevice();
+            _store.SetPath("C://APIData");
           
-            var result = Device.isHelperUseful(headers);
+            var result = _device.IsHelperUseful(_headers);
             Assert.IsTrue(result);
         }
 
         [Test]
         public void test56_IsHelperUsefulFalse()
         {
-            Device = new HDDevice();
-            Store.setPath("C://APIData");
-            headers["User-Agent"] = "Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/41.0.2228.0 Safari/537.36";
-            var result = Device.isHelperUseful(headers);
+            _device = new HdDevice();
+            _store.SetPath("C://APIData");
+            _headers["User-Agent"] = "Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/41.0.2228.0 Safari/537.36";
+            var result = _device.IsHelperUseful(_headers);
             Assert.IsFalse(result);
         }
 
