@@ -19,11 +19,23 @@ namespace HandsetDetectionAPI
         {
             get
             {
-                return config["use_local"];
+                return Convert.ToBoolean(config["use_local"]);
             }
             set
             {
-                config["use_local"] = value;
+                config["use_local"] = value.ToString();
+            }
+        }
+
+        public bool Geoip
+        {
+            get
+            {
+                return Convert.ToBoolean(config["geoip"]);
+            }
+            set
+            {
+                config["geoip"] = value.ToString();
             }
         }
 
@@ -63,7 +75,7 @@ namespace HandsetDetectionAPI
             this.Request = request;
             if (configuration != null && configuration is IDictionary)
             {
-                foreach (var item in (Dictionary<string, dynamic>)configuration)
+                foreach (var item in (Dictionary<string, string>)configuration)
                 {
                     if (config.ContainsKey(item.Key))
                     {
@@ -88,7 +100,7 @@ namespace HandsetDetectionAPI
                 AddConfigSettingFromFile(ApplicationRootDirectory + configFile);
             }
 
-            this.debug = config["debug"];
+            this.debug = Debug;
 
             this.Store = HDStore.Instance;
             this.Store.setPath(config["filesdir"], true);
@@ -105,11 +117,11 @@ namespace HandsetDetectionAPI
         /// <param name="configFile"></param>
         private void AddConfigSettingFromFile(string configFile)
         {
-            Dictionary<string, dynamic> hdConfig = new Dictionary<string, dynamic>();
+            Dictionary<string, string> hdConfig = new Dictionary<string, string>();
 
             var serializer = new JavaScriptSerializer();
             string jsonText = System.IO.File.ReadAllText(configFile);
-            hdConfig = serializer.Deserialize<Dictionary<string, dynamic>>(jsonText);
+            hdConfig = serializer.Deserialize<Dictionary<string, string>>(jsonText);
 
             foreach (var item in hdConfig)
             {
@@ -145,7 +157,7 @@ namespace HandsetDetectionAPI
             AddKey("ipaddress", Request.UserHostAddress);
             AddKey("request_uri", Request.Url.ToString());
 
-            if (!this.UseLocal && config["geoip"])
+            if (!UseLocal && Geoip)
             {
                 // Ip address only used in cloud mode
                 this.detectRequest["ipaddress"] = this.Request.ServerVariables["REMOTE_ADDR"] != null ? this.Request.ServerVariables["REMOTE_ADDR"] : null;
@@ -291,9 +303,9 @@ namespace HandsetDetectionAPI
 
             string fastKey = "";
             // If caching enabled then check cache
-            if (config["cache_requests"])
+            if (Cacherequests)
             {
-                var headersKeys = requestBody.Keys.Select(c => c.ToLower()).OrderBy(c => c);
+                var headersKeys = requestBody.Values.Select(c => c).OrderBy(c => c);
                 var serializer = new JavaScriptSerializer();
                 fastKey = serializer.Serialize(headersKeys).Replace(" ", "");
                 var objReply = this.cache.read(fastKey);

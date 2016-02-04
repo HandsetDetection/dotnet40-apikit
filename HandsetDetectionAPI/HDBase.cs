@@ -559,6 +559,32 @@ namespace HandsetDetectionAPI
                 config["use_proxy"] = value;
             }
         }
+
+
+        public bool Cacherequests
+        {
+            get
+            {
+                return Convert.ToBoolean(config["cache_requests"]);
+            }
+            set
+            {
+                config["cache_requests"] = value.ToString();
+            }
+        }
+
+        public bool Debug
+        {
+            get
+            {
+                return Convert.ToBoolean(config["debug"]);
+            }
+            set
+            {
+                config["debug"] = value.ToString();
+            }
+        }
+
         public string Username
         {
             get

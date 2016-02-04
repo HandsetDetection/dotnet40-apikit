@@ -57,6 +57,8 @@
     <Reference Include="System.EnterpriseServices" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="Benchmark.aspx" />
+    <Content Include="benchmarkData.txt" />
     <Content Include="HandsetWithNetwork.aspx" />
     <Content Include="hdUltimateConfig.json" />
     <Content Include="Languages.json" />
@@ -77,6 +79,13 @@
     <Content Include="Web.config" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Benchmark.aspx.cs">
+      <DependentUpon>Benchmark.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Benchmark.aspx.designer.cs">
+      <DependentUpon>Benchmark.aspx</DependentUpon>
+    </Compile>
     <Compile Include="Default.aspx.cs">
       <DependentUpon>Default.aspx</DependentUpon>
       <SubType>ASPXCodeBehind</SubType>

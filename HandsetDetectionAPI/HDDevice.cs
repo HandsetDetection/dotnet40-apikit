@@ -254,10 +254,10 @@ namespace HandsetDetectionAPI
 
             var steps = 0;
             var tmp = 0;
-            // Benchmark - 20 points - Enough to tie break but not enough to overrule display or pixel ratio.
+            // Benchmark - 10 points - Enough to tie break but not enough to overrule display or pixel ratio.
             if (!string.IsNullOrEmpty(props["benchmark"].ToString()))
             {
-                total += 20;
+                total += 10;
                 if (specs["benchmark_min"].ToString() != "" && specs["benchmark_max"].ToString() != "")
                 {
                     if ((int)props["benchmark"] >= Convert.ToInt32(specs["benchmark_min"]) && (int)props["benchmark"] <= Convert.ToInt32(specs["benchmark_max"]))
@@ -270,33 +270,33 @@ namespace HandsetDetectionAPI
                     {
                         // Calculate benchmark chunk spans .. as a tie breaker for close calls.
                         result["benchmark"] = 0;
-                        steps = (int)Math.Round(Convert.ToDouble((Convert.ToDouble(specs["benchmark_max"]) - Convert.ToDouble(specs["benchmark_min"])) / 10.0));
-                        // Outside range
-                        if (steps > 0)
-                        {
-                            if ((int)props["benchmark"] >= Convert.ToInt32(specs["benchmark_max"]))
-                            {
-                                // Above range : Calculate how many steps above range
-                                int objbenchmacrk = props["benchmark"];
-                                int sobjbenchmacrk = Convert.ToInt32(specs["benchmark_max"]);
-                                Double objResult = Convert.ToDouble(Convert.ToDouble(objbenchmacrk - sobjbenchmacrk) / steps);
+                        //steps = (int)Math.Round(Convert.ToDouble((Convert.ToDouble(specs["benchmark_max"]) - Convert.ToDouble(specs["benchmark_min"])) / 10.0));
+                        //// Outside range
+                        //if (steps > 0)
+                        //{
+                        //    if ((int)props["benchmark"] >= Convert.ToInt32(specs["benchmark_max"]))
+                        //    {
+                        //        // Above range : Calculate how many steps above range
+                        //        int objbenchmacrk = props["benchmark"];
+                        //        int sobjbenchmacrk = Convert.ToInt32(specs["benchmark_max"]);
+                        //        Double objResult = Convert.ToDouble(Convert.ToDouble(objbenchmacrk - sobjbenchmacrk) / steps);
 
-                                tmp = (int)Math.Round(objResult, MidpointRounding.AwayFromZero);
-                                result["benchmark_span"] = (int)10 - (Math.Min(10, Math.Max(0, tmp)));
-                            }
-                            else if ((int)props["benchmark"] <= Convert.ToInt32(specs["benchmark_min"]))
-                            {
-                                // Below range : Calculate how many steps above range
-                                int objbenchmacrk = props["benchmark"];
-                                int sobjbenchmacrk = Convert.ToInt32(specs["benchmark_min"]);
+                        //        tmp = (int)Math.Round(objResult, MidpointRounding.AwayFromZero);
+                        //        result["benchmark_span"] = (int)10 - (Math.Min(10, Math.Max(0, tmp)));
+                        //    }
+                        //    else if ((int)props["benchmark"] <= Convert.ToInt32(specs["benchmark_min"]))
+                        //    {
+                        //        // Below range : Calculate how many steps above range
+                        //        int objbenchmacrk = props["benchmark"];
+                        //        int sobjbenchmacrk = Convert.ToInt32(specs["benchmark_min"]);
 
 
-                                Double objResult = Convert.ToDouble(Convert.ToDouble(sobjbenchmacrk - objbenchmacrk) / steps);
+                        //        Double objResult = Convert.ToDouble(Convert.ToDouble(sobjbenchmacrk - objbenchmacrk) / steps);
 
-                                tmp = (int)Math.Round(objResult, MidpointRounding.AwayFromZero);
-                                result["benchmark_span"] = (int)10 - (Math.Min(10, Math.Max(0, tmp)));
-                            }
-                        }
+                        //        tmp = (int)Math.Round(objResult, MidpointRounding.AwayFromZero);
+                        //        result["benchmark_span"] = (int)10 - (Math.Min(10, Math.Max(0, tmp)));
+                        //    }
+                        //}
                     }
                 }
             }
