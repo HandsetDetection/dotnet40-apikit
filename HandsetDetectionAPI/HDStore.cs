@@ -128,21 +128,21 @@ namespace HandsetDetectionAPI
         /// </summary>
         /// <param name="key">Key to search for</param>
         /// <returns> boolean true on success, false</returns>
-        public Dictionary<string, dynamic> Read(string key)
+        public T Read<T>(string key)
         {
-            Dictionary<string, dynamic> reply = _cache.Read(key);
-            if (reply != null && reply.Any())
+            var reply = _cache.Read<T>(key);
+            if (reply != null)
                 return reply;
 
-            reply = Fetch(key);
-            if (reply != null && reply.Any())
+            reply = Fetch<T>(key);
+            if (reply != null)
             {
                 _cache.Write(key, reply);
                 return reply;
             }
             else
             {
-                return null;
+                return default(T);
             }
 
         }
@@ -153,10 +153,20 @@ namespace HandsetDetectionAPI
         /// <param name="key">key</param>
         /// <returns></returns>
 
-        public Dictionary<string, dynamic> Fetch(string key)
+        public T Fetch<T>(string key)
         {
-            string jsonText = File.ReadAllText(StoreDirectory + "//" + key + ".json");
-            return !string.IsNullOrEmpty(jsonText) ? Jss.Deserialize<Dictionary<string, dynamic>>(jsonText) : null;
+            try
+            {
+                string jsonText = File.ReadAllText(StoreDirectory + "//" + key + ".json");
+                return !string.IsNullOrEmpty(jsonText) ? Jss.Deserialize<T>(jsonText) : default(T);
+
+            }
+            catch (Exception)
+            {
+
+                return default(T);
+            }
+
         }
 
         /// <summary>

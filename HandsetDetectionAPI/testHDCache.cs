@@ -32,7 +32,7 @@ namespace HandsetDetectionAPI
             string key = DateTime.Now.Ticks.ToString();
             _objCache.Write(key, _testData);
 
-            var reply = _objCache.Read(key);
+            var reply = _objCache.Read<Dictionary<string,dynamic>>(key);
 
             Assert.AreEqual(_testData, reply);
         }
@@ -52,7 +52,7 @@ namespace HandsetDetectionAPI
 
             foreach (var objKey in lstkeys)
             {
-                var reply = _objCache.Read(objKey);
+                var reply = _objCache.Read<Dictionary<string,dynamic>>(objKey);
                 Assert.AreEqual(reply, _testData);
             }
         }

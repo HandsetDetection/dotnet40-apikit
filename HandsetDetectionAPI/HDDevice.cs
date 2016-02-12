@@ -19,6 +19,7 @@ namespace HandsetDetectionAPI
 
         public HdDevice()
         {
+
             _store = HdStore.Instance;
             _extra = new HdExtra();
         }
@@ -427,7 +428,7 @@ namespace HandsetDetectionAPI
         private dynamic MatchDevice(Dictionary<string, dynamic> headers)
         {
             // Opera mini sometimes puts the vendor # model in the header - nice! ... sometimes it puts ? # ? in as well
-            if (headers.ContainsKey("x-operamini-phone") && headers["x-operamini-phone"].trim() != "? # ?")
+            if (headers.ContainsKey("x-operamini-phone") && headers["x-operamini-phone"].ToString() != "? # ?")
             {
                 dynamic id = this.GetMatch("x-operamini-phone", headers["x-operamini-phone"], _detectionv4Standard, "x-operamini-phone", "device");
                 if (!(id is bool))
@@ -503,7 +504,7 @@ namespace HandsetDetectionAPI
         /// <returns>list of device on success, false otherwise</returns>
         public Dictionary<string, dynamic> FindById(string id)
         {
-            return _store.Read(string.Format("Device_{0}", id));
+            return _store.Read<Dictionary<string, dynamic>>(string.Format("Device_{0}", id));
         }
 
         /// <summary>
@@ -812,7 +813,7 @@ namespace HandsetDetectionAPI
         /// <returns>a list of candidate devices which have this detection rule or false otherwise.</returns>
         private dynamic GetHighAccuracyCandidates()
         {
-            Dictionary<string, dynamic> branch = GetBranch("hachecks");
+            var branch = GetBranch<Dictionary<string, List<string>>>("hachecks");
             dynamic ruleKey = DetectedRuleKey["device"];
             if (branch.ContainsKey(ruleKey))
             {

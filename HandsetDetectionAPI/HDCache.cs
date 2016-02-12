@@ -29,33 +29,43 @@ namespace HandsetDetectionAPI
             _myCache = MemoryCache.Default;
         }
 
-        public Dictionary<string, dynamic> Write(string key, dynamic value)
+        public T Write<T>(string key, T value)
         {
-            if (value != null && key != "")
+
+            try
             {
-                string storethis = _jss.Serialize(value);
-                _myCache.Set(_prefix + key, storethis, _policy);
-                return value;
+                if (value != null && key != "")
+                {
+                    //  string storethis = _jss.Serialize(value);
+                    _myCache.Set(_prefix + key, value, _policy);
+                    return value;
+                }
+                else
+                {
+                    return default(T);
+                }
             }
-            else
+            catch (Exception)
             {
-                return null;
+
+                throw;
             }
+
         }
 
-        public Dictionary<string, dynamic> Read(string key)
+        public T Read<T>(string key)
         {
             try
             {
-                string fromCache = _myCache.Get(_prefix + key) as string;
-                if (fromCache != null) return _jss.Deserialize<Dictionary<string, dynamic>>(fromCache);
+                object fromCache = _myCache.Get(_prefix + key);
+                if (fromCache != null) return (T)Convert.ChangeType(fromCache, typeof(T));
             }
             catch (Exception)
             {
                 // Not in cache
 
             }
-            return null;
+            return default(T);
         }
 
         public bool Purge()

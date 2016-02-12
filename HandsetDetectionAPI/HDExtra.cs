@@ -62,7 +62,7 @@ namespace HandsetDetectionAPI
         /// <returns>array device on success, false otherwise</returns>
         public dynamic FindById(string id)
         {
-            return _store.Read(string.Format("Extra_{0}", id));
+            return _store.Read<Dictionary<string, dynamic>>(string.Format("Extra_{0}", id));
         }
 
 
@@ -102,7 +102,7 @@ namespace HandsetDetectionAPI
                 extra["Extra"]["hd_specs"]["general_language_full"] = languageItem.Value;
                 return extra;
             }
-            return false;
+            return extra;
         }
 
 

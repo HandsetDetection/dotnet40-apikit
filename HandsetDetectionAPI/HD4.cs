@@ -269,6 +269,8 @@ namespace HandsetDetectionAPI
         /// <returns>true on success, false otherwise. Use getReply to inspect results on success.</returns>
         public bool DeviceDetect(Dictionary<string, dynamic> data = null)
         {
+            
+            
             int id = 0;
             if (data == null || !data.Any() || !data.ContainsKey("id"))
             {
@@ -300,7 +302,7 @@ namespace HandsetDetectionAPI
             {
                 IOrderedEnumerable<dynamic> headersKeys = requestBody.Values.Select(c => c).OrderBy(c => c);
                 fastKey = Jss.Serialize(headersKeys).Replace(" ", "");
-                Dictionary<string, dynamic> objReply = _cache.Read(fastKey);
+                Dictionary<string, dynamic> objReply = _cache.Read<Dictionary<string, dynamic>>(fastKey);
                 if (objReply.Count > 0)
                 {
                     Reply = objReply;

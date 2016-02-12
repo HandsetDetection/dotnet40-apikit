@@ -179,8 +179,24 @@ namespace HandsetDetectionAPI
         protected bool SetError(int status, string msg)
         {
             this.Error = msg;
-            Reply["status"] = status;
-            Reply["message"] = msg;
+
+            if (Reply.ContainsKey("status"))
+            {
+                Reply["status"] = status;
+            }
+            else
+            {
+                Reply.Add("status", status);
+            }
+
+            if (Reply.ContainsKey("message"))
+            {
+                Reply["message"] = msg;
+            }
+            else
+            {
+                Reply.Add("message", msg);
+            }
             return (status <= 0);
         }
 
@@ -193,17 +209,22 @@ namespace HandsetDetectionAPI
         {
             if (string.IsNullOrEmpty(str))
                 return string.Empty;
-
-            for (int i = 0; i < ExtraUaFilterList.Count; i++)
+            StringBuilder b = new StringBuilder(str.ToLower());
+            foreach (char c in _extraUaFilter)
             {
-                for (int j = 0; j < ExtraUaFilterList[i].Length; j++)
-                {
-                    str = str.Replace(ExtraUaFilterList[i][j], ' ');
-                }
+                b.Replace(c.ToString(), string.Empty);
             }
+            //for (int i = 0; i < ExtraUaFilterList.Count; i++)
+            //{
+            //    for (int j = 0; j < ExtraUaFilterList[i].Length; j++)
+            //    {
+            //        str = str.Replace(ExtraUaFilterList[i][j], ' ');
+            //    }
+            //}
 
-            str = _reg.Replace(str, "");
-            return Regex.Replace(str, @"\s+", "");
+            //str = _reg.Replace(str, "");
+            //return Regex.Replace(str, @"\s+", "");
+            return b.ToString();
         }
         static Regex _reg = new Regex("[^(\x20-\x7F)]*", RegexOptions.Compiled);
 
@@ -216,17 +237,22 @@ namespace HandsetDetectionAPI
         {
             if (string.IsNullOrEmpty(str))
                 return string.Empty;
-
-            for (int i = 0; i < DeviceUaFilterList.Count; i++)
+            StringBuilder b = new StringBuilder(str.ToLower());
+            foreach (char c in _deviceUaFilter)
             {
-                for (int j = 0; j < DeviceUaFilterList[i].Length; j++)
-                {
-                    str = str.Replace(DeviceUaFilterList[i][j], ' ');
-                }
+                b.Replace(c.ToString(), string.Empty);
             }
+            //for (int i = 0; i < DeviceUaFilterList.Count; i++)
+            //{
+            //    for (int j = 0; j < DeviceUaFilterList[i].Length; j++)
+            //    {
+            //        str = str.Replace(DeviceUaFilterList[i][j], ' ');
+            //    }
+            //}
 
-            str = _reg.Replace(str, "");
-            return Regex.Replace(str, @"\s+", "");
+            //str = _reg.Replace(str, "");
+            //return Regex.Replace(str, @"\s+", "");
+            return b.ToString();
         }
 
         /// <summary>
@@ -243,7 +269,7 @@ namespace HandsetDetectionAPI
 
             string request;
             string requestUrl = _apiBase + suburl;
-            int attempts = Config["retries"] + 1;
+            int attempts = Convert.ToInt32(Config["retries"]) + 1;
             int trys = 0;
             if (data == null || data.Count == 0)
                 request = "";
@@ -455,31 +481,66 @@ namespace HandsetDetectionAPI
             {
                 return false;
             }
-            Dictionary<string, dynamic> branch = GetBranch(branchName);
-
-            if (branch == null)
-            {
-                return false;
-            }
+           
 
             if (string.Compare(header, "user-agent", StringComparison.OrdinalIgnoreCase) == 0)
             {
+                Dictionary<string, Dictionary<string, Dictionary<string, string>>> branch = GetBranch<Dictionary<string, Dictionary<string, Dictionary<string, string>>>>(branchName);
 
-                foreach (KeyValuePair<string, dynamic> filter in branch.Select(order => order.Value).OfType<Dictionary<string, dynamic>>().SelectMany(filters => filters))
+                if (branch == null)
                 {
-                    // ++f;
-                    if (!value.Contains(filter.Key)) continue;
+                    return false;
+                }
 
-                    Dictionary<string, dynamic> matches = (Dictionary<string, dynamic>)filter.Value;
-                    foreach (KeyValuePair<string, dynamic> match in matches.Where(match => value.Contains(match.Key)))
+                foreach (KeyValuePair<string, Dictionary<string, Dictionary<string, string>>> orders in branch)
+                {
+                    foreach (KeyValuePair<string, Dictionary<string, string>> filters in orders.Value)
                     {
-                        DetectedRuleKey[className] = CleanStr(header) + ":" + CleanStr(filter.Key) + ":" + CleanStr(match.Key);
-                        return match.Value;
+                        // f++;
+
+                        if (value.IndexOf(filters.Key, StringComparison.OrdinalIgnoreCase) >= 0)
+                        {
+                            foreach (KeyValuePair<string, string> matches in filters.Value)
+                            {
+                                // r++;
+
+                                if (value.IndexOf(matches.Key, StringComparison.OrdinalIgnoreCase) >= 0)
+                                {
+                                    DetectedRuleKey[className] = CleanStr(header) + ":" + CleanStr(filters.Key) + ":" + CleanStr(matches.Key);
+                                    return matches.Value;
+                                }
+                            }
+                        }
                     }
                 }
+
+                //foreach (KeyValuePair<string, dynamic> filter in branch.Select(order => order.Value).OfType<Dictionary<string, dynamic>>().SelectMany(filters => filters))
+                //{
+                //    // ++f;
+                //    if (!(value.IndexOf(filter.Key, StringComparison.OrdinalIgnoreCase) > 0)) continue;
+
+                //   var matches = ((Dictionary<string, dynamic>)filter.Value).Where(match => value.IndexOf(match.Key, StringComparison.OrdinalIgnoreCase) > 0);
+                //    foreach (KeyValuePair<string, dynamic> match in matches)
+                //    {
+                //        if (DetectedRuleKey.ContainsKey(className))
+                //        {
+                //            DetectedRuleKey.Add(className, CleanStr(header) + ":" + CleanStr(filter.Key) + ":" + CleanStr(match.Key));
+                //        }
+                //        else
+                //        {
+                //            DetectedRuleKey[className] = CleanStr(header) + ":" + CleanStr(filter.Key) + ":" + CleanStr(match.Key);
+                //        }
+                //        return match.Value;
+                //    }
+                //}
             }
             else
             {
+                Dictionary<string, string> branch = GetBranch<Dictionary<string, string>>(branchName);
+                if (branch == null)
+                {
+                    return false;
+                }
                 if (branch.ContainsKey(value)) return branch[value];
                 return false;
             }
@@ -493,15 +554,15 @@ namespace HandsetDetectionAPI
         /// </summary>
         /// <param name="branchName">The name of the branch to find</param>
         /// <returns>an assoc array on success, false otherwise.</returns>
-        public Dictionary<string, dynamic> GetBranch(string branchName)
+        public T GetBranch<T>(string branchName)
         {
             if (Tree != null && (Tree.ContainsKey(branchName) && Tree[branchName] != null))
             {
-                return Tree[branchName];
+                return (T)Convert.ChangeType(Tree[branchName], typeof(T));
             }
 
-            Dictionary<string, dynamic> tmp = _store.Read(branchName);
-            if (tmp == null) return null;
+            T tmp = _store.Read<T>(branchName);
+            if (tmp == null) return default(T);
 
             Tree[branchName] = tmp;
             return tmp;
@@ -537,7 +598,7 @@ namespace HandsetDetectionAPI
         {
             get
             {
-                return Config["use_proxy"];
+                return Convert.ToBoolean(Config["use_proxy"]);
             }
             set
             {
@@ -670,7 +731,7 @@ namespace HandsetDetectionAPI
         protected string Log;
         protected Dictionary<string, dynamic> RawReply = null;
         protected Dictionary<string, dynamic> Tree = new Dictionary<string, dynamic>();
-       
+
 
         protected string Error = "";
 

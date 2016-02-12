@@ -39,11 +39,11 @@ namespace HandsetDetectionAPI
             string key = "storeKey" + DateTime.Now.Ticks;
             _store.Write(key, _testData);
 
-            var data = _store.Read(key);
+            var data = _store.Read<Dictionary<string, dynamic>>(key);
 
             Assert.AreEqual(_testData, data);
 
-            var cacheData = _objCache.Read(key);
+            var cacheData = _objCache.Read<Dictionary<string,dynamic>>(key);
 
             Assert.AreEqual(_testData, cacheData);
 
@@ -61,10 +61,10 @@ namespace HandsetDetectionAPI
             string key = "storeKey2" + DateTime.Now.Ticks;
             _store.store(key, _testData);
 
-            var cahceData = _objCache.Read(key);
+            var cahceData = _objCache.Read<Dictionary<string,dynamic>>(key);
             Assert.AreNotEqual(_testData, cahceData);
 
-            var storeData = _store.Fetch(key);
+            var storeData = _store.Fetch<Dictionary<string, dynamic>>(key);
             Assert.AreEqual(_testData, storeData);
 
             bool isExists = System.IO.File.Exists(_store.StoreDirectory + "/" + key + ".json");
