@@ -318,7 +318,7 @@ namespace HandsetDetectionAPI
         /// <param name="specsField">string specsField : Either "platform', 'browser', 'language'</param>
         /// <param name="device"></param>
         /// <param name="specs"></param>
-        public void SpecsOverlay(string specsField, ref  dynamic device, Dictionary<string, dynamic> specs)
+        public Dictionary<string, dynamic> SpecsOverlay(string specsField, Dictionary<string, dynamic> device, Dictionary<string, dynamic> specs)
         {
             switch (specsField)
             {
@@ -361,6 +361,7 @@ namespace HandsetDetectionAPI
                         }
                     } break;
             }
+            return device;
         }
 
         /// <summary>
@@ -406,11 +407,12 @@ namespace HandsetDetectionAPI
         /// </summary>
         /// <param name="device"></param>
         /// <param name="infoArray"></param>
-        private void HardwareInfoOverlay(ref dynamic device, Dictionary<string, dynamic> infoArray)
+        private Dictionary<string, dynamic> HardwareInfoOverlay(Dictionary<string, dynamic> device, Dictionary<string, dynamic> infoArray)
         {
             device["Device"]["hd_ops"]["display_x"] = infoArray["display_x"];
             device["Device"]["hd_ops"]["display_y"] = infoArray["display_y"];
             device["Device"]["hd_ops"]["display_pixel_ratio"] = infoArray["display_pixel_ratio"];
+            return device;
         }
 
         /// <summary>
@@ -425,7 +427,7 @@ namespace HandsetDetectionAPI
         /// </summary>
         /// <param name="headers"></param>
         /// <returns>array The matched device or null if not found</returns>
-        private dynamic MatchDevice(Dictionary<string, dynamic> headers)
+        private Dictionary<string, dynamic> MatchDevice(Dictionary<string, dynamic> headers)
         {
             // Opera mini sometimes puts the vendor # model in the header - nice! ... sometimes it puts ? # ? in as well
             if (headers.ContainsKey("x-operamini-phone") && headers["x-operamini-phone"].ToString() != "? # ?")
@@ -494,7 +496,7 @@ namespace HandsetDetectionAPI
                 return this.FindById(itemid);
             }
 
-            return false;
+            return null;
         }
 
         /// <summary>
@@ -558,7 +560,9 @@ namespace HandsetDetectionAPI
             // Platform Detection
             dynamic platform = V4MatchBiHelper(buildInfo, "platform");
             if (platform != null && platform.Count != 0)
-                this.SpecsOverlay("platform", ref device, platform["Extra"]);
+            {
+                device = this.SpecsOverlay("platform", device, platform["Extra"]);
+            }
 
             Reply["hd_specs"] = device["Device"]["hd_specs"];
             return SetError(0, "OK");
@@ -695,9 +699,9 @@ namespace HandsetDetectionAPI
                 }
             }
 
-            dynamic device = MatchDevice(deviceHeaders);
+            Dictionary<string, dynamic> device = MatchDevice(deviceHeaders);
 
-            if (device is bool)
+            if (device == null)
             {
                 return SetError(301, "Not Found");
             }
@@ -715,7 +719,7 @@ namespace HandsetDetectionAPI
                 {
                     if (hwProps is IDictionary)
                     {
-                        HardwareInfoOverlay(ref device, (Dictionary<string, dynamic>)hwProps);
+                        device = HardwareInfoOverlay(device, (Dictionary<string, dynamic>)hwProps);
                     }
 
                 }
@@ -725,10 +729,10 @@ namespace HandsetDetectionAPI
             }
             // Get extra info
 
-            dynamic platform = _extra.MatchExtra("platform", extraHeaders);
-            dynamic browser = _extra.MatchExtra("browser", extraHeaders);
-            dynamic app = _extra.MatchExtra("app", extraHeaders);
-            dynamic language = _extra.MatchLanguage(extraHeaders);
+            Dictionary<string, dynamic> platform = _extra.MatchExtra("platform", extraHeaders);
+            Dictionary<string, dynamic> browser = _extra.MatchExtra("browser", extraHeaders);
+            Dictionary<string, dynamic> app = _extra.MatchExtra("app", extraHeaders);
+            Dictionary<string, dynamic> language = _extra.MatchLanguage(extraHeaders);
 
             // Find out if there is any contention on the detected rule.
             dynamic deviceList = GetHighAccuracyCandidates();
@@ -737,14 +741,14 @@ namespace HandsetDetectionAPI
             {
                 List<string> pass1List = new List<string>();
                 // Resolve contention with OS check
-                if (!(platform is bool))
+                if (platform != null)
                 {
                     _extra.Set(platform);
 
 
                     foreach (dynamic item in deviceList)
                     {
-                        dynamic tryDevice = this.FindById(item);
+                        Dictionary<string, dynamic> tryDevice = this.FindById(item);
 
                         if (_extra.VerifyPlatform(tryDevice["Device"]["hd_specs"]))
                         {
@@ -772,7 +776,7 @@ namespace HandsetDetectionAPI
                     // Sort the results
                     //usort($result, array($this, 'hd_sortByScore'));
                     Dictionary<string, dynamic> bestRatedDevice = GetDeviceFromRatingResult(result);
-                    dynamic objDevice = this.FindById(bestRatedDevice["_id"]);
+                    Dictionary<string, dynamic> objDevice = this.FindById(bestRatedDevice["_id"]);
                     if (objDevice.Count > 0)
                     {
                         device = objDevice;
@@ -782,25 +786,27 @@ namespace HandsetDetectionAPI
             }
 
             // Overlay specs
-            if (!(platform is bool))
+            if (platform != null)
             {
-                SpecsOverlay("platform", ref device, platform["Extra"]);
+                device = SpecsOverlay("platform", device, platform["Extra"]);
             }
-            if (!(browser is bool))
+            if (browser != null)
             {
-                SpecsOverlay("browser", ref device, browser["Extra"]);
+                device = SpecsOverlay("browser", device, browser["Extra"]);
             }
-            if (!(app is bool))
+            if (app != null)
             {
-                SpecsOverlay("app", ref device, app["Extra"]);
+                device = SpecsOverlay("app", device, app["Extra"]);
             }
-            if (!(language is bool))
+            if (language != null)
             {
-                SpecsOverlay("language", ref device, language["Extra"]);
+                device = SpecsOverlay("language", device, language["Extra"]);
             }
             // Overlay hardware info result if required
             if (device["Device"]["hd_ops"]["overlay_result_specs"].ToString() == "1" && !string.IsNullOrEmpty(hardwareInfo))
-                HardwareInfoOverlay(ref device, hwProps);
+            {
+                device = HardwareInfoOverlay(device, hwProps);
+            }
 
             Reply["hd_specs"] = device["Device"]["hd_specs"];
             return SetError(0, "OK");//for meantime

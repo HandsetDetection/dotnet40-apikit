@@ -51,7 +51,7 @@ namespace HandsetDetectionAPI
                     return extra;
                 }
             }
-            return false;
+            return null;
 
         }
 
@@ -71,7 +71,7 @@ namespace HandsetDetectionAPI
         /// </summary>
         /// <param name="headers">headers A key => value array of sanitized http headers</param>
         /// <returns>array Extra on success, false otherwise</returns>
-        public dynamic MatchLanguage(Dictionary<string, dynamic> headers)
+        public Dictionary<string, dynamic> MatchLanguage(Dictionary<string, dynamic> headers)
         {
             Dictionary<string, dynamic> extra = new Dictionary<string, dynamic>();
             // Mock up a fake Extra for merge into detection reply.

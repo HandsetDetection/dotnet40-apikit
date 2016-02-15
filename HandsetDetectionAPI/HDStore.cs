@@ -130,7 +130,7 @@ namespace HandsetDetectionAPI
         /// <returns> boolean true on success, false</returns>
         public T Read<T>(string key)
         {
-            var reply = _cache.Read<T>(key);
+            T reply = _cache.Read<T>(key);
             if (reply != null)
                 return reply;
 
@@ -138,7 +138,7 @@ namespace HandsetDetectionAPI
             if (reply != null)
             {
                 _cache.Write(key, reply);
-                return reply;
+                return reply.Clone();
             }
             else
             {
