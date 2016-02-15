@@ -13,13 +13,14 @@ namespace Web
     public partial class Default : System.Web.UI.Page
     {
 
-        public string configFile = "//hdUltimateConfig.json";
-        public Dictionary<string, dynamic> config = new Dictionary<string, dynamic>();
-        public HD4 objHD4;
+        public string ConfigFile = "//hdUltimateConfig.json";
+        public Dictionary<string, dynamic> Config = new Dictionary<string, dynamic>();
+        public Hd4 ObjHd4;
         protected void Page_Load(object sender, EventArgs e)
         {
+           
             // Ensure config file is setup
-            
+
             //if (!File.Exists(Server.MapPath(configFile)))
             //{
             //    throw new Exception("Config file not found");

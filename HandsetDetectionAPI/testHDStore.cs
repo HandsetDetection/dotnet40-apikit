@@ -9,24 +9,24 @@ using System.Web.Script.Serialization;
 
 namespace HandsetDetectionAPI
 {
-    public class testHDStore
+    public class TestHdStore
     {
-        JavaScriptSerializer jss = new JavaScriptSerializer();
-        private HDStore Store;
-        private HDCache objCache;
-        Dictionary<string, dynamic> testData = new Dictionary<string, dynamic>();
+        JavaScriptSerializer _jss = new JavaScriptSerializer();
+        private HdStore _store;
+        private HdCache _objCache;
+        Dictionary<string, dynamic> _testData = new Dictionary<string, dynamic>();
 
         [SetUp]
-        public void testSetupData()
+        public void TestSetupData()
         {
-            Store = HDStore.Instance;
-            objCache = new HDCache();
-            if (testData.Count == 0)
+            _store = HdStore.Instance;
+            _objCache = new HdCache();
+            if (_testData.Count == 0)
             {
-                testData.Add("roses", "red");
-                testData.Add("fish", "blue");
-                testData.Add("sugar", "sweet");
-                testData.Add("number", "4");
+                _testData.Add("roses", "red");
+                _testData.Add("fish", "blue");
+                _testData.Add("sugar", "sweet");
+                _testData.Add("number", "4");
             }
         }
 
@@ -37,18 +37,18 @@ namespace HandsetDetectionAPI
         public void test50_ReadWrite()
         {
             string key = "storeKey" + DateTime.Now.Ticks;
-            Store.write(key, testData);
+            _store.Write(key, _testData);
 
-            var data = Store.read(key);
+            var data = _store.Read<Dictionary<string, dynamic>>(key);
 
-            Assert.AreEqual(testData, data);
+            Assert.AreEqual(_testData, data);
 
-            var cacheData = objCache.read(key);
+            var cacheData = _objCache.Read<Dictionary<string,dynamic>>(key);
 
-            Assert.AreEqual(testData, cacheData);
+            Assert.AreEqual(_testData, cacheData);
 
-            bool IsExists = System.IO.File.Exists(Store.StoreDirectory + "/" + key + ".json");
-            Assert.IsTrue(IsExists);
+            bool isExists = System.IO.File.Exists(_store.StoreDirectory + "/" + key + ".json");
+            Assert.IsTrue(isExists);
 
         }
 
@@ -59,16 +59,16 @@ namespace HandsetDetectionAPI
         public void test51_StoreFetch()
         {
             string key = "storeKey2" + DateTime.Now.Ticks;
-            Store.store(key, testData);
+            _store.store(key, _testData);
 
-            var cahceData = objCache.read(key);
-            Assert.AreNotEqual(testData, cahceData);
+            var cahceData = _objCache.Read<Dictionary<string,dynamic>>(key);
+            Assert.AreNotEqual(_testData, cahceData);
 
-            var storeData = Store.fetch(key);
-            Assert.AreEqual(testData, storeData);
+            var storeData = _store.Fetch<Dictionary<string, dynamic>>(key);
+            Assert.AreEqual(_testData, storeData);
 
-            bool IsExists = System.IO.File.Exists(Store.StoreDirectory + "/" + key + ".json");
-            Assert.IsTrue(IsExists);
+            bool isExists = System.IO.File.Exists(_store.StoreDirectory + "/" + key + ".json");
+            Assert.IsTrue(isExists);
         }
 
         /// <summary>
@@ -77,10 +77,10 @@ namespace HandsetDetectionAPI
         [Test]
         public void test52_Purge()
         {
-            var lstFiles = Directory.GetFiles(Store.StoreDirectory, "*.json");
+            var lstFiles = Directory.GetFiles(_store.StoreDirectory, "*.json");
             Assert.IsNotEmpty(lstFiles);
-            Store.purge();
-            var lstFiles1 = Directory.GetFiles(Store.StoreDirectory, "*.json");
+            _store.Purge();
+            var lstFiles1 = Directory.GetFiles(_store.StoreDirectory, "*.json");
             Assert.IsEmpty(lstFiles1);
         }
 
@@ -91,10 +91,10 @@ namespace HandsetDetectionAPI
         public void test53_FetchDevices()
         {
             string key = "Device" + DateTime.Now.Ticks;
-            Store.store(key, testData);
-            var devices = Store.fetchDevices();
-            Assert.AreEqual(devices["devices"][0], testData);
-            Store.purge();
+            _store.store(key, _testData);
+            var devices = _store.FetchDevices();
+            Assert.AreEqual(devices["devices"][0], _testData);
+            _store.Purge();
 
         }
 
@@ -104,24 +104,24 @@ namespace HandsetDetectionAPI
         [Test]
         public void test54_MoveIn()
         {
-            var jsonString = jss.Serialize(testData);
+            var jsonString = _jss.Serialize(_testData);
             string filesuffix = DateTime.Now.Ticks.ToString();
-            string filePathFirst = Store.StoreDirectory + "/TemDevice" + filesuffix + ".json";
-            string filePathSecond = Store.StoreDirectory + "/Temp/TemDevice" + filesuffix + ".json";
+            string filePathFirst = _store.StoreDirectory + "/TemDevice" + filesuffix + ".json";
+            string filePathSecond = _store.StoreDirectory + "/Temp/TemDevice" + filesuffix + ".json";
             File.WriteAllText(filePathFirst, jsonString);
-            if (!Directory.Exists(Store.StoreDirectory + "/Temp"))
+            if (!Directory.Exists(_store.StoreDirectory + "/Temp"))
             {
-                Directory.CreateDirectory(Store.StoreDirectory + "/Temp");
+                Directory.CreateDirectory(_store.StoreDirectory + "/Temp");
             }
-            bool IsFileExist = File.Exists(filePathFirst);
-            bool IsSecondFileExist = File.Exists(filePathSecond);
-            Assert.IsTrue(IsFileExist);
-            Assert.IsFalse(IsSecondFileExist);
-            Store.moveIn(filePathFirst, filePathSecond);
-            IsFileExist = File.Exists(filePathFirst);
-            IsSecondFileExist = File.Exists(filePathSecond);
-            Assert.IsFalse(IsFileExist);
-            Assert.IsTrue(IsSecondFileExist);
+            bool isFileExist = File.Exists(filePathFirst);
+            bool isSecondFileExist = File.Exists(filePathSecond);
+            Assert.IsTrue(isFileExist);
+            Assert.IsFalse(isSecondFileExist);
+            _store.MoveIn(filePathFirst, filePathSecond);
+            isFileExist = File.Exists(filePathFirst);
+            isSecondFileExist = File.Exists(filePathSecond);
+            Assert.IsFalse(isFileExist);
+            Assert.IsTrue(isSecondFileExist);
 
         }
 
@@ -131,9 +131,9 @@ namespace HandsetDetectionAPI
         [Test]
         public void test55_Singleton()
         {
-            var store1 = HDStore.Instance;
-            var store2 = HDStore.Instance;
-            store1.setPath("tmp", true);
+            var store1 = HdStore.Instance;
+            var store2 = HdStore.Instance;
+            store1.SetPath("tmp", true);
             Assert.AreEqual(store2.StoreDirectory, store1.StoreDirectory);
         }
 

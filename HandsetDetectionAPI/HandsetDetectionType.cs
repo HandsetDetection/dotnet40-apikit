@@ -8,7 +8,7 @@ namespace HandsetDetectionAPI
 {
     public enum HandsetDetectionType
     {
-        DETECTIONV4_STANDARD = 0,
-        DETECTIONV4_GENERIC = 1
+        Detectionv4Standard = 0,
+        Detectionv4Generic = 1
     }
 }

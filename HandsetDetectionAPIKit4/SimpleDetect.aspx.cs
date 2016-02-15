@@ -13,27 +13,27 @@ namespace Web
      
     public partial class SimpleDetect : System.Web.UI.Page
     {
-        public string configFile = "//hdUltimateConfig.json";
-        public Dictionary<string, dynamic> config = new Dictionary<string, dynamic>();
-        public HD4 objHD4;
+        public string ConfigFile = "//hdUltimateConfig.json";
+        public Dictionary<string, dynamic> Config = new Dictionary<string, dynamic>();
+        public Hd4 ObjHd4;
         protected void Page_Load(object sender, EventArgs e)
         {
               // Ensure config file is setup
-            if (!File.Exists(Server.MapPath(configFile)))
+            if (!File.Exists(Server.MapPath(ConfigFile)))
             {
                 throw new Exception("Config file not found");
             }
 
             var serializer = new JavaScriptSerializer();
-            string jsonText = System.IO.File.ReadAllText(Server.MapPath(configFile));
-            config = serializer.Deserialize<Dictionary<string, dynamic>>(jsonText);
+            string jsonText = System.IO.File.ReadAllText(Server.MapPath(ConfigFile));
+            Config = serializer.Deserialize<Dictionary<string, dynamic>>(jsonText);
 
-            if (config["username"] == "your_api_username")
+            if (Config["username"] == "your_api_username")
             {
                 throw new Exception("Please configure your username, secret and site_id");
             }
 
-            objHD4 = new HD4(Request, configFile);
+            ObjHd4 = new Hd4(Request, ConfigFile);
 
             // This manually sets the headers that a Nokia N95 would set.
             // Other agents you also might like to try
