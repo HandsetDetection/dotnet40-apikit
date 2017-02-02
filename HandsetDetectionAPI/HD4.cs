@@ -303,7 +303,7 @@ namespace HandsetDetectionAPI
                 IOrderedEnumerable<dynamic> headersKeys = requestBody.Values.Select(c => c).OrderBy(c => c);
                 fastKey = Jss.Serialize(headersKeys).Replace(" ", "");
                 Dictionary<string, dynamic> objReply = _cache.Read<Dictionary<string, dynamic>>(fastKey);
-                if (objReply.Count > 0)
+                if (objReply != null && objReply.Count > 0)
                 {
                     Reply = objReply;
                     SetRawReply();
