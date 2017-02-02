@@ -30,7 +30,7 @@ namespace HandsetDetectionAPI
 
             if (!_devices.ContainsKey("NokiaN95"))
             {
-                string noikaN95JsonText = "{\"general_vendor\":\"Nokia\",\"general_model\":\"N95\",\"general_platform\":\"Symbian\",\"general_platform_version\":\"9.2\",\"general_browser\":\"\",\"general_browser_version\":\"\",\"general_image\":\"nokian95-1403496370-0.gif\",\"general_aliases\":[],\"general_eusar\":\"0.50\",\"general_battery\":[\"Li-Ion 950 mAh\",\"BL-5F\"],\"general_type\":\"Mobile\",\"general_cpu\":[\"Dual ARM 11\",\"332MHz\"],\"design_formfactor\":\"Dual Slide\",\"design_dimensions\":\"99 x 53 x 21\",\"design_weight\":\"120\",\"design_antenna\":\"Internal\",\"design_keyboard\":\"Numeric\",\"design_softkeys\":\"2\",\"design_sidekeys\":[\"Volume\",\"Camera\"],\"display_type\":\"TFT\",\"display_color\":\"Yes\",\"display_colors\":\"16M\",\"display_size\":\"2.6\\\"\",\"display_x\":\"240\",\"display_y\":\"320\",\"display_other\":[],\"memory_internal\":[\"160MB\",\"64MB RAM\",\"256MB ROM\"],\"memory_slot\":[\"microSD\",\"8GB\",\"128MB\"],\"network\":[\"GSM850\",\"GSM900\",\"GSM1800\",\"GSM1900\",\"UMTS2100\",\"HSDPA2100\",\"Infrared\",\"Bluetooth 2.0\",\"802.11b\",\"802.11g\",\"GPRS Class 10\",\"EDGE Class 32\"],\"media_camera\":[\"5MP\",\"2592x1944\"],\"media_secondcamera\":[\"QVGA\"],\"media_videocapture\":[\"VGA@30fps\"],\"media_videoplayback\":[\"MPEG4\",\"H.263\",\"H.264\",\"3GPP\",\"RealVideo 8\",\"RealVideo 9\",\"RealVideo 10\"],\"media_audio\":[\"MP3\",\"AAC\",\"AAC+\",\"eAAC+\",\"WMA\"],\"media_other\":[\"Auto focus\",\"Video stabilizer\",\"Video calling\",\"Carl Zeiss optics\",\"LED Flash\"],\"features\":[\"Unlimited entries\",\"Multiple numbers per contact\",\"Picture ID\",\"Ring ID\",\"Calendar\",\"Alarm\",\"To-Do\",\"Document viewer\",\"Calculator\",\"Notes\",\"UPnP\",\"Computer sync\",\"VoIP\",\"Music ringtones (MP3)\",\"Vibration\",\"Phone profiles\",\"Speakerphone\",\"Accelerometer\",\"Voice dialing\",\"Voice commands\",\"Voice recording\",\"Push-to-Talk\",\"SMS\",\"MMS\",\"Email\",\"Instant Messaging\",\"Stereo FM radio\",\"Visual radio\",\"Dual slide design\",\"Organizer\",\"Word viewer\",\"Excel viewer\",\"PowerPoint viewer\",\"PDF viewer\",\"Predictive text input\",\"Push to talk\",\"Voice memo\",\"Games\"],\"connectors\":[\"USB\",\"MiniUSB\",\"3.5mm Audio\",\"TV Out\"],\"general_platform_version_max\":\"\",\"general_app\":\"\",\"general_app_version\":\"\",\"general_language\":\"\",\"display_ppi\":154,\"display_pixel_ratio\":\"1.0\",\"benchmark_min\":0,\"benchmark_max\":0,\"general_app_category\":\"\",\"general_virtual\":0}";
+                string noikaN95JsonText = "{\"general_vendor\":\"Nokia\",\"general_model\":\"N95\",\"general_platform\":\"Symbian\",\"general_platform_version\":\"9.2\",\"general_browser\":\"\",\"general_browser_version\":\"\",\"general_image\":\"nokian95-1403496370-0.gif\",\"general_aliases\":[],\"general_eusar\":\"0.50\",\"general_battery\":[\"Li-Ion 950 mAh\",\"BL-5F\"],\"general_type\":\"Mobile\",\"general_cpu\":[\"Dual ARM 11\",\"332MHz\"],\"design_formfactor\":\"Dual Slide\",\"design_dimensions\":\"99 x 53 x 21\",\"design_weight\":\"120\",\"design_antenna\":\"Internal\",\"design_keyboard\":\"Numeric\",\"design_softkeys\":\"2\",\"design_sidekeys\":[\"Volume\",\"Camera\"],\"display_type\":\"TFT\",\"display_color\":\"Yes\",\"display_colors\":\"16M\",\"display_size\":\"2.6\\\"\",\"display_x\":\"240\",\"display_y\":\"320\",\"display_other\":[],\"memory_internal\":[\"160MB\",\"64MB RAM\",\"256MB ROM\"],\"memory_slot\":[\"microSD\",\"8GB\",\"128MB\"],\"network\":[\"GSM850\",\"GSM900\",\"GSM1800\",\"GSM1900\",\"UMTS2100\",\"HSDPA2100\",\"Infrared\",\"Bluetooth 2.0\",\"802.11b\",\"802.11g\",\"GPRS Class 10\",\"EDGE Class 32\"],\"media_camera\":[\"5MP\",\"2592x1944\"],\"media_secondcamera\":[\"QVGA\"],\"media_videocapture\":[\"VGA@30fps\"],\"media_videoplayback\":[\"MPEG4\",\"H.263\",\"H.264\",\"3GPP\",\"RealVideo 8\",\"RealVideo 9\",\"RealVideo 10\"],\"media_audio\":[\"MP3\",\"AAC\",\"AAC+\",\"eAAC+\",\"WMA\"],\"media_other\":[\"Auto focus\",\"Video stabilizer\",\"Video calling\",\"Carl Zeiss optics\",\"LED Flash\"],\"features\":[\"Unlimited entries\",\"Multiple numbers per contact\",\"Picture ID\",\"Ring ID\",\"Calendar\",\"Alarm\",\"To-Do\",\"Document viewer\",\"Calculator\",\"Notes\",\"UPnP\",\"Computer sync\",\"VoIP\",\"Music ringtones (MP3)\",\"Vibration\",\"Phone profiles\",\"Speakerphone\",\"Accelerometer\",\"Voice dialing\",\"Voice commands\",\"Voice recording\",\"Push-to-Talk\",\"SMS\",\"MMS\",\"Email\",\"Instant Messaging\",\"Stereo FM radio\",\"Visual radio\",\"Dual slide design\",\"Organizer\",\"Word viewer\",\"Excel viewer\",\"PowerPoint viewer\",\"PDF viewer\",\"Predictive text input\",\"Push to talk\",\"Voice memo\",\"Games\"],\"connectors\":[\"USB\",\"MiniUSB\",\"3.5mm Audio\",\"TV Out\"],\"general_platform_version_max\":\"\",\"general_app\":\"\",\"general_app_version\":\"\",\"general_language\":\"\",\"display_ppi\":154,\"display_pixel_ratio\":\"1.0\",\"benchmark_min\":0,\"benchmark_max\":0,\"general_app_category\":\"\",\"general_virtual\":0,\"display_css_screen_sizes\":[\"240x320\"]}";
                 _devices.Add("NokiaN95", _jss.Deserialize<Dictionary<string, dynamic>>(noikaN95JsonText));
             }
 
@@ -471,7 +471,7 @@ namespace HandsetDetectionAPI
         {
             Dictionary<string, dynamic> buildInfo = new Dictionary<string, dynamic>();
             buildInfo.Add("devicemanufacturer", "nokia");
-            buildInfo.Add("devicename", "RM-875");
+            buildInfo.Add("devicename", "Lumia 1020");
 
             bool result = _objHd4.DeviceDetect(buildInfo);
             Dictionary<string, dynamic> reply = _objHd4.GetReply();
@@ -985,7 +985,7 @@ namespace HandsetDetectionAPI
 
             Dictionary<string, dynamic> buildInfo = new Dictionary<string, dynamic>();
             buildInfo.Add("devicemanufacturer", "nokia");
-            buildInfo.Add("devicename", "RM-875");
+            buildInfo.Add("devicename", "Lumia 1020");
 
             bool result = _objHd4.DeviceDetect(buildInfo);
             Dictionary<string, dynamic> reply = _objHd4.GetReply();
@@ -1430,7 +1430,7 @@ namespace HandsetDetectionAPI
 
             Dictionary<string, dynamic> buildInfo = new Dictionary<string, dynamic>();
             buildInfo.Add("devicemanufacturer", "nokia");
-            buildInfo.Add("devicename", "RM-875");
+            buildInfo.Add("devicename", "Lumia 1020");
 
             bool result = _objHd4.DeviceDetect(buildInfo);
             Dictionary<string, dynamic> reply = _objHd4.GetReply();
